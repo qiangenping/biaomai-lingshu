@@ -1,0 +1,39 @@
+appId: ai.biaomai.lingshu
+productName: BiaoMai Lingshu
+copyright: Copyright © 2026 BiaoMai Lingshu Contributors
+directories:
+  output: release
+files:
+  - dist/**/*
+  - electron/**/*
+  - server/**/*
+  - package.json
+extraResources:
+  - from: ../../config
+    to: config
+  - from: ../../packs
+    to: packs
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+  hardenedRuntime: true
+  gatekeeperAssess: false
+dmg:
+  title: BiaoMai Lingshu Installer
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+publish:
+  provider: github
+  releaseType: release

@@ -6,7 +6,10 @@
   "description": "Open-source extensible AI desktop workbench (micro-kernel + hot-pluggable skills/MCP/canvas packs) with V1.0 global lead-generation suite.",
   "scripts": {
     "dev:workbench": "pnpm --filter @biaomai/workbench dev",
+    "dev:billing": "pnpm --filter @biaomai/billing-gateway dev",
     "build:workbench": "pnpm --filter @biaomai/workbench build",
+    "dist:mac": "pnpm --filter @biaomai/workbench dist:mac",
+    "dist:win": "pnpm --filter @biaomai/workbench dist:win",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.base.json --noEmit",

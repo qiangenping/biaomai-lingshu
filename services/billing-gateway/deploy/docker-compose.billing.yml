@@ -1,0 +1,22 @@
+# Production C/S Monetization Stack (Deploy on Global SG/US VPS or CN Aliyun/Tencent Cloud)
+# Run alongside vendor/aitoearn/docker-compose.yml:
+#   docker compose -f vendor/aitoearn/docker-compose.yml -f services/billing-gateway/deploy/docker-compose.billing.yml up -d
+services:
+  biaomai-billing-gateway:
+    image: node:22-alpine
+    container_name: biaomai-billing-gateway
+    working_dir: /app
+    restart: unless-stopped
+    volumes:
+      - ../../..:/app
+    environment:
+      BILLING_PORT: "19900"
+      BIAOMAI_GATEWAY_REGION: "${BIAOMAI_GATEWAY_REGION:-global-official}"
+      UPSTREAM_MCP_URL: "http://aitoearn-server:8080/api/unified/mcp"
+      LICENSE_SIGNING_SECRET: "${LICENSE_SIGNING_SECRET:?Set LICENSE_SIGNING_SECRET in .env}"
+      BILLING_ADMIN_TOKEN: "${BILLING_ADMIN_TOKEN:?Set BILLING_ADMIN_TOKEN in .env}"
+    command: ["npx", "tsx", "services/billing-gateway/src/server.ts"]
+    ports:
+      - "19900:19900"
+    networks:
+      - aitoearn-network

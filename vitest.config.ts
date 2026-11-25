@@ -10,6 +10,10 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['packages/*/tests/**/*.test.ts', 'packs/*/tests/**/*.test.ts'],
+    include: [
+      'packages/*/tests/**/*.test.ts',
+      'packs/*/tests/**/*.test.ts',
+      'services/*/tests/**/*.test.ts',
+    ],
   },
 });
