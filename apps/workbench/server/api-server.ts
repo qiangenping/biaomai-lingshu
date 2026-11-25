@@ -10,7 +10,7 @@ import {
   RegionRouter,
   runChatCompletion,
 } from '@biaomai/plugin-runtime';
-import { scoreExtractedComments, type RawCommentItem } from '@biaomai/ai-browser';
+import { IsolatedSessionManager, scoreExtractedComments, type RawCommentItem } from '@biaomai/ai-browser';
 import { SqliteWorkspaceStore } from '../../../packs/pack-leadgen-ops/core/sqlite-crm-store.js';
 import { computeChannelRoi } from '../../../packs/pack-leadgen-ops/core/attribution-service.js';
 
@@ -245,7 +245,7 @@ export function createWorkbenchApiServer(options: ApiServerOptions = {}) {
         return sendJson(res, 200, { ok: true, count: packLoader.listLoaded().length });
       }
 
-      // SQLite Persisted Leads CRM
+      // Persisted Leads CRM (zero fake clicks)
       if (req.method === 'GET' && pathname === '/api/leads') {
         const leads = store.listLeads();
         const roi = computeChannelRoi(
@@ -253,11 +253,34 @@ export function createWorkbenchApiServer(options: ApiServerOptions = {}) {
             shortLinkId: p.shortLinkId,
             platform: p.platformId,
             postTitle: p.title,
-            clicks: p.status === 'published' ? 120 : 0,
+            clicks: Number(p.clicks || 0),
           })),
           leads,
         );
         return sendJson(res, 200, { leads, roi });
+      }
+
+      // Persisted Isolated Browser Accounts
+      if (req.method === 'GET' && pathname === '/api/accounts') {
+        return sendJson(res, 200, { accounts: store.listAccounts() });
+      }
+
+      if (req.method === 'POST' && pathname === '/api/accounts') {
+        const body = await readJsonBody(req);
+        const platform = String(body.platform || '').trim();
+        const accountId = String(body.accountId || '').trim();
+        const displayLabel = String(body.displayLabel || `${platform}-${accountId}`).trim();
+        const partition = IsolatedSessionManager.buildPartitionName(platform, accountId);
+        const existing = store.listAccounts();
+        const account = store.addAccount({
+          platform,
+          accountId,
+          displayLabel,
+          partition,
+          cdpPort: 19220 + existing.length,
+          createdAt: new Date().toISOString(),
+        });
+        return sendJson(res, 201, { account });
       }
 
       if (req.method === 'GET' && pathname === '/api/leads/export.csv') {

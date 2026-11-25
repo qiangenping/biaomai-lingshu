@@ -6,8 +6,7 @@ import {
   type RegionProfile,
 } from '@biaomai/plugin-sdk';
 import {
-  IsolatedSessionManager,
-  scoreExtractedComments,
+  type IsolatedAccountSession,
   type ScoredCommentLead,
 } from '@biaomai/ai-browser';
 
@@ -80,11 +79,13 @@ export const App: React.FC = () => {
   const [llmApiKeyInput, setLlmApiKeyInput] = useState('');
   const [settingsFeedback, setSettingsFeedback] = useState('');
 
-  // Persisted data from real SQLite API server
+  // Persisted data from real local API server (zero hardcoded mock data)
   const [leads, setLeads] = useState<LeadRecord[]>([]);
   const [roiSummaries, setRoiSummaries] = useState<ChannelRoiSummary[]>([]);
   const [posts, setPosts] = useState<ScheduledPostItem[]>([]);
-  const [packCount, setPackCount] = useState(2);
+  const [sessions, setSessions] = useState<IsolatedAccountSession[]>([]);
+  const [activePartition, setActivePartition] = useState('');
+  const [packCount, setPackCount] = useState(0);
 
   const profile = PROFILES[regionId];
   const isZh = locale === 'zh-CN';
@@ -96,60 +97,28 @@ export const App: React.FC = () => {
     return reg;
   }, []);
 
-  const sessionMgr = useMemo(() => {
-    const mgr = new IsolatedSessionManager(19220);
-    mgr.createOrGet('xiaohongshu', 'brand-main', 'RedNote Brand Main');
-    mgr.createOrGet('tiktok', 'us-01', 'TikTok Global US-01');
-    mgr.createOrGet('linkedin', 'b2b-founder', 'LinkedIn B2B Founder');
-    return mgr;
-  }, []);
-  const sessions = sessionMgr.listSessions();
-  const [activePartition, setActivePartition] = useState(sessions[0].partition);
-
   const [draft, setDraft] = useState<DraftPreviewData>({
-    id: 'draft-1',
+    id: 'draft-new',
     platformId: 'tiktok',
-    title: 'How 1 Person Runs 14 Global Channels with Open-Source AI',
-    body: 'Unify Create, Publish, AI Browser Intent Radar, and SQLite Lead CRM in one Apache-2.0 workbench.',
-    hashtags: ['AILeadGen', 'OpenSource', 'BiaoMaiLingshu'],
-    ctaHook: 'Try BiaoMai Lingshu',
-    shortLinkUrl: 'https://bm.link/sl-tt-01',
+    title: '',
+    body: '',
+    hashtags: [],
+    ctaHook: '',
+    shortLinkUrl: '',
     aspect: '9:16',
   });
 
-  const [scoredLeads, setScoredLeads] = useState<ScoredCommentLead[]>(() =>
-    scoreExtractedComments([
-      {
-        commentId: 'c-101',
-        nickname: 'OpsLead_CN',
-        content: '请问私有化部署怎么收费？加我微信 wx_demo99 发一份报价',
-        likeCount: 14,
-        profileUrl: 'https://example.com/private-uid',
-      },
-      {
-        commentId: 'c-102',
-        nickname: 'IndieMaker_US',
-        content: 'Does it support TikTok and LinkedIn with our own OpenCode model?',
-        likeCount: 8,
-      },
-    ]),
-  );
-
-  const [messages, setMessages] = useState<ChatMsg[]>([
-    {
-      id: 'm1',
-      role: 'assistant',
-      text: '标脉灵枢已连接本地持久化 SQLite 服务。点击右上角「⚙️ 设置」配置大模型与 MCP API Key 后即可发起真实 AI 对话与全平台分发。',
-    },
-  ]);
+  const [scoredLeads, setScoredLeads] = useState<ScoredCommentLead[]>([]);
+  const [messages, setMessages] = useState<ChatMsg[]>([]);
 
   const refreshData = async () => {
     try {
-      const [settingsRes, leadsRes, postsRes, packsRes] = await Promise.all([
+      const [settingsRes, leadsRes, postsRes, packsRes, accountsRes] = await Promise.all([
         fetch('/api/settings').then((r) => r.json()),
         fetch('/api/leads').then((r) => r.json()),
         fetch('/api/posts').then((r) => r.json()),
         fetch('/api/packs').then((r) => r.json()),
+        fetch('/api/accounts').then((r) => r.json()),
       ]);
       if (settingsRes.activeRegion) setRegionId(settingsRes.activeRegion);
       if (settingsRes.llm?.baseUrl) setLlmBaseUrl(settingsRes.llm.baseUrl);
@@ -158,6 +127,12 @@ export const App: React.FC = () => {
       if (Array.isArray(leadsRes.roi)) setRoiSummaries(leadsRes.roi);
       if (Array.isArray(postsRes.posts)) setPosts(postsRes.posts);
       if (Array.isArray(packsRes.packs)) setPackCount(packsRes.packs.length);
+      if (Array.isArray(accountsRes.accounts)) {
+        setSessions(accountsRes.accounts);
+        if (!activePartition && accountsRes.accounts.length > 0) {
+          setActivePartition(accountsRes.accounts[0].partition);
+        }
+      }
     } catch {
       // Backend may be starting up
     }
@@ -278,31 +253,48 @@ export const App: React.FC = () => {
     await refreshData();
   };
 
-  const handleAnalyzeBrowser = async () => {
+  const handleCreateAccount = async (platform: string, accountId: string, displayLabel: string) => {
+    const res = await fetch('/api/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform, accountId, displayLabel }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      await refreshData();
+      if (data.account?.partition) setActivePartition(data.account.partition);
+    }
+  };
+
+  const handleAnalyzeBrowser = async (pastedCommentsText?: string) => {
     if (window.biaomaiElectron?.isElectron) {
       const res = await window.biaomaiElectron.analyzeVisibleComments();
-      if (res.ok && res.scored.length > 0) {
+      if (res.ok) {
         setScoredLeads(res.scored);
         return;
       }
     }
+    const lines = (pastedCommentsText || '')
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    if (lines.length === 0) return;
+
     const res = await fetch('/api/browser/score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        comments: [
-          {
-            commentId: `live-${Date.now()}`,
-            nickname: 'LiveVisitor',
-            content: '请问这套私有化部署怎么收费？支持 TikTok 和小红书吗？',
-            likeCount: 6,
-          },
-        ],
+        comments: lines.map((content, idx) => ({
+          commentId: `c-${Date.now()}-${idx}`,
+          nickname: `Commenter_${idx + 1}`,
+          content,
+          likeCount: 0,
+        })),
       }),
     });
     const data = await res.json();
     if (Array.isArray(data.scored)) {
-      setScoredLeads((prev) => [...data.scored, ...prev]);
+      setScoredLeads(data.scored);
     }
   };
 
@@ -588,6 +580,7 @@ export const App: React.FC = () => {
               sessions={sessions}
               activePartition={activePartition}
               onSelectPartition={setActivePartition}
+              onCreateAccount={handleCreateAccount}
               scoredLeads={scoredLeads}
               onAnalyzeCurrentPage={handleAnalyzeBrowser}
               onAdoptReply={handleAdoptReply}
