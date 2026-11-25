@@ -1,0 +1,42 @@
+{
+  "brand": {
+    "name": "标脉灵枢",
+    "tagline": "开源可插拔 AI 办公与全球获客工作台"
+  },
+  "topbar": {
+    "newTask": "新建获客任务",
+    "regionLabel": "运行区域",
+    "mcpReady": "MCP 已就绪",
+    "engineLabel": "Agent 引擎",
+    "marketplace": "插件与技能市场"
+  },
+  "canvases": {
+    "preview": "获客内容预览",
+    "calendar": "全球排期日历",
+    "browserRadar": "AI 浏览器意向雷达",
+    "leadCrm": "线索漏斗 CRM & ROI"
+  },
+  "browser": {
+    "analyzeCurrentPage": "AI 意向雷达分析当前页",
+    "extractCompetitor": "提取竞品爆款结构",
+    "adoptAndFill": "采纳并填入回复",
+    "addToCrm": "加入线索 CRM",
+    "stopBeforeSendHint": "已为您填入回复，请人工确认后点击发送"
+  },
+  "crm": {
+    "stages": {
+      "new": "新意向",
+      "engaged": "已互动回复",
+      "qualified": "私域/表单留资",
+      "opportunity": "商机跟进",
+      "won": "成交客户"
+    },
+    "exportCsv": "导出 CSV",
+    "roiAttribution": "渠道与内容 ROI 归因"
+  },
+  "approval": {
+    "title": "需要人工确认（合规门禁）",
+    "cancel": "取消",
+    "confirm": "确认执行"
+  }
+}

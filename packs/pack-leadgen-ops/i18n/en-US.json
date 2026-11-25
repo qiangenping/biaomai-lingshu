@@ -1,0 +1,42 @@
+{
+  "brand": {
+    "name": "BiaoMai Lingshu",
+    "tagline": "Open-Source Extensible AI Workbench & Global Lead-Gen Platform"
+  },
+  "topbar": {
+    "newTask": "New Lead-Gen Task",
+    "regionLabel": "Region Profile",
+    "mcpReady": "MCP Ready",
+    "engineLabel": "Agent Engine",
+    "marketplace": "Plugins & Skills Market"
+  },
+  "canvases": {
+    "preview": "Content Preview",
+    "calendar": "Global Calendar",
+    "browserRadar": "AI Browser Radar",
+    "leadCrm": "Lead CRM & ROI"
+  },
+  "browser": {
+    "analyzeCurrentPage": "Analyze Visible Comments",
+    "extractCompetitor": "Extract Competitor Formula",
+    "adoptAndFill": "Adopt & Prefill Reply",
+    "addToCrm": "Add to Lead CRM",
+    "stopBeforeSendHint": "Reply prefilled. Review and click Send manually."
+  },
+  "crm": {
+    "stages": {
+      "new": "New Intent",
+      "engaged": "Engaged",
+      "qualified": "Qualified Lead",
+      "opportunity": "Opportunity",
+      "won": "Won"
+    },
+    "exportCsv": "Export CSV",
+    "roiAttribution": "Channel & Content ROI Attribution"
+  },
+  "approval": {
+    "title": "Human-in-the-Loop Confirmation Required",
+    "cancel": "Cancel",
+    "confirm": "Confirm Action"
+  }
+}

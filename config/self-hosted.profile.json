@@ -1,0 +1,27 @@
+{
+  "id": "self-hosted",
+  "name": {
+    "zh-CN": "本地 Docker 私有化",
+    "en-US": "Self-Hosted Docker"
+  },
+  "defaultLocale": null,
+  "currency": "USD",
+  "currencySymbol": "$",
+  "mcp": {
+    "httpEndpoint": "http://localhost:8080/api/unified/mcp",
+    "sseEndpoint": "http://localhost:8080/api/unified/sse",
+    "authHeader": "x-api-key",
+    "expectedKeyPrefix": null
+  },
+  "relays": {
+    "serverRelay": "http://localhost:8080/api/relay/server",
+    "aiRelay": "http://localhost:8080/api/relay/ai"
+  },
+  "defaultModels": {
+    "video": ["seedance-2.0"],
+    "image": ["nano-banana-pro"],
+    "llm": ["local-ollama", "deepseek-chat", "claude-sonnet"]
+  },
+  "platformsEndpoint": "http://localhost:8080/api/platforms/enabled",
+  "platforms": []
+}

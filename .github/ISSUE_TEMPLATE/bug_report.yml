@@ -1,0 +1,28 @@
+name: Bug Report
+description: Report a bug in BiaoMai Lingshu
+labels: ["bug", "triage"]
+body:
+  - type: dropdown
+    id: region
+    attributes:
+      label: Region Profile
+      options:
+        - cn-official
+        - global-official
+        - self-hosted
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description & Steps to Reproduce
+      placeholder: Clear description of the issue and steps to reproduce.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS & Version
+      placeholder: e.g., macOS 15.2 / Windows 11 / Node 22
+    validations:
+      required: true

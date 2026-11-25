@@ -1,0 +1,23 @@
+name: Feature or Pack Request
+description: Propose a new feature, industry pack (.bmpack), skill, or MCP integration
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Micro-Kernel / Plugin SDK
+        - AI Embedded Browser
+        - Lead-Gen Pack (Create / Publish / Engage / Convert)
+        - Local Office / ToB Industry Pack
+        - Documentation / i18n
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Problem & Proposed Solution
+      placeholder: Describe the user workflow and expected value.
+    validations:
+      required: true

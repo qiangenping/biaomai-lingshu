@@ -1,0 +1,33 @@
+{
+  "name": "biaomai-operations-platform",
+  "version": "1.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Open-source extensible AI desktop workbench (micro-kernel + hot-pluggable skills/MCP/canvas packs) with V1.0 global lead-generation suite.",
+  "scripts": {
+    "dev:workbench": "pnpm --filter @biaomai/workbench dev",
+    "build:workbench": "pnpm --filter @biaomai/workbench build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.base.json --noEmit",
+    "verify:i18n": "node scripts/verify-i18n.mjs",
+    "verify:licenses": "node scripts/verify-licenses.mjs",
+    "verify:packs": "node scripts/verify-packs.mjs",
+    "install:aionui-packs": "node scripts/install-to-aionui.mjs",
+    "verify:all": "pnpm verify:i18n && pnpm verify:licenses && pnpm verify:packs && pnpm typecheck && pnpm test && pnpm build:workbench",
+    "bootstrap": "bash scripts/bootstrap.sh",
+    "docker:up": "docker compose -f vendor/aitoearn/docker-compose.yml up -d",
+    "docker:down": "docker compose -f vendor/aitoearn/docker-compose.yml down"
+  },
+  "devDependencies": {
+    "react": "^19.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5",
+    "@types/node": "^22.10.0"
+  },
+  "dependencies": {
+    "zod": "^3.24.2"
+  }
+}

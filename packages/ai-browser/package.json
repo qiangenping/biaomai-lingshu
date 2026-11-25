@@ -1,0 +1,10 @@
+{
+  "name": "@biaomai/ai-browser",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "zod": "^3.24.2"
+  }
+}

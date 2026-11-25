@@ -1,0 +1,255 @@
+<div align="center">
+
+<a href="https://docs.aitoearn.ai/zh/home"><img src="presentation/aitoearn-logo.png" alt="AiToEarn" width="360"></a>
+
+**The AI Content Marketing Agent for OPCs (One-Person Companies)**
+
+[![Stars](https://img.shields.io/github/stars/yikart/AiToEarn?style=flat-square&color=3ECF8E&logo=github)](https://github.com/yikart/AiToEarn/stargazers)
+[![License](https://img.shields.io/badge/license-MIT-3ECF8E?style=flat-square)](LICENSE)
+[![Node](https://img.shields.io/badge/node-20.18.x-3ECF8E?style=flat-square&logo=node.js)](https://nodejs.org/about/releases)
+[![Docs](https://img.shields.io/badge/docs-aitoearn.ai-3ECF8E?style=flat-square)](https://docs.aitoearn.ai/en/home)
+
+<a href="https://trendshift.io/repositories/20785"><img src="https://trendshift.io/api/badge/repositories/20785" alt="Trendshift"></a>
+
+[简体中文](README.md) · English · [日本語](README_JA.md)
+
+</div>
+
+**Monetize · Publish · Engage · Create — one platform for AI-powered content monetization.**
+
+AiToEarn helps OPCs (One-Person Companies), creators, brands, and businesses build, distribute, and monetize content on the world's leading platforms through AI Agent automation.
+
+- **China**: Douyin · Xiaohongshu (Rednote) · Kuaishou · Bilibili · WeChat Channels · WeChat Official Accounts
+- **Global**: TikTok · YouTube · Facebook · Instagram · Threads · X (Twitter) · Pinterest · LinkedIn
+
+---
+
+## AI Assistant Plugins
+
+Beyond the MCP server, AiToEarn ships a ready-to-use **plugin and skill bundle** covering the full pipeline: creation → editing → publishing → monetization — no complex prompting required.
+
+Just paste the line below into your AI assistant (Claude Code / Codex / Trae / Doubao / Qwen / Qwen Work / Kimi Work / DeepSeek Harness) to install — it asks for your API Key, writes the config, and verifies:
+
+```text
+Install the plugin package from https://github.com/yikart/AiToEarn/tree/main/skills for me
+```
+
+Per-platform install instructions and details: see the [AiToEarn Docs](https://docs.aitoearn.ai/en/use/installer-pack).
+
+> 💡 WorkBuddy users don't need to install anything: use the built-in official expert “自媒体运营增长变现专家” — just search for it on the “Experts” page and start chatting.
+>
+> ![WorkBuddy official expert “自媒体运营增长变现专家”](assets/workbuddy-expert.png)
+
+---
+
+## Special Thanks ❤️
+
+<table align="center">
+  <tr>
+    <td align="center" width="120">
+      <a href="https://metaso.cn/minimax-h3/?s=ATE"><img src="docs/sponsors/metaso-logo.png" alt="Metaso" width="100"></a><br>
+      <a href="https://metaso.cn/minimax-h3/?s=ATE"><strong>Metaso</strong></a>
+    </td>
+    <td align="left">
+      Thanks to <a href="https://metaso.cn/minimax-h3/?s=ATE">Metaso</a> for sponsoring this project!<br>
+      <strong>MiniMax H3 Video Generation API | Metaso</strong><br>
+      Metaso offers cost-effective MiniMax H3 video generation: <strong>768P for just RMB 0.09/sec and 2K for just RMB 0.15/sec</strong>. It supports native 2K and synchronized audio and video; its API is compatible with the <strong>OpenAI protocol</strong>, and it also supports <strong>ComfyUI</strong>—no GPU deployment required.<br>
+      🎁 Sign up through the <a href="https://metaso.cn/minimax-h3/?s=ATE">exclusive AiToEarn link</a> to receive complimentary credits and special offers.<br>
+      For business inquiries, please add WeChat: metasota12
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="120">
+      <a href="https://www.fastaitoken.com/register?aff=AITOEARN&promo=AITOEARN&utm=aiearn"><img src="docs/sponsors/fastaitoken-logo.png" alt="FastAIToken" width="100"></a><br>
+      <a href="https://www.fastaitoken.com/register?aff=AITOEARN&promo=AITOEARN&utm=aiearn"><strong>FastAIToken</strong></a>
+    </td>
+    <td align="left">
+      Thanks to <a href="https://www.fastaitoken.com/register?aff=AITOEARN&promo=AITOEARN&utm=aiearn">FastAIToken</a> for sponsoring this project!<br>
+      <strong>One-stop Text / Image / Video LLM Access | FastAIToken</strong><br>
+      FastAIToken provides one-stop access to Claude / GPT / Gemini / DeepSeek and other large models for text, image, and video:<br>
+      · ChatGPT / OpenAI at 0.06x ultra-low rate<br>
+      · MiniMax H3 768P at RMB 0.07/sec<br>
+      · Seedance 480P at RMB 0.1/sec<br>
+      · Corporate invoicing supported<br>
+      🎁 Sign up through the <a href="https://www.fastaitoken.com/register?aff=AITOEARN&promo=AITOEARN&utm=aiearn">exclusive AiToEarn link</a> to enjoy exclusive offers.<br>
+      Website: <a href="https://www.fastaitoken.com/register?aff=AITOEARN&promo=AITOEARN&utm=aiearn">www.fastaitoken.com</a> | QQ group: 1054566214
+    </td>
+  </tr>
+</table>
+
+---
+
+## Table of Contents
+
+- [Key Features](#key-features)
+- [Quick Start](#quick-start)
+- [MCP Integration](#mcp-integration)
+- [Docker Deployment](#docker-one-click-deploy)
+- [What's New](#whats-new)
+- [Community & Support](#community--support)
+- [Recommended Projects](#recommended-projects)
+
+---
+
+## Key Features
+
+AiToEarn provides four core Agent capabilities around the creator's full monetization pipeline: **Monetize · Publish · Engage · Create**.
+
+### 💰 Monetize — Earn from Your Content
+
+The core mission of AiToEarn: help every creator earn money. Creators sell content on the platform to complete brand promotion tasks. All settlements are results-driven:
+
+| Model | Full Name | Meaning |
+|-------|-----------|---------|
+| **CPS** | Cost Per Sale | Settle by transaction amount |
+| **CPE** | Cost Per Engagement | Settle by engagement count |
+| **CPM** | Cost Per Mille | Settle by view count |
+
+![Monetize](presentation/monetize-cn.png)
+
+### 📢 Publish — Content Publishing
+
+Distribute content to 14+ major platforms with one click — no more manual posting on each platform. Plan and coordinate publishing across all platforms like a calendar.
+
+![Publish](presentation/publish-cn.png) ![Channels](presentation/channel-cn.png)
+
+▶ Demo video: [YouTube — Publish](https://www.youtube.com/watch?v=5041jEKaiU8)
+
+### 💬 Engage — Content Engagement
+
+Automate engagement operations across all supported platforms via the AiToEarn browser extension: auto-like, bookmark, and follow; AI-powered smart replies to every comment; comment mining that detects high-conversion signals like "link please" or "how to buy"; real-time brand monitoring with proactive participation in trending conversations.
+
+▶ Demo video: [YouTube — Engage](https://youtu.be/-QoHNrZBmp0)
+
+### 🎨 Create — Content Creation
+
+The content creation workflow is rebuilt around Agents. Tell the Agent what you need and it handles everything from idea to finished product:
+
+- **Video**: Automatically invokes video generation models (Grok, Veo, Seedance, etc.), video translation, and video editing modules
+- **Image & Text**: Calls top-tier image models like Nano Banana to produce high-quality visual content
+- **Batch**: Submit tasks in bulk — the Agent generates multiple pieces in parallel, perfect for matrix accounts and large-scale distribution
+
+▶ Demo video: [YouTube — Create](https://youtu.be/y900LxIrZT4)
+
+---
+
+## Quick Start
+
+| Option | Best for | Deployment | Entry |
+|--------|----------|-----------|-------|
+| [① Use the Website](#-use-the-website) | Everyone | ❌ | [aitoearn.cn](https://aitoearn.cn/) · [aitoearn.ai](https://aitoearn.ai/) |
+| [② MCP Integration](#mcp-integration) | Claude / Cursor / any AI assistant user | ❌ | See MCP Integration section |
+| [③ Docker Deployment](#docker-one-click-deploy) | Teams wanting self-hosted | ✅ Server | 3 commands below |
+
+### ① Use the Website
+
+No setup required — just open your browser:
+
+- 🇨🇳 China users: [aitoearn.cn](https://aitoearn.cn/)
+- 🌍 International users: [aitoearn.ai](https://aitoearn.ai/)
+
+Not sure what to say first? After signing up and logging in, just paste the prompt below into the chat box and send it (replace the topic with your own — the AI will write the copy, create images, and publish it for you):
+
+```text
+Create a TikTok post about "making pour-over coffee at home on weekends" for me, with a short engaging script and matching visuals, then publish it to my TikTok account.
+```
+
+---
+
+## MCP Integration
+
+> Prerequisite: get an [API Key](https://docs.aitoearn.ai/en/use/api-key) first (Settings → API Key → Create).
+
+AiToEarn works with any MCP-compatible AI assistant. **Match the URL to your API Key's environment** — a mismatched environment and key returns `401`:
+
+| Environment | MCP URL | SSE URL |
+|-------------|---------|---------|
+| China | `https://aitoearn.cn/api/unified/mcp` | `https://aitoearn.cn/api/unified/sse` |
+| International | `https://aitoearn.ai/api/unified/mcp` | `https://aitoearn.ai/api/unified/sse` |
+
+### Claude Desktop
+
+Edit `claude_desktop_config.json`, add:
+
+```json
+{
+  "mcpServers": {
+    "aitoearn": {
+      "type": "http",
+      "url": "https://aitoearn.ai/api/unified/mcp",
+      "headers": {
+        "x-api-key": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+### Cursor / Other AI Assistants
+
+In your MCP settings, fill in the **MCP URL** and the **Auth Header** (`x-api-key: your-api-key`). Step-by-step instructions with screenshots for each tool are in the [docs MCP guide](https://docs.aitoearn.ai/api-reference/post-api-ai-agent-mcp).
+
+> 💡 For self-hosted instances, replace `aitoearn.ai` with your own address (e.g., `localhost:8080`).
+
+---
+
+## Docker One-Click Deploy
+
+> Prerequisite: [Docker](https://docs.docker.com/get-docker/) installed. 3 commands, no manual database setup:
+
+```bash
+git clone https://github.com/yikart/AiToEarn.git
+cd AiToEarn
+# Configure the required authentication secrets and export JWT_SECRET as described in DOCKER_DEPLOYMENT_EN.md.
+docker compose up -d
+```
+
+Open **[http://localhost:8080](http://localhost:8080)** and you're ready to go.
+
+**Strongly recommended: configure Relay** — borrow the official credentials to complete OAuth authorization for Douyin, Xiaohongshu, TikTok, etc., without registering developer accounts on each platform. The full deployment guide (Relay, AI model providers, production config, storage) lives in the [Docker deployment guide](https://docs.aitoearn.ai/en/use/installer).
+
+---
+
+## What's New
+
+| Date | Version | Highlights |
+|------|---------|-----------|
+| 2026-06-23 | [v2.5](https://github.com/yikart/AiToEarn/releases/tag/v2.5.0) | Relay configuration moved into the settings UI and split into Server Relay (for publishing platform authorization) and AI Relay (for using platform-provided AI models); introduced the Open Platform |
+| 2026-05-21 | [v2.4](https://github.com/yikart/AiToEarn/releases/tag/v2.4.0) | Draft generation adds HappyHorse 1.0 and Seedance 2.0, with enhanced batch generation for video and image-text drafts, multi-model selection, reference images/videos, target platform restrictions, and copywriting prompts; a brand-new UI style, plus enhanced Twitter/X exploration and engagement |
+| 2026-03-26 | [v2.1](https://www.aitoearn.ai/) | Content marketplace launched; MCP protocol support — use AiToEarn in any MCP-capable Agent or LLM, such as Claude and Cursor |
+| 2026-02-07 | [v1.8](https://www.aitoearn.ai/) | New offline merchant promotion solution covering restaurants, retail stores, B&Bs, beauty salons, gyms, and more — turning offline promotional activities into executable online content tasks, and helping stores gain more online exposure and in-store traffic through content publishing and user participation mechanisms |
+| 2025-12-15 | [v1.4.3](https://github.com/yikart/AiToEarn/releases/tag/v1.4.3) | The beginning of "All In Agent"! We added a super AI agent that can automatically generate and publish content, and help you operate AiToEarn |
+| 2025-11-28 | [v1.4.0](https://github.com/yikart/AiToEarn/releases/tag/v1.4.0) | In-app auto-update; the creation UI gains many AI features such as summarize, expand, image generation, video generation, and tag generation, plus Nano Banana Pro support |
+| 2025-11-12 | [v1.3.2](https://github.com/yikart/AiToEarn/releases/tag/v1.3.2) | First open-source, fully usable version |
+| 2025-09-16 | [v1.0.18](https://github.com/yikart/AiToEarn/releases/tag/v1.0.18) | First international version: FB/IG/Threads/X/YouTube/TikTok/Pinterest |
+| 2025-02-26 | [v0.1.1](https://github.com/yikart/AiToEarn/releases/tag/v0.1.1) | First open-source release: one-click publishing to Xiaohongshu / Douyin / Kuaishou / WeChat Channels |
+
+---
+
+## Community & Support
+
+If you run into usage difficulties, questions, or unexpected behavior, please open a [GitHub Issue](https://github.com/yikart/AiToEarn/issues) first so we can track and respond in one place.
+
+We welcome feature requests and feedback via Issues, but we do not accept external Pull Requests at this time — new features and fixes are evaluated and implemented by the official team.
+
+- **Telegram**: [t.me/+447704864210](https://t.me/+447704864210)
+- **WeCom**: scan the QR code below
+- **Contributing Guide**: [docs contributing guide](https://docs.aitoearn.ai/en/use/contributing)
+
+<img src="presentation/wecom-qr.jpg" alt="WeCom QR Code" width="200">
+
+---
+
+## Recommended Projects
+
+- [AtomGit Hosting](https://atomgit.com/yikart/AitoEarn)
+- [MuseTalk](https://github.com/TMElyralab/MuseTalk)
+- [video_spider](https://github.com/5ime/video_spider)
+- [CosyVoice](https://github.com/FunAudioLLM/CosyVoice?tab=readme-ov-file)
+- [facefusion](https://github.com/facefusion/facefusion)
+- [NarratoAI](https://github.com/linyqh/NarratoAI)
+- [MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo)
+
+---
+
+MIT License · © AiToEarn Team

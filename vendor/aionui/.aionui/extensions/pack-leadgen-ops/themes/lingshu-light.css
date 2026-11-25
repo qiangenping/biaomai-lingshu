@@ -1,0 +1,25 @@
+/* Lingshu Studio Light Theme — Maps onto AionUi / Arco Design CSS Variables */
+:root[data-theme='lingshu-light'],
+body.lingshu-light {
+  --bm-bg-app: #F6F7FB;
+  --bm-bg-sidebar: #FFFFFF;
+  --bm-bg-surface: #FFFFFF;
+  --bm-bg-elevated: #F1F4F9;
+  --bm-border-subtle: rgba(15, 23, 42, 0.08);
+  --bm-border-strong: rgba(15, 23, 42, 0.16);
+  --bm-text-primary: #0F172A;
+  --bm-text-secondary: #475569;
+  --bm-brand-primary: #4F46E5;
+  --bm-brand-primary-hover: #4338CA;
+  --bm-success: #059669;
+  --bm-warning: #D97706;
+  --bm-danger: #DC2626;
+  --bm-info: #0284C7;
+
+  --color-bg-1: var(--bm-bg-app);
+  --color-bg-2: var(--bm-bg-sidebar);
+  --color-bg-3: var(--bm-bg-surface);
+  --color-fill-2: var(--bm-bg-elevated);
+  --color-text-1: var(--bm-text-primary);
+  --color-text-2: var(--bm-text-secondary);
+}
