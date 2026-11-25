@@ -5,6 +5,7 @@
   "license": "Apache-2.0",
   "description": "Open-source extensible AI desktop workbench (micro-kernel + hot-pluggable skills/MCP/canvas packs) with V1.0 global lead-generation suite.",
   "scripts": {
+    "dev:aionui": "export PATH=\"$HOME/.bun/bin:$PATH\" && export AIONUI_BACKEND_BIN=\"$(pwd)/vendor/aionui/bin/aioncore\" && cd vendor/aionui && env -u ELECTRON_RUN_AS_NODE bun run start",
     "dev:workbench": "pnpm --filter @biaomai/workbench dev",
     "dev:billing": "pnpm --filter @biaomai/billing-gateway dev",
     "build:workbench": "pnpm --filter @biaomai/workbench build",

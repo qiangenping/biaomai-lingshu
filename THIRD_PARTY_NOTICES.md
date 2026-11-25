@@ -13,6 +13,7 @@
 | **agent-browser** | https://github.com/vercel-labs/agent-browser | Apache-2.0 | Integrated in `packages/ai-browser/` for low-token accessibility-tree browser control via CDP/MCP. |
 | **Stagehand** | https://github.com/browserbase/stagehand | MIT | Integrated in `packages/ai-browser/` for schema-based semantic extraction and resilient UI interaction. |
 | **Midscene** | https://github.com/web-infra-dev/midscene | MIT | Optional vision-model browser fallback in `packages/ai-browser/`. |
+| **social-auto-upload** | https://github.com/dreammis/social-auto-upload | MIT | Vendored in `vendor/social-auto-upload/` for zero-Docker local multi-platform publishing across 16+ domestic & global channels. |
 
 ## Attribution Preservation
 

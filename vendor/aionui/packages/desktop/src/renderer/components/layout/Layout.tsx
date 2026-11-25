@@ -143,7 +143,8 @@ const Layout: React.FC<{
     setGlobalNavigate(navigate);
     return () => setGlobalNavigate(null);
   }, [navigate]);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const brandTitle = i18n.language?.startsWith('zh') ? '标脉灵枢' : 'BiaoMai Lingshu';
   // The "AionUi" wordmark acts as Home / Back-to-Chat, but only from settings routes.
   // In non-settings routes the user is already "home", so it is a no-op (and not actionable).
   const isSettingsRoute = location.pathname.startsWith('/settings');
@@ -442,11 +443,11 @@ const Layout: React.FC<{
                         }
                       }}
                     >
-                      AionUi
+                      {brandTitle}
                     </div>
                   </Tooltip>
                 ) : (
-                  <div className='text-16px text-t-primary collapsed-hidden font-semibold'>AionUi</div>
+                  <div className='text-16px text-t-primary collapsed-hidden font-semibold'>{brandTitle}</div>
                 )}
                 {isMobile && !collapsed && (
                   <button
