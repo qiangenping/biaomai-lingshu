@@ -9,19 +9,15 @@ import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Button,
-  Card,
   Empty,
   Input,
   Message,
   Modal,
   Select,
   Space,
-  Statistic,
-  Tabs,
   Tag,
 } from '@arco-design/web-react';
 
-const { TabPane } = Tabs;
 const { TextArea } = Input;
 
 interface BiaoMaiElectronBridge {
@@ -62,29 +58,31 @@ interface MediaPlatform {
   region: 'cn' | 'global';
   nameZh: string;
   nameEn: string;
+  badge: string;
+  brandColor: string;
   aspect: string;
   creatorUrl: string;
   localUploader: string;
 }
 
 const ALL_PLATFORMS: MediaPlatform[] = [
-  { id: 'douyin', region: 'cn', nameZh: '抖音', nameEn: 'Douyin', aspect: '9:16', creatorUrl: 'https://creator.douyin.com/', localUploader: 'social-auto-upload/douyin_uploader' },
-  { id: 'xiaohongshu', region: 'cn', nameZh: '小红书', nameEn: 'RedNote (XHS)', aspect: '3:4', creatorUrl: 'https://creator.xiaohongshu.com/', localUploader: 'social-auto-upload/xiaohongshu_uploader' },
-  { id: 'wechat_channels', region: 'cn', nameZh: '微信视频号', nameEn: 'WeChat Channels', aspect: '9:16', creatorUrl: 'https://channels.weixin.qq.com/', localUploader: 'social-auto-upload/tencent_uploader' },
-  { id: 'kuaishou', region: 'cn', nameZh: '快手', nameEn: 'Kuaishou', aspect: '9:16', creatorUrl: 'https://cp.kuaishou.com/', localUploader: 'social-auto-upload/ks_uploader' },
-  { id: 'bilibili', region: 'cn', nameZh: 'B站', nameEn: 'Bilibili', aspect: '16:9', creatorUrl: 'https://member.bilibili.com/', localUploader: 'social-auto-upload/bilibili_uploader' },
-  { id: 'wechat_oa', region: 'cn', nameZh: '微信公众号', nameEn: 'WeChat OA', aspect: '16:9', creatorUrl: 'https://mp.weixin.qq.com/', localUploader: 'isolated-browser' },
-  { id: 'weibo', region: 'cn', nameZh: '微博', nameEn: 'Weibo', aspect: '1:1', creatorUrl: 'https://weibo.com/', localUploader: 'social-auto-upload/weibo_uploader' },
-  { id: 'zhihu', region: 'cn', nameZh: '知乎', nameEn: 'Zhihu', aspect: '16:9', creatorUrl: 'https://www.zhihu.com/creator', localUploader: 'social-auto-upload/zhihu_uploader' },
-  { id: 'baijiahao', region: 'cn', nameZh: '百家号', nameEn: 'Baijiahao', aspect: '16:9', creatorUrl: 'https://baijiahao.baidu.com/', localUploader: 'social-auto-upload/baijiahao_uploader' },
-  { id: 'tiktok', region: 'global', nameZh: 'TikTok', nameEn: 'TikTok', aspect: '9:16', creatorUrl: 'https://www.tiktok.com/creator-center/upload', localUploader: 'social-auto-upload/tk_uploader' },
-  { id: 'youtube', region: 'global', nameZh: 'YouTube', nameEn: 'YouTube & Shorts', aspect: '16:9', creatorUrl: 'https://studio.youtube.com/', localUploader: 'social-auto-upload/youtube_uploader' },
-  { id: 'instagram', region: 'global', nameZh: 'Instagram', nameEn: 'Instagram', aspect: '4:5', creatorUrl: 'https://business.facebook.com/latest/composer', localUploader: 'social-auto-upload/meta_uploader' },
-  { id: 'facebook', region: 'global', nameZh: 'Facebook', nameEn: 'Facebook', aspect: '16:9', creatorUrl: 'https://business.facebook.com/', localUploader: 'social-auto-upload/meta_uploader' },
-  { id: 'x', region: 'global', nameZh: 'X (Twitter)', nameEn: 'X (Twitter)', aspect: '16:9', creatorUrl: 'https://x.com/compose/post', localUploader: 'isolated-browser' },
-  { id: 'linkedin', region: 'global', nameZh: 'LinkedIn', nameEn: 'LinkedIn', aspect: '16:9', creatorUrl: 'https://www.linkedin.com/feed/', localUploader: 'isolated-browser' },
-  { id: 'threads', region: 'global', nameZh: 'Threads', nameEn: 'Threads', aspect: '1:1', creatorUrl: 'https://www.threads.net/', localUploader: 'isolated-browser' },
-  { id: 'pinterest', region: 'global', nameZh: 'Pinterest', nameEn: 'Pinterest', aspect: '2:3', creatorUrl: 'https://www.pinterest.com/pin-creation-tool/', localUploader: 'isolated-browser' },
+  { id: 'xiaohongshu', region: 'cn', nameZh: '小红书', nameEn: 'RedNote', badge: 'XHS', brandColor: '#FF2442', aspect: '3:4', creatorUrl: 'https://creator.xiaohongshu.com/', localUploader: 'social-auto-upload/xiaohongshu' },
+  { id: 'douyin', region: 'cn', nameZh: '抖音', nameEn: 'Douyin', badge: 'DY', brandColor: '#111827', aspect: '9:16', creatorUrl: 'https://creator.douyin.com/', localUploader: 'social-auto-upload/douyin' },
+  { id: 'wechat_channels', region: 'cn', nameZh: '视频号', nameEn: 'Channels', badge: 'WC', brandColor: '#07C160', aspect: '9:16', creatorUrl: 'https://channels.weixin.qq.com/', localUploader: 'social-auto-upload/tencent' },
+  { id: 'bilibili', region: 'cn', nameZh: 'B站', nameEn: 'Bilibili', badge: 'B', brandColor: '#00A1D6', aspect: '16:9', creatorUrl: 'https://member.bilibili.com/', localUploader: 'social-auto-upload/bilibili' },
+  { id: 'kuaishou', region: 'cn', nameZh: '快手', nameEn: 'Kuaishou', badge: 'KS', brandColor: '#FF5000', aspect: '9:16', creatorUrl: 'https://cp.kuaishou.com/', localUploader: 'social-auto-upload/ks' },
+  { id: 'wechat_oa', region: 'cn', nameZh: '公众号', nameEn: 'WeChat OA', badge: 'OA', brandColor: '#07C160', aspect: '16:9', creatorUrl: 'https://mp.weixin.qq.com/', localUploader: 'isolated-browser' },
+  { id: 'weibo', region: 'cn', nameZh: '微博', nameEn: 'Weibo', badge: 'WB', brandColor: '#E6162D', aspect: '1:1', creatorUrl: 'https://weibo.com/', localUploader: 'social-auto-upload/weibo' },
+  { id: 'zhihu', region: 'cn', nameZh: '知乎', nameEn: 'Zhihu', badge: 'ZH', brandColor: '#0066FF', aspect: '16:9', creatorUrl: 'https://www.zhihu.com/creator', localUploader: 'social-auto-upload/zhihu' },
+  { id: 'baijiahao', region: 'cn', nameZh: '百家号', nameEn: 'Baijiahao', badge: 'BJ', brandColor: '#2932E1', aspect: '16:9', creatorUrl: 'https://baijiahao.baidu.com/', localUploader: 'social-auto-upload/baijiahao' },
+  { id: 'tiktok', region: 'global', nameZh: 'TikTok', nameEn: 'TikTok', badge: 'TT', brandColor: '#000000', aspect: '9:16', creatorUrl: 'https://www.tiktok.com/creator-center/upload', localUploader: 'social-auto-upload/tk' },
+  { id: 'youtube', region: 'global', nameZh: 'YouTube', nameEn: 'YouTube', badge: 'YT', brandColor: '#FF0000', aspect: '16:9', creatorUrl: 'https://studio.youtube.com/', localUploader: 'social-auto-upload/youtube' },
+  { id: 'linkedin', region: 'global', nameZh: 'LinkedIn', nameEn: 'LinkedIn', badge: 'IN', brandColor: '#0A66C2', aspect: '16:9', creatorUrl: 'https://www.linkedin.com/feed/', localUploader: 'isolated-browser' },
+  { id: 'x', region: 'global', nameZh: 'X (Twitter)', nameEn: 'X', badge: 'X', brandColor: '#0F172A', aspect: '16:9', creatorUrl: 'https://x.com/compose/post', localUploader: 'isolated-browser' },
+  { id: 'instagram', region: 'global', nameZh: 'Instagram', nameEn: 'Instagram', badge: 'IG', brandColor: '#E1306C', aspect: '4:5', creatorUrl: 'https://business.facebook.com/latest/composer', localUploader: 'social-auto-upload/meta' },
+  { id: 'facebook', region: 'global', nameZh: 'Facebook', nameEn: 'Facebook', badge: 'FB', brandColor: '#1877F2', aspect: '16:9', creatorUrl: 'https://business.facebook.com/', localUploader: 'social-auto-upload/meta' },
+  { id: 'threads', region: 'global', nameZh: 'Threads', nameEn: 'Threads', badge: 'TH', brandColor: '#18181B', aspect: '1:1', creatorUrl: 'https://www.threads.net/', localUploader: 'isolated-browser' },
+  { id: 'pinterest', region: 'global', nameZh: 'Pinterest', nameEn: 'Pinterest', badge: 'PT', brandColor: '#E60023', aspect: '2:3', creatorUrl: 'https://www.pinterest.com/pin-creation-tool/', localUploader: 'isolated-browser' },
 ];
 
 interface LocalAccount {
@@ -209,6 +207,7 @@ const LeadGenStudioPage: React.FC = () => {
   const isZh = (i18n.language || 'zh-CN').startsWith('zh');
   const bridge = getBridge();
 
+  const [activeTab, setActiveTab] = useState<'create' | 'publish' | 'engage' | 'crm'>('create');
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [settings, setSettings] = useState<StudioSettings>(() =>
     readJson<StudioSettings>(KEYS.settings, {
@@ -231,7 +230,7 @@ const LeadGenStudioPage: React.FC = () => {
   const [posts, setPosts] = useState<LocalPost[]>(() => readJson<LocalPost[]>(KEYS.posts, []));
   const [leads, setLeads] = useState<LocalLead[]>(() => readJson<LocalLead[]>(KEYS.leads, []));
 
-  // Module 1: Create State (AI Copy + Multilingual + AI Image + Mobile Preview)
+  // Create State
   const [createPlatform, setCreatePlatform] = useState('xiaohongshu');
   const [topicInput, setTopicInput] = useState('');
   const [targetLang, setTargetLang] = useState<'zh-CN' | 'en-US' | 'ja-JP' | 'es-ES'>('zh-CN');
@@ -243,11 +242,11 @@ const LeadGenStudioPage: React.FC = () => {
   const [draftShortLink, setDraftShortLink] = useState('');
   const [scheduledTime, setScheduledTime] = useState('2026-11-26 09:00');
 
-  // Module 2: Isolated Accounts
+  // Accounts State
   const [accPlatform, setAccPlatform] = useState('xiaohongshu');
   const [accLabel, setAccLabel] = useState('');
 
-  // Module 3: Engage (Isolated Browser + Live Comments + AI Reply)
+  // Engage State
   const [selectedPartition, setSelectedPartition] = useState<string>(() => accounts[0]?.partition || '');
   const [radarPlatform, setRadarPlatform] = useState('xiaohongshu');
   const [rawCommentInput, setRawCommentInput] = useState('');
@@ -273,7 +272,6 @@ const LeadGenStudioPage: React.FC = () => {
 
   const selectedCreatePlatform = ALL_PLATFORMS.find((p) => p.id === createPlatform) || ALL_PLATFORMS[0];
 
-  // Real AI Copy Generation
   const handleAiGenerateCopy = async () => {
     if (!topicInput.trim()) {
       Message.warning(isZh ? '请输入产品卖点或获客主题' : 'Please enter a topic or product pitch');
@@ -281,7 +279,7 @@ const LeadGenStudioPage: React.FC = () => {
     }
     if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost') && !settings.llmBaseUrl.includes('127.0.0.1')) {
       setSettingsModalOpen(true);
-      Message.info(isZh ? '请先填入您的大模型 API Key（DeepSeek / OpenAI / 本地 Ollama）' : 'Please configure your LLM API key first');
+      Message.info(isZh ? '请先配置大模型 API Key' : 'Please configure your LLM API Key first');
       return;
     }
     if (!bridge?.runLlm) {
@@ -294,7 +292,7 @@ const LeadGenStudioPage: React.FC = () => {
       baseUrl: settings.llmBaseUrl,
       apiKey: settings.llmApiKey,
       model: settings.llmModel,
-      systemPrompt: `You are an expert social media lead-generation copywriter. Output strict JSON with keys "title", "body", "cta". Target platform: ${platName} (aspect ${selectedCreatePlatform.aspect}). Output language: ${targetLang}. Include high-converting pain-point hooks and clear CTA.`,
+      systemPrompt: `You are an expert social media lead-generation copywriter. Output strict JSON with keys "title", "body", "cta". Target platform: ${platName} (aspect ${selectedCreatePlatform.aspect}). Output language: ${targetLang}.`,
       userPrompt: topicInput.trim(),
     });
     setCreatingCopy(false);
@@ -306,7 +304,7 @@ const LeadGenStudioPage: React.FC = () => {
       const cleaned = res.content.replace(/```json\s*|```/g, '').trim();
       const parsed = JSON.parse(cleaned) as { title?: string; body?: string; cta?: string };
       setDraftTitle(parsed.title || topicInput.trim());
-      setDraftBody(`${parsed.body || res.content}\n\n👉 ${parsed.cta || ''}`.trim());
+      setDraftBody(`${parsed.body || res.content}${parsed.cta ? `\n\n👉 ${parsed.cta}` : ''}`.trim());
     } catch {
       const lines = res.content.split('\n').filter(Boolean);
       setDraftTitle(lines[0]?.replace(/^#+\s*/, '') || topicInput.trim());
@@ -315,7 +313,6 @@ const LeadGenStudioPage: React.FC = () => {
     Message.success(isZh ? `AI 创作完成 (${res.latencyMs}ms)` : `Generated in ${res.latencyMs}ms`);
   };
 
-  // Real AI Image Generation
   const handleAiGenerateImage = async () => {
     const prompt = draftTitle || topicInput;
     if (!prompt.trim()) {
@@ -345,7 +342,6 @@ const LeadGenStudioPage: React.FC = () => {
     }
   };
 
-  // Real AiToEarn MCP Test
   const handleTestAiToEarnMcp = async () => {
     if (!bridge?.callAiToEarnMcp) return;
     setMcpTestMsg(isZh ? '连接测试中...' : 'Testing...');
@@ -354,14 +350,9 @@ const LeadGenStudioPage: React.FC = () => {
       apiKey: activeMcpKey,
       method: 'tools/list',
     });
-    if (res.ok) {
-      setMcpTestMsg(`✅ ${isZh ? '已连通 AiToEarn MCP' : 'Connected'} (${res.latencyMs}ms)`);
-    } else {
-      setMcpTestMsg(`❌ ${res.error || 'Failed'}`);
-    }
+    setMcpTestMsg(res.ok ? `✅ ${isZh ? '已连通' : 'Connected'} (${res.latencyMs}ms)` : `❌ ${res.error || 'Failed'}`);
   };
 
-  // Add to Calendar Queue
   const handleSaveToSchedule = () => {
     if (!draftTitle.trim()) {
       Message.warning(isZh ? '请先输入或生成标题' : 'Please enter or generate a title');
@@ -379,10 +370,10 @@ const LeadGenStudioPage: React.FC = () => {
       createdAt: new Date().toISOString(),
     };
     setPosts((prev) => [newPost, ...prev]);
-    Message.success(isZh ? '已加入全渠道排期日历' : 'Added to Omni-Channel Calendar');
+    setActiveTab('publish');
+    Message.success(isZh ? '已加入排期日历' : 'Added to Calendar');
   };
 
-  // Open real isolated Electron BrowserWindow (persist:bm-acc-*)
   const handleOpenIsolatedWindow = async (partition: string, url: string, label: string) => {
     if (bridge?.openIsolatedBrowser) {
       await bridge.openIsolatedBrowser({ partition, url, title: `标脉隔离浏览器 · ${label}` });
@@ -399,26 +390,19 @@ const LeadGenStudioPage: React.FC = () => {
     }
     const id = `acc_${Date.now()}`;
     const partition = `persist:bm-acc-${accPlatform}-${id}`;
-    const acc: LocalAccount = {
-      id,
-      platformId: accPlatform,
-      label: accLabel.trim(),
-      partition,
-      createdAt: new Date().toISOString(),
-    };
+    const acc: LocalAccount = { id, platformId: accPlatform, label: accLabel.trim(), partition, createdAt: new Date().toISOString() };
     setAccounts((prev) => [acc, ...prev]);
     setSelectedPartition(partition);
     setAccLabel('');
     Message.success(isZh ? '已创建独立 Cookie 隔离账号' : 'Created isolated account container');
   };
 
-  // Publish via AiToEarn MCP or Local Isolated Browser (Human-in-the-Loop)
   const handleConfirmPublish = (post: LocalPost) => {
     const plat = ALL_PLATFORMS.find((p) => p.id === post.platformId);
     Modal.confirm({
       title: isZh ? '人工确认发布（合规门禁）' : 'Human-in-the-Loop Publish Confirmation',
       content: isZh
-        ? `即将发布到「${plat?.nameZh ?? post.platformId}」：${post.title}${activeMcpKey ? '（将优先调用 AiToEarn MCP 发布）' : '（将打开本地隔离浏览器创作者后台）'}`
+        ? `即将发布到「${plat?.nameZh ?? post.platformId}」：${post.title}`
         : `Publish to "${plat?.nameEn ?? post.platformId}": ${post.title}`,
       okText: isZh ? '确认发布' : 'Confirm Publish',
       cancelText: isZh ? '取消' : 'Cancel',
@@ -428,22 +412,14 @@ const LeadGenStudioPage: React.FC = () => {
             endpoint: activeMcpEndpoint,
             apiKey: activeMcpKey,
             method: 'tools/call',
-            params: {
-              name: 'publish_now',
-              arguments: {
-                platform: post.platformId,
-                title: post.title,
-                content: post.body,
-                mediaUrl: post.imageUrl,
-              },
-            },
+            params: { name: 'publish_now', arguments: { platform: post.platformId, title: post.title, content: post.body, mediaUrl: post.imageUrl } },
           });
           if (mcpRes.ok) {
             setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, status: 'published' } : p)));
             Message.success(isZh ? '已通过 AiToEarn MCP 发布成功！' : 'Published via AiToEarn MCP!');
             return;
           }
-          Message.warning(mcpRes.error || 'MCP publish failed, falling back to local browser');
+          Message.warning(mcpRes.error || 'MCP publish failed, falling back to isolated browser');
         }
         const acc = accounts.find((a) => a.platformId === post.platformId);
         const partition = acc?.partition || `persist:bm-acc-${post.platformId}-default`;
@@ -453,10 +429,9 @@ const LeadGenStudioPage: React.FC = () => {
     });
   };
 
-  // Extract visible comments directly from the open isolated browser window
   const handleExtractLiveBrowserComments = async () => {
     if (!selectedPartition || !bridge?.extractBrowserComments) {
-      Message.warning(isZh ? '请先在下方选择并打开一个隔离浏览器账号窗口' : 'Open an isolated browser window first');
+      Message.warning(isZh ? '请先选择一个隔离浏览器账号并打开窗口' : 'Select and open an isolated browser window first');
       return;
     }
     const res = await bridge.extractBrowserComments({ partition: selectedPartition });
@@ -465,13 +440,10 @@ const LeadGenStudioPage: React.FC = () => {
       return;
     }
     const scored: AnalyzedComment[] = res.comments
-      .map((c) => {
-        const s = scoreComment(c.text);
-        return { id: c.id, text: c.text, redacted: c.redacted, ...s };
-      })
+      .map((c) => ({ id: c.id, text: c.text, redacted: c.redacted, ...scoreComment(c.text) }))
       .sort((a, b) => b.score - a.score);
     setAnalyzedList(scored);
-    Message.success(isZh ? `已从真实网页提取并脱敏 ${scored.length} 条评论` : `Extracted & sanitized ${scored.length} live comments`);
+    Message.success(isZh ? `已提取并脱敏 ${scored.length} 条真实评论` : `Extracted & sanitized ${scored.length} comments`);
   };
 
   const handleAnalyzePastedComments = () => {
@@ -483,8 +455,7 @@ const LeadGenStudioPage: React.FC = () => {
     const scored: AnalyzedComment[] = lines
       .map((line, idx) => {
         const clean = sanitizePii(line);
-        const s = scoreComment(clean.text);
-        return { id: `paste_${Date.now()}_${idx}`, text: clean.text, redacted: clean.redacted, ...s };
+        return { id: `paste_${Date.now()}_${idx}`, text: clean.text, redacted: clean.redacted, ...scoreComment(clean.text) };
       })
       .sort((a, b) => b.score - a.score);
     setAnalyzedList(scored);
@@ -492,12 +463,12 @@ const LeadGenStudioPage: React.FC = () => {
 
   const handlePrefillReplyToBrowser = async (replyText: string) => {
     if (!selectedPartition || !bridge?.prefillBrowserReply) {
-      Message.info(isZh ? '请先打开隔离浏览器窗口，或复制回复内容手动发送' : 'Open the isolated browser window first');
+      Message.info(isZh ? '请先打开隔离浏览器窗口' : 'Open the isolated browser window first');
       return;
     }
     const res = await bridge.prefillBrowserReply({ partition: selectedPartition, replyText });
     if (res.ok) {
-      Message.success(isZh ? '已自动填入隔离浏览器评论框（已停在发送键前，请人工确认发送）' : 'Prefilled into browser input (stopped before Send)');
+      Message.success(isZh ? '已自动填入评论框（已停在发送键前，请人工确认发送）' : 'Prefilled into browser input (stopped before Send)');
     } else {
       Message.warning(res.error || (isZh ? '请先在隔离浏览器中点击评论输入框' : 'Click the comment box inside the browser first'));
     }
@@ -529,8 +500,7 @@ const LeadGenStudioPage: React.FC = () => {
       prev.map((l) => {
         if (l.id !== id) return l;
         const idx = stageOrder.indexOf(l.stage);
-        const nextStage = stageOrder[Math.min(idx + 1, stageOrder.length - 1)];
-        return { ...l, stage: nextStage };
+        return { ...l, stage: stageOrder[Math.min(idx + 1, stageOrder.length - 1)] };
       })
     );
   };
@@ -551,336 +521,480 @@ const LeadGenStudioPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const navTabs: Array<{ id: 'create' | 'publish' | 'engage' | 'crm'; step: string; title: string; count?: number }> = [
+    { id: 'create', step: '01', title: isZh ? 'AI 内容创作' : 'Create Studio' },
+    { id: 'publish', step: '02', title: isZh ? '全渠道分发' : 'Omni-Publish', count: posts.length },
+    { id: 'engage', step: '03', title: isZh ? '浏览器意向雷达' : 'Intent Radar', count: analyzedList.length },
+    { id: 'crm', step: '04', title: isZh ? '线索 CRM' : 'Lead CRM', count: leads.length },
+  ];
+
   return (
-    <div className='h-full w-full overflow-y-auto px-24px py-20px bg-1 text-t-primary'>
-      <div className='max-w-1200px mx-auto flex flex-col gap-16px'>
-        <div className='flex items-center justify-between flex-wrap gap-12px'>
-          <div>
-            <h1 className='m-0 text-22px font-600 text-t-primary'>
-              {isZh ? '标脉灵枢 · 全媒介全自动获客工作台' : 'BiaoMai Lingshu · Omni-Media Lead-Gen Studio'}
-            </h1>
-            <p className='m-0 mt-4px text-13px text-t-secondary'>
+    <div className='h-full w-full overflow-y-auto bg-1 text-t-primary'>
+      <div className='max-w-1240px mx-auto px-28px py-24px flex flex-col gap-20px'>
+        {/* Top Studio Header — Linear / Vercel Aesthetic */}
+        <div className='flex items-start justify-between flex-wrap gap-16px pb-16px border-b border-solid border-[var(--color-border-2)]'>
+          <div className='flex flex-col gap-4px'>
+            <div className='flex items-center gap-10px'>
+              <span className='text-22px font-700 tracking-tight text-t-primary'>
+                {isZh ? '全媒介全自动获客工作台' : 'Omni-Media Lead-Gen Studio'}
+              </span>
+              <span className='px-8px py-2px rd-full text-11px font-600 bg-[rgba(99,102,241,0.12)] text-[#6366F1]'>
+                Zero-Docker Local
+              </span>
+            </div>
+            <span className='text-13px text-t-secondary'>
               {isZh
-                ? '100% 本地免 Docker 即用（AI 创作 · 17 平台矩阵与 AiToEarn MCP · 独立隔离浏览器雷达 · 本地线索 CRM 闭环）'
-                : '100% Zero-Docker Local Studio: Create · Publish (17 Channels + AiToEarn MCP) · Engage (Isolated Browser) · Convert CRM'}
-            </p>
+                ? '创作 → 17 大全球平台隔离分发 → 实时评论意向捕获 → 本地线索 CRM 闭环'
+                : 'Create → 17-Channel Isolated Distribution → Live Browser Intent Radar → Local Lead CRM'}
+            </span>
           </div>
-          <Space>
-            <Tag color={settings.llmApiKey ? 'green' : 'orange'}>
-              {settings.llmApiKey ? (isZh ? `模型已就绪: ${settings.llmModel}` : `LLM Ready: ${settings.llmModel}`) : (isZh ? '未配置模型 Key' : 'LLM Key Needed')}
-            </Tag>
-            <Tag color={activeMcpKey ? 'green' : 'arcoblue'}>
-              {activeMcpKey ? 'AiToEarn MCP Ready' : (isZh ? '本地隔离浏览器模式' : 'Local Isolated Browser')}
-            </Tag>
-            <Button type='primary' size='small' onClick={() => setSettingsModalOpen(true)}>
-              {isZh ? '⚙️ 配置模型与 AiToEarn MCP' : '⚙️ Configure LLM & AiToEarn MCP'}
-            </Button>
-          </Space>
+
+          <div className='flex items-center gap-8px flex-wrap'>
+            <button
+              type='button'
+              onClick={() => setSettingsModalOpen(true)}
+              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-2 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
+            >
+              <span
+                className='inline-block size-7px rd-full'
+                style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }}
+              />
+              {settings.llmApiKey ? settings.llmModel : (isZh ? '配置模型密钥' : 'Configure LLM')}
+            </button>
+
+            <button
+              type='button'
+              onClick={() => setSettingsModalOpen(true)}
+              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-2 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
+            >
+              <span
+                className='inline-block size-7px rd-full'
+                style={{ background: activeMcpKey ? '#10B981' : '#6366F1' }}
+              />
+              {activeMcpKey ? 'AiToEarn MCP' : (isZh ? '隔离浏览器直连' : 'Isolated Browser')}
+            </button>
+
+            <button
+              type='button'
+              onClick={() => setSettingsModalOpen(true)}
+              className='h-32px px-14px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer transition-colors'
+            >
+              {isZh ? '⚙️ 接口配置' : '⚙️ API Settings'}
+            </button>
+          </div>
         </div>
 
-        <Tabs defaultActiveTab='create' type='rounded'>
-          {/* MODULE 1: CREATE */}
-          <TabPane key='create' title={isZh ? '1. Create 获客创作工坊' : '1. Create Studio'}>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-16px pt-8px'>
-              <Card title={isZh ? 'AI 多平台获客内容与出海多语生成' : 'AI Lead-Gen Copy & Multilingual Studio'} bordered className='rd-12px'>
-                <div className='flex flex-col gap-10px'>
-                  <div className='flex gap-8px flex-wrap'>
-                    <Select value={createPlatform} onChange={setCreatePlatform} style={{ flex: 1 }}>
-                      {ALL_PLATFORMS.map((p) => (
-                        <Select.Option key={p.id} value={p.id}>
-                          {isZh ? `${p.nameZh} (${p.aspect})` : `${p.nameEn} (${p.aspect})`}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                    <Select value={targetLang} onChange={setTargetLang} style={{ width: 150 }}>
-                      <Select.Option value='zh-CN'>简体中文</Select.Option>
-                      <Select.Option value='en-US'>English (Global)</Select.Option>
-                      <Select.Option value='ja-JP'>日本語</Select.Option>
-                      <Select.Option value='es-ES'>Español</Select.Option>
-                    </Select>
+        {/* Modern Segmented 4-Step Pipeline Navigation */}
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-8px p-4px rd-12px bg-2 border border-solid border-[var(--color-border-2)]'>
+          {navTabs.map((t) => {
+            const active = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                type='button'
+                onClick={() => setActiveTab(t.id)}
+                className={`h-38px px-14px rd-8px border-none cursor-pointer flex items-center justify-between text-13px font-600 transition-all ${
+                  active
+                    ? 'bg-1 text-t-primary shadow-sm'
+                    : 'bg-transparent text-t-secondary hover:text-t-primary'
+                }`}
+              >
+                <span className='flex items-center gap-8px'>
+                  <span className={`text-11px font-700 ${active ? 'text-[#4F46E5]' : 'text-t-tertiary'}`}>{t.step}</span>
+                  <span>{t.title}</span>
+                </span>
+                {typeof t.count === 'number' && (
+                  <span className='px-7px py-1px rd-full text-11px font-600 bg-fill-2 text-t-secondary'>
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* TAB 1: CREATE STUDIO */}
+        {activeTab === 'create' && (
+          <div className='grid grid-cols-1 lg:grid-cols-12 gap-20px items-start'>
+            <div className='lg:col-span-7 p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-16px'>
+              <div className='flex items-center justify-between'>
+                <div>
+                  <div className='text-15px font-600 text-t-primary'>
+                    {isZh ? 'AI 多平台获客内容工坊' : 'AI Lead-Gen Content Composer'}
                   </div>
-                  <TextArea
-                    rows={3}
-                    value={topicInput}
-                    onChange={setTopicInput}
-                    placeholder={
-                      isZh
-                        ? '输入产品卖点、目标客户痛点或想要推广的主题，AI 将自动按所选平台与目标语种生成高转化文案...'
-                        : 'Describe your product value proposition and target ICP...'
-                    }
-                  />
-                  <Space wrap>
-                    <Button type='primary' loading={creatingCopy} onClick={handleAiGenerateCopy}>
-                      {isZh ? '✨ AI 生成获客文案' : '✨ Generate Lead-Gen Copy'}
-                    </Button>
-                    <Button type='outline' loading={creatingImg} onClick={handleAiGenerateImage}>
-                      {isZh ? '🎨 AI 生成封面配图' : '🎨 Generate Cover Visual'}
-                    </Button>
-                  </Space>
-                  <Input
-                    value={draftShortLink}
-                    onChange={setDraftShortLink}
-                    placeholder={isZh ? '可选：填入归因追踪短链 (UTM / short-link)' : 'Optional: tracking short-link / UTM URL'}
-                  />
-                  <Input
-                    value={scheduledTime}
-                    onChange={setScheduledTime}
-                    placeholder='YYYY-MM-DD HH:mm'
-                  />
-                  <Button type='primary' status='success' onClick={handleSaveToSchedule}>
-                    {isZh ? '加入全渠道排期日历 →' : 'Add to Omni-Channel Calendar →'}
-                  </Button>
-                </div>
-              </Card>
-
-              <Card title={isZh ? `手机端实时预览 (${selectedCreatePlatform.nameZh} · ${selectedCreatePlatform.aspect})` : `Mobile Preview (${selectedCreatePlatform.nameEn})`} bordered className='rd-12px'>
-                <div className='max-w-360px mx-auto p-12px rd-16px border border-solid border-[var(--color-border-2)] bg-2 flex flex-col gap-10px'>
-                  {draftImageUrl ? (
-                    <img src={draftImageUrl} alt='AI Cover' className='w-full rd-10px max-h-220px object-cover' />
-                  ) : (
-                    <div className='h-120px rd-10px bg-1 flex items-center justify-center text-12px text-t-secondary border border-dashed border-[var(--color-border-2)]'>
-                      {isZh ? '封面图预览区（点击左侧 AI 生成配图）' : 'Visual preview area'}
-                    </div>
-                  )}
-                  <Input
-                    value={draftTitle}
-                    onChange={setDraftTitle}
-                    placeholder={isZh ? '标题预览（可直接微调）' : 'Headline preview (editable)'}
-                  />
-                  <TextArea
-                    rows={5}
-                    value={draftBody}
-                    onChange={setDraftBody}
-                    placeholder={isZh ? '正文与 CTA 钩子预览（可直接微调）' : 'Body & CTA preview (editable)'}
-                  />
-                </div>
-              </Card>
-            </div>
-          </TabPane>
-
-          {/* MODULE 2: PUBLISH */}
-          <TabPane key='publish' title={isZh ? `2. Publish 17平台与排期 (${posts.length})` : `2. Publish & Calendar (${posts.length})`}>
-            <div className='flex flex-col gap-16px pt-8px'>
-              <Card bordered className='rd-12px'>
-                <div className='flex items-center justify-between flex-wrap gap-10px mb-12px'>
-                  <span className='font-600'>{isZh ? '全球 17 大媒介（点击直接打开独立 Cookie 隔离浏览器登录/发布）' : '17 Global & CN Media Platforms (Isolated Browser)'}</span>
-                  <Space>
-                    <Button size='small' type={regionFilter === 'all' ? 'primary' : 'secondary'} onClick={() => setRegionFilter('all')}>
-                      {isZh ? '全部 (17)' : 'All (17)'}
-                    </Button>
-                    <Button size='small' type={regionFilter === 'cn' ? 'primary' : 'secondary'} onClick={() => setRegionFilter('cn')}>
-                      {isZh ? '🇨🇳 国内 (9)' : '🇨🇳 CN (9)'}
-                    </Button>
-                    <Button size='small' type={regionFilter === 'global' ? 'primary' : 'secondary'} onClick={() => setRegionFilter('global')}>
-                      {isZh ? '🌍 海外 (8)' : '🌍 Global (8)'}
-                    </Button>
-                  </Space>
-                </div>
-                <div className='grid grid-cols-2 md:grid-cols-4 gap-10px'>
-                  {visiblePlatforms.map((p) => {
-                    const acc = accounts.find((a) => a.platformId === p.id);
-                    const partition = acc?.partition || `persist:bm-acc-${p.id}-default`;
-                    return (
-                      <div key={p.id} className='p-12px rd-10px border border-solid border-[var(--color-border-2)] flex flex-col gap-6px bg-2'>
-                        <div className='flex items-center justify-between'>
-                          <span className='font-600 text-14px'>{isZh ? p.nameZh : p.nameEn}</span>
-                          <Tag size='small' color={p.region === 'cn' ? 'orangered' : 'arcoblue'}>{p.region === 'cn' ? 'CN' : 'Global'}</Tag>
-                        </div>
-                        <span className='text-11px text-t-secondary truncate'>{acc ? `🟢 ${acc.label}` : p.localUploader}</span>
-                        <Button size='mini' type='outline' onClick={() => handleOpenIsolatedWindow(partition, p.creatorUrl, acc?.label || p.nameZh)}>
-                          {isZh ? '打开隔离浏览器 ↗' : 'Open Isolated Browser ↗'}
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </Card>
-
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-16px'>
-                <Card title={isZh ? '多账号隔离容器管理' : 'Isolated Account Containers'} bordered className='rd-12px'>
-                  <div className='flex gap-8px mb-12px'>
-                    <Select value={accPlatform} onChange={setAccPlatform} style={{ width: 150 }}>
-                      {ALL_PLATFORMS.map((p) => (
-                        <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
-                      ))}
-                    </Select>
-                    <Input placeholder={isZh ? '账号备注（如：主号）' : 'Account label'} value={accLabel} onChange={setAccLabel} />
-                    <Button type='primary' onClick={handleAddAccount}>{isZh ? '添加' : 'Add'}</Button>
+                  <div className='text-12px text-t-secondary mt-2px'>
+                    {isZh ? '自动匹配目标平台画幅、痛点钩子与多语出海改写' : 'Adapts aspect ratios, pain-point hooks & target language'}
                   </div>
-                  {accounts.length === 0 ? (
-                    <Empty description={isZh ? '暂无自定义账号，添加后分配独立 Cookie 分区' : 'No accounts yet'} />
-                  ) : (
-                    <div className='flex flex-col gap-8px'>
-                      {accounts.map((a) => {
-                        const plat = ALL_PLATFORMS.find((p) => p.id === a.platformId);
-                        return (
-                          <div key={a.id} className='flex items-center justify-between p-8px rd-8px bg-2'>
-                            <div>
-                              <div className='font-500'>{a.label} ({a.platformId})</div>
-                              <div className='text-11px text-t-secondary'>{a.partition}</div>
-                            </div>
-                            <Button size='mini' onClick={() => plat && handleOpenIsolatedWindow(a.partition, plat.creatorUrl, a.label)}>
-                              {isZh ? '启动窗口' : 'Launch'}
-                            </Button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </Card>
+                </div>
+                <span className='px-8px py-3px rd-6px text-11px font-600 bg-fill-2 text-t-secondary'>
+                  {selectedCreatePlatform.aspect}
+                </span>
+              </div>
 
-                <Card title={isZh ? '全渠道排期日历与人工确认发布' : 'Schedule Calendar & Approval'} bordered className='rd-12px'>
-                  {posts.length === 0 ? (
-                    <Empty description={isZh ? '请在「1. Create 获客创作工坊」生成并加入排期' : 'Create content in tab 1 to schedule'} />
-                  ) : (
-                    <div className='flex flex-col gap-8px'>
-                      {posts.map((post) => (
-                        <div key={post.id} className='flex items-center justify-between p-10px rd-8px bg-2'>
-                          <div className='min-w-0 pr-8px'>
-                            <div className='font-500 truncate'>{post.title}</div>
-                            <Space size='mini'>
-                              <Tag size='small' color='arcoblue'>{post.platformId}</Tag>
-                              <Tag size='small' color={post.status === 'published' ? 'green' : 'orange'}>{post.status}</Tag>
-                              <span className='text-11px text-t-secondary'>{post.scheduledAt}</span>
-                            </Space>
-                          </div>
-                          {post.status !== 'published' && (
-                            <Button size='mini' type='primary' onClick={() => handleConfirmPublish(post)}>
-                              {isZh ? '确认发布' : 'Publish'}
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </Card>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-12px'>
+                <div className='flex flex-col gap-6px'>
+                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '目标发布平台' : 'Target Channel'}</label>
+                  <Select value={createPlatform} onChange={setCreatePlatform}>
+                    {ALL_PLATFORMS.map((p) => (
+                      <Select.Option key={p.id} value={p.id}>
+                        {isZh ? `${p.nameZh} · ${p.aspect}` : `${p.nameEn} · ${p.aspect}`}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+                <div className='flex flex-col gap-6px'>
+                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '内容生成语种' : 'Output Language'}</label>
+                  <Select value={targetLang} onChange={setTargetLang}>
+                    <Select.Option value='zh-CN'>简体中文 (zh-CN)</Select.Option>
+                    <Select.Option value='en-US'>English (Global)</Select.Option>
+                    <Select.Option value='ja-JP'>日本語 (ja-JP)</Select.Option>
+                    <Select.Option value='es-ES'>Español (es-ES)</Select.Option>
+                  </Select>
+                </div>
+              </div>
+
+              <div className='flex flex-col gap-6px'>
+                <label className='text-12px font-500 text-t-secondary'>
+                  {isZh ? '产品卖点与目标客户痛点' : 'Product Pitch & Target ICP Pain Points'}
+                </label>
+                <TextArea
+                  rows={4}
+                  value={topicInput}
+                  onChange={setTopicInput}
+                  placeholder={
+                    isZh
+                      ? '例如：标脉灵枢是一款开源免 Docker 的企业 AI 获客工作台，帮跨境团队 1 个人管理 17 个社媒矩阵，自动捕捉评论区询价客户...'
+                      : 'e.g., BiaoMai Lingshu is an Apache-2.0 zero-Docker AI workbench helping lean teams run 17 channels & capture buyer intent...'
+                  }
+                />
+              </div>
+
+              <div className='flex items-center gap-10px flex-wrap'>
+                <Button type='primary' loading={creatingCopy} onClick={handleAiGenerateCopy} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                  {isZh ? '✨ AI 生成获客文案' : '✨ Generate Copy'}
+                </Button>
+                <Button type='outline' loading={creatingImg} onClick={handleAiGenerateImage}>
+                  {isZh ? '🎨 AI 生成封面配图' : '🎨 Generate Cover Visual'}
+                </Button>
+              </div>
+
+              <div className='h-1px bg-[var(--color-border-2)]' />
+
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-12px'>
+                <div className='flex flex-col gap-6px'>
+                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '归因短链 / UTM（可选）' : 'UTM / Short-Link (Optional)'}</label>
+                  <Input value={draftShortLink} onChange={setDraftShortLink} placeholder='https://...' />
+                </div>
+                <div className='flex flex-col gap-6px'>
+                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '计划发布时间' : 'Schedule Time'}</label>
+                  <Input value={scheduledTime} onChange={setScheduledTime} placeholder='YYYY-MM-DD HH:mm' />
+                </div>
+              </div>
+
+              <div className='flex justify-end pt-4px'>
+                <Button type='primary' size='large' onClick={handleSaveToSchedule} style={{ background: '#0F172A', borderColor: '#0F172A' }}>
+                  {isZh ? '保存草稿并进入排期分发 →' : 'Save & Continue to Publish →'}
+                </Button>
               </div>
             </div>
-          </TabPane>
 
-          {/* MODULE 3: ENGAGE */}
-          <TabPane key='engage' title={isZh ? '3. Engage 隔离浏览器意向雷达' : '3. Engage Browser Radar'}>
-            <div className='flex flex-col gap-16px pt-8px'>
-              <Card bordered className='rd-12px'>
-                <div className='flex items-center justify-between flex-wrap gap-10px mb-10px'>
-                  <Space wrap>
-                    <Select
-                      value={selectedPartition}
-                      onChange={setSelectedPartition}
-                      placeholder={isZh ? '选择已打开的隔离浏览器账号' : 'Select isolated browser account'}
-                      style={{ width: 260 }}
-                    >
-                      {accounts.map((a) => (
-                        <Select.Option key={a.partition} value={a.partition}>🟢 {a.label} ({a.platformId})</Select.Option>
-                      ))}
-                    </Select>
-                    <Button type='primary' onClick={handleExtractLiveBrowserComments}>
-                      {isZh ? '🎯 一键读取隔离浏览器当前页评论' : '🎯 Extract Live Browser Comments'}
-                    </Button>
-                  </Space>
-                  <Tag color='green'>{isZh ? '自动剔除手机号/微信号/邮箱/UID' : 'Auto PII Sanitizer'}</Tag>
+            {/* Right: Realistic iPhone Device Mockup */}
+            <div className='lg:col-span-5 flex justify-center'>
+              <div className='w-full max-w-360px p-14px rd-28px bg-[#0F172A] shadow-xl border-4 border-solid border-[#1E293B]'>
+                {/* Dynamic Island */}
+                <div className='flex items-center justify-between px-12px pb-10px text-white/80 text-11px'>
+                  <span>9:41</span>
+                  <div className='w-84px h-18px rd-full bg-black' />
+                  <span>5G</span>
                 </div>
 
-                <div className='flex items-center gap-8px mb-8px'>
-                  <Select value={radarPlatform} onChange={setRadarPlatform} style={{ width: 160 }}>
+                {/* Inner Screen */}
+                <div className='rd-20px bg-1 overflow-hidden border border-solid border-[var(--color-border-2)] flex flex-col'>
+                  <div className='px-12px py-8px border-b border-solid border-[var(--color-border-2)] flex items-center justify-between text-12px'>
+                    <span className='font-600 flex items-center gap-6px'>
+                      <span
+                        className='inline-flex items-center justify-center size-18px rd-4px text-white text-9px font-700'
+                        style={{ background: selectedCreatePlatform.brandColor }}
+                      >
+                        {selectedCreatePlatform.badge}
+                      </span>
+                      {isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn}
+                    </span>
+                    <span className='text-11px text-t-secondary'>{selectedCreatePlatform.aspect}</span>
+                  </div>
+
+                  {draftImageUrl ? (
+                    <img src={draftImageUrl} alt='AI Cover' className='w-full h-180px object-cover' />
+                  ) : (
+                    <div className='h-150px bg-2 flex flex-col items-center justify-center gap-4px text-12px text-t-secondary border-b border-solid border-[var(--color-border-2)]'>
+                      <span>{isZh ? '封面视觉预览区' : 'Visual Cover Preview'}</span>
+                      <span className='text-11px text-t-tertiary'>{isZh ? '点击左侧「AI 生成封面配图」' : 'Click Generate Cover Visual'}</span>
+                    </div>
+                  )}
+
+                  <div className='p-12px flex flex-col gap-8px'>
+                    <Input
+                      value={draftTitle}
+                      onChange={setDraftTitle}
+                      placeholder={isZh ? '标题（生成后可在此行内微调）' : 'Headline (editable inline)'}
+                      style={{ fontWeight: 600 }}
+                    />
+                    <TextArea
+                      rows={5}
+                      value={draftBody}
+                      onChange={setDraftBody}
+                      placeholder={isZh ? '正文与 CTA 钩子（生成后可微调）' : 'Body & CTA hook (editable inline)'}
+                    />
+                    {draftShortLink && (
+                      <div className='px-8px py-4px rd-6px bg-[rgba(79,70,229,0.08)] text-[#4F46E5] text-11px truncate'>
+                        🔗 {draftShortLink}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: OMNI-PUBLISH (17 CHANNELS) */}
+        {activeTab === 'publish' && (
+          <div className='flex flex-col gap-20px'>
+            <div className='p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-14px'>
+              <div className='flex items-center justify-between flex-wrap gap-10px'>
+                <div>
+                  <div className='text-15px font-600'>{isZh ? '全球 17 大媒介矩阵（本地隔离浏览器直连）' : '17 Global & Domestic Channels'}</div>
+                  <div className='text-12px text-t-secondary mt-2px'>
+                    {isZh ? '每个账号独立 Cookie 分区，免服务器、免开发者资质即可登录发布' : 'Isolated Cookie partitions per account, zero server setup required'}
+                  </div>
+                </div>
+                <Space>
+                  <Button size='small' type={regionFilter === 'all' ? 'primary' : 'secondary'} onClick={() => setRegionFilter('all')}>{isZh ? '全部 (17)' : 'All (17)'}</Button>
+                  <Button size='small' type={regionFilter === 'cn' ? 'primary' : 'secondary'} onClick={() => setRegionFilter('cn')}>{isZh ? '🇨🇳 国内 (9)' : '🇨🇳 CN (9)'}</Button>
+                  <Button size='small' type={regionFilter === 'global' ? 'primary' : 'secondary'} onClick={() => setRegionFilter('global')}>{isZh ? '🌍 海外 (8)' : '🌍 Global (8)'}</Button>
+                </Space>
+              </div>
+
+              <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-10px'>
+                {visiblePlatforms.map((p) => {
+                  const acc = accounts.find((a) => a.platformId === p.id);
+                  const partition = acc?.partition || `persist:bm-acc-${p.id}-default`;
+                  return (
+                    <div
+                      key={p.id}
+                      className='p-12px rd-12px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col justify-between gap-10px hover:border-[#4F46E5] transition-colors'
+                    >
+                      <div className='flex items-center justify-between'>
+                        <span
+                          className='inline-flex items-center justify-center size-26px rd-7px text-white text-11px font-700'
+                          style={{ background: p.brandColor }}
+                        >
+                          {p.badge}
+                        </span>
+                        <span className='text-10px font-600 text-t-tertiary'>{p.region === 'cn' ? 'CN' : 'GL'}</span>
+                      </div>
+                      <div>
+                        <div className='text-13px font-600 text-t-primary'>{isZh ? p.nameZh : p.nameEn}</div>
+                        <div className='text-11px text-t-secondary truncate mt-2px'>{acc ? `🟢 ${acc.label}` : p.aspect}</div>
+                      </div>
+                      <Button size='mini' type='outline' long onClick={() => handleOpenIsolatedWindow(partition, p.creatorUrl, acc?.label || p.nameZh)}>
+                        {isZh ? '打开后台 ↗' : 'Launch ↗'}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-20px'>
+              <div className='p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-12px'>
+                <div className='text-15px font-600'>{isZh ? '多账号隔离容器管理' : 'Isolated Account Containers'}</div>
+                <div className='flex gap-8px'>
+                  <Select value={accPlatform} onChange={setAccPlatform} style={{ width: 140 }}>
                     {ALL_PLATFORMS.map((p) => (
                       <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
                     ))}
                   </Select>
-                  <Button type='outline' onClick={handleAnalyzePastedComments}>
-                    {isZh ? '分析下方粘贴的评论' : 'Analyze Pasted Comments'}
-                  </Button>
+                  <Input placeholder={isZh ? '账号备注（如：主号）' : 'Account label'} value={accLabel} onChange={setAccLabel} />
+                  <Button type='primary' onClick={handleAddAccount} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>{isZh ? '添加' : 'Add'}</Button>
                 </div>
-                <TextArea
-                  rows={3}
-                  value={rawCommentInput}
-                  onChange={setRawCommentInput}
-                  placeholder={isZh ? '也可以直接粘贴评论区文本（每行一条）进行脱敏与 S/A/B/C 意向分级...' : 'Or paste comments directly (one per line)...'}
-                />
-              </Card>
-
-              {analyzedList.length === 0 ? (
-                <Empty description={isZh ? '打开隔离浏览器帖子页点击上方提取，或粘贴评论分析' : 'Extract from live browser or paste comments'} />
-              ) : (
-                <div className='flex flex-col gap-10px'>
-                  {analyzedList.map((item) => (
-                    <Card key={item.id} bordered className='rd-10px'>
-                      <div className='flex flex-col gap-8px'>
-                        <div className='flex items-center justify-between gap-12px'>
-                          <Space>
-                            <Tag color={item.tier === 'S' ? 'red' : item.tier === 'A' ? 'orange' : 'gray'}>{item.tier}-Tier · {item.score}</Tag>
-                            {item.redacted > 0 && <Tag color='green'>{isZh ? `已脱敏 ${item.redacted} 处隐私` : `Redacted ${item.redacted} PII`}</Tag>}
-                          </Space>
-                          <Space>
-                            {item.draftReply && (
-                              <Button size='small' type='outline' onClick={() => handlePrefillReplyToBrowser(item.draftReply)}>
-                                {isZh ? '采纳并填入浏览器输入框' : 'Prefill into Browser'}
-                              </Button>
-                            )}
-                            <Button size='small' type='primary' onClick={() => handleAddToCrm(item)}>
-                              {isZh ? '+ 加入线索 CRM' : '+ Add to CRM'}
-                            </Button>
-                          </Space>
-                        </div>
-                        <div className='font-500'>{item.text}</div>
-                        {item.draftReply && (
-                          <div className='p-8px rd-8px bg-2 text-12px text-t-secondary'>
-                            {isZh ? 'AI 回复草稿：' : 'AI Draft: '}{item.draftReply}
+                {accounts.length === 0 ? (
+                  <Empty description={isZh ? '暂无自定义隔离账号' : 'No accounts yet'} />
+                ) : (
+                  <div className='flex flex-col gap-8px'>
+                    {accounts.map((a) => {
+                      const plat = ALL_PLATFORMS.find((p) => p.id === a.platformId);
+                      return (
+                        <div key={a.id} className='flex items-center justify-between p-10px rd-10px bg-1 border border-solid border-[var(--color-border-2)]'>
+                          <div>
+                            <div className='text-13px font-600'>{a.label} · {plat ? (isZh ? plat.nameZh : plat.nameEn) : a.platformId}</div>
+                            <div className='text-11px text-t-secondary'>{a.partition}</div>
                           </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabPane>
-
-          {/* MODULE 4: CONVERT CRM */}
-          <TabPane key='crm' title={isZh ? `4. Convert 线索 CRM (${leads.length})` : `4. Convert CRM (${leads.length})`}>
-            <div className='flex flex-col gap-16px pt-8px'>
-              <div className='grid grid-cols-2 md:grid-cols-4 gap-12px'>
-                <Card bordered className='rd-10px'><Statistic title={isZh ? '线索总数' : 'Total Leads'} value={leads.length} /></Card>
-                <Card bordered className='rd-10px'><Statistic title={isZh ? 'S/A 高意向' : 'S/A Intent'} value={leads.filter((l) => l.tier === 'S' || l.tier === 'A').length} /></Card>
-                <Card bordered className='rd-10px'><Statistic title={isZh ? '商机跟进' : 'Opportunities'} value={leads.filter((l) => l.stage === 'opportunity').length} /></Card>
-                <Card bordered className='rd-10px'><Statistic title={isZh ? '成交客户' : 'Won'} value={leads.filter((l) => l.stage === 'won').length} /></Card>
-              </div>
-              <div className='flex justify-end'>
-                <Button onClick={handleExportCsv} disabled={leads.length === 0}>{isZh ? '导出 CSV 线索表' : 'Export CSV'}</Button>
-              </div>
-              {leads.length === 0 ? (
-                <Empty description={isZh ? '暂无线索，请在「3. Engage 意向雷达」一键入库' : 'No leads yet'} />
-              ) : (
-                <div className='flex flex-col gap-10px'>
-                  {leads.map((lead) => (
-                    <Card key={lead.id} bordered className='rd-10px'>
-                      <div className='flex items-center justify-between gap-12px'>
-                        <div className='flex flex-col gap-4px'>
-                          <Space>
-                            <Tag color='arcoblue'>{lead.platformId}</Tag>
-                            <Tag color={lead.tier === 'S' ? 'red' : 'orange'}>{lead.tier}-Tier</Tag>
-                            <Tag color={lead.stage === 'won' ? 'green' : 'purple'}>{stageLabel[lead.stage]}</Tag>
-                            <span className='font-600'>{lead.nickname}</span>
-                          </Space>
-                          <div className='text-t-secondary'>{lead.sanitizedComment}</div>
+                          <Button size='mini' type='outline' onClick={() => plat && handleOpenIsolatedWindow(a.partition, plat.creatorUrl, a.label)}>
+                            {isZh ? '打开窗口' : 'Open'}
+                          </Button>
                         </div>
-                        {lead.stage !== 'won' && (
-                          <Button size='small' type='outline' onClick={() => handleAdvanceLead(lead.id)}>
-                            {isZh ? '推进下一阶段 →' : 'Advance Stage →'}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className='p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-12px'>
+                <div className='text-15px font-600'>{isZh ? '排期日历与人工确认发布队列' : 'Schedule Queue & Approval'}</div>
+                {posts.length === 0 ? (
+                  <Empty description={isZh ? '请在「01 AI 内容创作」生成草稿并加入排期' : 'Create content in step 01 first'} />
+                ) : (
+                  <div className='flex flex-col gap-8px'>
+                    {posts.map((post) => (
+                      <div key={post.id} className='flex items-center justify-between p-12px rd-10px bg-1 border border-solid border-[var(--color-border-2)]'>
+                        <div className='min-w-0 pr-8px'>
+                          <div className='text-13px font-600 truncate'>{post.title}</div>
+                          <Space size='mini' className='mt-4px'>
+                            <Tag size='small' color='arcoblue'>{post.platformId}</Tag>
+                            <Tag size='small' color={post.status === 'published' ? 'green' : 'orange'}>{post.status}</Tag>
+                            <span className='text-11px text-t-secondary'>{post.scheduledAt}</span>
+                          </Space>
+                        </div>
+                        {post.status !== 'published' && (
+                          <Button size='small' type='primary' onClick={() => handleConfirmPublish(post)} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                            {isZh ? '确认发布' : 'Publish'}
                           </Button>
                         )}
                       </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </TabPane>
-        </Tabs>
+          </div>
+        )}
+
+        {/* TAB 3: ENGAGE BROWSER RADAR */}
+        {activeTab === 'engage' && (
+          <div className='flex flex-col gap-20px'>
+            <div className='p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-12px'>
+              <div className='flex items-center justify-between flex-wrap gap-10px'>
+                <Space wrap>
+                  <Select
+                    value={selectedPartition}
+                    onChange={setSelectedPartition}
+                    placeholder={isZh ? '选择隔离浏览器账号' : 'Select isolated browser account'}
+                    style={{ width: 260 }}
+                  >
+                    {accounts.map((a) => (
+                      <Select.Option key={a.partition} value={a.partition}>🟢 {a.label} ({a.platformId})</Select.Option>
+                    ))}
+                  </Select>
+                  <Button type='primary' onClick={handleExtractLiveBrowserComments} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                    {isZh ? '🎯 一键读取隔离浏览器当前页评论' : '🎯 Extract Live Browser Comments'}
+                  </Button>
+                </Space>
+                <Tag color='green'>{isZh ? '强制 PII 隐私脱敏 · 停在发送键前人工确认' : 'Mandatory PII Sanitizer · Human-in-the-Loop'}</Tag>
+              </div>
+
+              <div className='flex items-center gap-8px'>
+                <Select value={radarPlatform} onChange={setRadarPlatform} style={{ width: 160 }}>
+                  {ALL_PLATFORMS.map((p) => (
+                    <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
+                  ))}
+                </Select>
+                <Button type='outline' onClick={handleAnalyzePastedComments}>{isZh ? '分析下方粘贴评论' : 'Analyze Pasted Comments'}</Button>
+              </div>
+              <TextArea
+                rows={3}
+                value={rawCommentInput}
+                onChange={setRawCommentInput}
+                placeholder={isZh ? '或在此粘贴真实评论区文本（每行一条），自动剔除手机号/微信号/邮箱并评分...' : 'Or paste real comments (one per line)...'}
+              />
+            </div>
+
+            {analyzedList.length === 0 ? (
+              <Empty description={isZh ? '打开隔离浏览器帖子页点击提取，或粘贴评论分析' : 'Extract from live browser or paste comments'} />
+            ) : (
+              <div className='flex flex-col gap-10px'>
+                {analyzedList.map((item) => (
+                  <div key={item.id} className='p-16px rd-12px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-10px'>
+                    <div className='flex items-center justify-between gap-12px flex-wrap'>
+                      <Space>
+                        <Tag color={item.tier === 'S' ? 'red' : item.tier === 'A' ? 'orange' : 'gray'}>{item.tier}-Tier · {item.score}</Tag>
+                        {item.redacted > 0 && <Tag color='green'>{isZh ? `已脱敏 ${item.redacted} 处隐私` : `Redacted ${item.redacted} PII`}</Tag>}
+                      </Space>
+                      <Space>
+                        {item.draftReply && (
+                          <Button size='small' type='outline' onClick={() => handlePrefillReplyToBrowser(item.draftReply)}>
+                            {isZh ? '填入浏览器回复框' : 'Prefill Browser'}
+                          </Button>
+                        )}
+                        <Button size='small' type='primary' onClick={() => handleAddToCrm(item)} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                          {isZh ? '+ 加入线索 CRM' : '+ Add to CRM'}
+                        </Button>
+                      </Space>
+                    </div>
+                    <div className='text-14px font-500 text-t-primary'>{item.text}</div>
+                    {item.draftReply && (
+                      <div className='p-10px rd-8px bg-1 text-12px text-t-secondary border border-solid border-[var(--color-border-2)]'>
+                        {isZh ? 'AI 高转化回复草稿：' : 'AI Reply Draft: '}{item.draftReply}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 4: CONVERT CRM */}
+        {activeTab === 'crm' && (
+          <div className='flex flex-col gap-20px'>
+            <div className='grid grid-cols-2 md:grid-cols-4 gap-12px'>
+              {[
+                { label: isZh ? '本地线索总数' : 'Total Leads', value: leads.length },
+                { label: isZh ? 'S/A 高意向' : 'S/A High Intent', value: leads.filter((l) => l.tier === 'S' || l.tier === 'A').length },
+                { label: isZh ? '商机跟进中' : 'Opportunities', value: leads.filter((l) => l.stage === 'opportunity').length },
+                { label: isZh ? '已成交转化' : 'Won Deals', value: leads.filter((l) => l.stage === 'won').length },
+              ].map((kpi) => (
+                <div key={kpi.label} className='p-16px rd-12px bg-2 border border-solid border-[var(--color-border-2)]'>
+                  <div className='text-12px text-t-secondary'>{kpi.label}</div>
+                  <div className='text-24px font-700 text-t-primary mt-4px'>{kpi.value}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className='flex justify-end'>
+              <Button type='outline' onClick={handleExportCsv} disabled={leads.length === 0}>{isZh ? '导出 CSV 线索表' : 'Export CSV'}</Button>
+            </div>
+
+            {leads.length === 0 ? (
+              <Empty description={isZh ? '暂无线索，请在「03 浏览器意向雷达」一键入库' : 'No leads yet'} />
+            ) : (
+              <div className='flex flex-col gap-10px'>
+                {leads.map((lead) => (
+                  <div key={lead.id} className='p-14px rd-12px bg-2 border border-solid border-[var(--color-border-2)] flex items-center justify-between gap-12px'>
+                    <div className='flex flex-col gap-4px'>
+                      <Space>
+                        <Tag color='arcoblue'>{lead.platformId}</Tag>
+                        <Tag color={lead.tier === 'S' ? 'red' : 'orange'}>{lead.tier}-Tier</Tag>
+                        <Tag color={lead.stage === 'won' ? 'green' : 'purple'}>{stageLabel[lead.stage]}</Tag>
+                        <span className='font-600'>{lead.nickname}</span>
+                      </Space>
+                      <div className='text-13px text-t-secondary'>{lead.sanitizedComment}</div>
+                    </div>
+                    {lead.stage !== 'won' && (
+                      <Button size='small' type='outline' onClick={() => handleAdvanceLead(lead.id)}>
+                        {isZh ? '推进下一阶段 →' : 'Advance →'}
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* SETTINGS MODAL */}
         <Modal
-          title={isZh ? '⚙️ 大模型与 AiToEarn MCP 连接配置（本地持久化）' : '⚙️ LLM & AiToEarn MCP Configuration'}
+          title={isZh ? '⚙️ 大模型与 AiToEarn MCP 连接配置（本地持久化）' : '⚙️ LLM & AiToEarn MCP Settings'}
           visible={settingsModalOpen}
           onCancel={() => setSettingsModalOpen(false)}
           onOk={() => {
