@@ -56,6 +56,8 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
     ipcRenderer.invoke('biaomai:open-isolated-browser', payload),
   extractBrowserComments: (payload: { partition: string }) =>
     ipcRenderer.invoke('biaomai:extract-browser-comments', payload),
+  extractBrowserPageFormula: (payload: { partition: string }) =>
+    ipcRenderer.invoke('biaomai:extract-browser-page-formula', payload),
   prefillBrowserReply: (payload: { partition: string; replyText: string }) =>
     ipcRenderer.invoke('biaomai:prefill-browser-reply', payload),
   runLlm: (payload: { baseUrl: string; apiKey: string; model: string; systemPrompt: string; userPrompt: string }) =>
@@ -64,6 +66,9 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
     ipcRenderer.invoke('biaomai:generate-image', payload),
   callAiToEarnMcp: (payload: { endpoint: string; apiKey: string; method: string; params?: Record<string, unknown> }) =>
     ipcRenderer.invoke('biaomai:call-aitoearn-mcp', payload),
+  listInstalledPacks: () => ipcRenderer.invoke('biaomai:list-installed-packs'),
+  installLocalPack: () => ipcRenderer.invoke('biaomai:install-local-pack'),
+  uninstallPack: (payload: { packName: string }) => ipcRenderer.invoke('biaomai:uninstall-pack', payload),
 });
 
 // Synchronously fetch the aioncore port and expose it to the renderer

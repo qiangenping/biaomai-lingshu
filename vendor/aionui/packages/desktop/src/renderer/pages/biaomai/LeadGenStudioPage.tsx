@@ -13,6 +13,7 @@ import {
   Input,
   Message,
   Modal,
+  Progress,
   Select,
   Space,
   Tag,
@@ -27,6 +28,13 @@ interface BiaoMaiElectronBridge {
     url?: string;
     error?: string;
     comments: Array<{ id: string; text: string; redacted: number }>;
+  }>;
+  extractBrowserPageFormula: (payload: { partition: string }) => Promise<{
+    ok: boolean;
+    url?: string;
+    title?: string;
+    excerpt?: string;
+    error?: string;
   }>;
   prefillBrowserReply: (payload: { partition: string; replyText: string }) => Promise<{ ok: boolean; error?: string; stopBeforeSubmit?: boolean }>;
   runLlm: (payload: { baseUrl: string; apiKey: string; model: string; systemPrompt: string; userPrompt: string }) => Promise<{
@@ -48,6 +56,25 @@ interface BiaoMaiElectronBridge {
     data?: unknown;
     error?: string;
   }>;
+  listInstalledPacks: () => Promise<{
+    ok: boolean;
+    packs: InstalledPack[];
+  }>;
+  installLocalPack: () => Promise<{ ok: boolean; canceled?: boolean; packName?: string; error?: string }>;
+  uninstallPack: (payload: { packName: string }) => Promise<{ ok: boolean }>;
+}
+
+interface InstalledPack {
+  name: string;
+  displayName: Record<string, string> | string;
+  description: Record<string, string> | string;
+  version: string;
+  license: string;
+  category: string;
+  permissions: Record<string, unknown>;
+  assistantsCount: number;
+  skillsCount: number;
+  canvasesCount: number;
 }
 
 const getBridge = (): BiaoMaiElectronBridge | undefined =>
@@ -99,7 +126,9 @@ interface LocalPost {
   title: string;
   body: string;
   imageUrl?: string;
+  videoUrl?: string;
   shortLinkUrl?: string;
+  clicks?: number;
   scheduledAt: string;
   status: 'draft' | 'scheduled' | 'published';
   createdAt: string;
@@ -207,7 +236,7 @@ const LeadGenStudioPage: React.FC = () => {
   const isZh = (i18n.language || 'zh-CN').startsWith('zh');
   const bridge = getBridge();
 
-  const [activeTab, setActiveTab] = useState<'create' | 'publish' | 'engage' | 'crm'>('create');
+  const [activeTab, setActiveTab] = useState<'create' | 'publish' | 'engage' | 'crm' | 'packs'>('create');
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [settings, setSettings] = useState<StudioSettings>(() =>
     readJson<StudioSettings>(KEYS.settings, {
@@ -236,9 +265,13 @@ const LeadGenStudioPage: React.FC = () => {
   const [targetLang, setTargetLang] = useState<'zh-CN' | 'en-US' | 'ja-JP' | 'es-ES'>('zh-CN');
   const [creatingCopy, setCreatingCopy] = useState(false);
   const [creatingImg, setCreatingImg] = useState(false);
+  const [creatingVideo, setCreatingVideo] = useState(false);
+  const [videoTaskProgress, setVideoTaskProgress] = useState<number>(0);
+  const [videoTaskStatus, setVideoTaskStatus] = useState<string>('');
   const [draftTitle, setDraftTitle] = useState('');
   const [draftBody, setDraftBody] = useState('');
   const [draftImageUrl, setDraftImageUrl] = useState('');
+  const [draftVideoUrl, setDraftVideoUrl] = useState('');
   const [draftShortLink, setDraftShortLink] = useState('');
   const [scheduledTime, setScheduledTime] = useState('2026-11-26 09:00');
 
@@ -251,11 +284,30 @@ const LeadGenStudioPage: React.FC = () => {
   const [radarPlatform, setRadarPlatform] = useState('xiaohongshu');
   const [rawCommentInput, setRawCommentInput] = useState('');
   const [analyzedList, setAnalyzedList] = useState<AnalyzedComment[]>([]);
+  const [extractingFormula, setExtractingFormula] = useState(false);
+  const [scoringWithLlm, setScoringWithLlm] = useState(false);
+  const [extractedFormula, setExtractedFormula] = useState<{ title: string; url: string; excerpt: string } | null>(null);
+
+  // Micro-Kernel Packs State
+  const [installedPacks, setInstalledPacks] = useState<InstalledPack[]>([]);
+  const [loadingPacks, setLoadingPacks] = useState(false);
 
   useEffect(() => localStorage.setItem(KEYS.accounts, JSON.stringify(accounts)), [accounts]);
   useEffect(() => localStorage.setItem(KEYS.posts, JSON.stringify(posts)), [posts]);
   useEffect(() => localStorage.setItem(KEYS.leads, JSON.stringify(leads)), [leads]);
   useEffect(() => localStorage.setItem(KEYS.settings, JSON.stringify(settings)), [settings]);
+
+  const refreshInstalledPacks = async () => {
+    if (!bridge?.listInstalledPacks) return;
+    setLoadingPacks(true);
+    const res = await bridge.listInstalledPacks();
+    setLoadingPacks(false);
+    if (res.ok) setInstalledPacks(res.packs || []);
+  };
+
+  useEffect(() => {
+    void refreshInstalledPacks();
+  }, []);
 
   const activeMcpEndpoint =
     settings.region === 'cn'
@@ -342,6 +394,84 @@ const LeadGenStudioPage: React.FC = () => {
     }
   };
 
+  const handleAiGenerateVideo = async () => {
+    const prompt = draftTitle || topicInput;
+    if (!prompt.trim()) {
+      Message.warning(isZh ? '请先输入主题或生成文案' : 'Enter a topic or generate copy first');
+      return;
+    }
+    if (!activeMcpKey) {
+      setSettingsModalOpen(true);
+      Message.info(isZh ? 'AI 视频生成与多语配音需配置 AiToEarn MCP Key（或自建端点）' : 'Configure AiToEarn MCP Key for AI video & dubbing');
+      return;
+    }
+    if (!bridge?.callAiToEarnMcp) return;
+    setCreatingVideo(true);
+    setVideoTaskProgress(25);
+    const isDubbing = targetLang !== 'zh-CN';
+    setVideoTaskStatus(isZh ? (isDubbing ? `正在提交多语配音/翻译视频任务 (${targetLang})...` : '正在提交 AI 短视频生成任务...') : 'Submitting video task...');
+    const toolName = isDubbing ? 'translate_video' : 'video_generation';
+    const res = await bridge.callAiToEarnMcp({
+      endpoint: activeMcpEndpoint,
+      apiKey: activeMcpKey,
+      method: 'tools/call',
+      params: {
+        name: toolName,
+        arguments: {
+          prompt: `${prompt}\n${draftBody}`.slice(0, 600),
+          language: targetLang,
+          aspectRatio: selectedCreatePlatform.aspect,
+        },
+      },
+    });
+    if (!res.ok) {
+      setCreatingVideo(false);
+      setVideoTaskProgress(0);
+      setVideoTaskStatus('');
+      Message.error(res.error || (isZh ? '视频任务提交失败' : 'Video task failed'));
+      return;
+    }
+    const payload = (res.data ?? {}) as Record<string, unknown>;
+    const directUrl = typeof payload.videoUrl === 'string' ? payload.videoUrl : typeof payload.url === 'string' ? payload.url : '';
+    if (directUrl) {
+      setDraftVideoUrl(directUrl);
+      setVideoTaskProgress(100);
+      setVideoTaskStatus(isZh ? '✅ 视频已生成就绪' : '✅ Video ready');
+      setCreatingVideo(false);
+      return;
+    }
+    const taskId = typeof payload.taskId === 'string' ? payload.taskId : typeof payload.id === 'string' ? payload.id : '';
+    if (!taskId) {
+      setVideoTaskProgress(100);
+      setVideoTaskStatus(isZh ? '✅ 任务已受理，请在 AiToEarn 后台查看成片' : '✅ Task accepted');
+      setCreatingVideo(false);
+      return;
+    }
+    setVideoTaskProgress(55);
+    setVideoTaskStatus(isZh ? `任务 ${taskId} 渲染中...` : `Rendering task ${taskId}...`);
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      await new Promise((r) => setTimeout(r, 2500));
+      const poll = await bridge.callAiToEarnMcp({
+        endpoint: activeMcpEndpoint,
+        apiKey: activeMcpKey,
+        method: 'tools/call',
+        params: { name: 'get_video_status', arguments: { taskId } },
+      });
+      const pollData = (poll.data ?? {}) as Record<string, unknown>;
+      const polledUrl = typeof pollData.videoUrl === 'string' ? pollData.videoUrl : typeof pollData.url === 'string' ? pollData.url : '';
+      if (polledUrl) {
+        setDraftVideoUrl(polledUrl);
+        setVideoTaskProgress(100);
+        setVideoTaskStatus(isZh ? '✅ 视频渲染完成' : '✅ Video render complete');
+        setCreatingVideo(false);
+        return;
+      }
+      setVideoTaskProgress(Math.min(90, 60 + attempt * 5));
+    }
+    setCreatingVideo(false);
+    setVideoTaskStatus(isZh ? `⏳ 任务 ${taskId} 仍在云端渲染，稍后可查看` : `⏳ Task ${taskId} still rendering`);
+  };
+
   const handleTestAiToEarnMcp = async () => {
     if (!bridge?.callAiToEarnMcp) return;
     setMcpTestMsg(isZh ? '连接测试中...' : 'Testing...');
@@ -364,7 +494,9 @@ const LeadGenStudioPage: React.FC = () => {
       title: draftTitle.trim(),
       body: draftBody.trim(),
       imageUrl: draftImageUrl || undefined,
+      videoUrl: draftVideoUrl || undefined,
       shortLinkUrl: draftShortLink.trim() || undefined,
+      clicks: 0,
       scheduledAt: scheduledTime,
       status: 'scheduled',
       createdAt: new Date().toISOString(),
@@ -521,11 +653,116 @@ const LeadGenStudioPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const navTabs: Array<{ id: 'create' | 'publish' | 'engage' | 'crm'; step: string; title: string; count?: number }> = [
+  const handleExtractCompetitorFormula = async () => {
+    if (!selectedPartition || !bridge?.extractBrowserPageFormula) {
+      Message.warning(isZh ? '请先选择一个隔离浏览器账号并打开竞品帖子页' : 'Select and open an isolated browser window first');
+      return;
+    }
+    setExtractingFormula(true);
+    const res = await bridge.extractBrowserPageFormula({ partition: selectedPartition });
+    setExtractingFormula(false);
+    if (!res.ok || !res.excerpt) {
+      Message.warning(res.error || (isZh ? '未提取到竞品正文内容' : 'Could not extract page content'));
+      return;
+    }
+    setExtractedFormula({ title: res.title || 'Competitor Post', url: res.url || '', excerpt: res.excerpt });
+    Message.success(isZh ? '已提取竞品爆款结构，可一键送入创作工坊改写' : 'Competitor formula extracted');
+  };
+
+  const handleSendToCreate = (promptText: string, platformId?: string) => {
+    if (platformId) setCreatePlatform(platformId);
+    setTopicInput(promptText);
+    setActiveTab('create');
+    Message.success(isZh ? '已载入创作工坊，点击「AI 生成获客文案」即可改写' : 'Loaded into Create Studio');
+  };
+
+  const handleEnrichCommentsWithLlm = async () => {
+    if (analyzedList.length === 0) return;
+    if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost') && !settings.llmBaseUrl.includes('127.0.0.1')) {
+      setSettingsModalOpen(true);
+      Message.info(isZh ? '请先配置大模型 API Key 以启用语义意向精排' : 'Configure LLM API Key first');
+      return;
+    }
+    if (!bridge?.runLlm) return;
+    setScoringWithLlm(true);
+    const sample = analyzedList.slice(0, 12).map((c) => ({ id: c.id, text: c.text }));
+    const res = await bridge.runLlm({
+      baseUrl: settings.llmBaseUrl,
+      apiKey: settings.llmApiKey,
+      model: settings.llmModel,
+      systemPrompt:
+        'Score social media comments for B2B/B2C buyer intent. Return strict JSON array of {"id": string, "tier": "S"|"A"|"B"|"C", "score": number, "draftReply": string}.',
+      userPrompt: JSON.stringify(sample),
+    });
+    setScoringWithLlm(false);
+    if (!res.ok || !res.content) {
+      Message.error(res.error || 'LLM intent scoring failed');
+      return;
+    }
+    try {
+      const cleaned = res.content.replace(/```json\s*|```/g, '').trim();
+      const parsed = JSON.parse(cleaned) as Array<{ id: string; tier: 'S' | 'A' | 'B' | 'C'; score: number; draftReply: string }>;
+      const map = new Map(parsed.map((item) => [item.id, item]));
+      setAnalyzedList((prev) =>
+        prev
+          .map((item) => {
+            const ai = map.get(item.id);
+            return ai ? { ...item, tier: ai.tier, score: ai.score, draftReply: ai.draftReply || item.draftReply } : item;
+          })
+          .sort((a, b) => b.score - a.score)
+      );
+      Message.success(isZh ? `大模型语义精排完成 (${res.latencyMs}ms)` : `LLM intent scoring complete (${res.latencyMs}ms)`);
+    } catch {
+      Message.warning(isZh ? '模型返回格式非标准 JSON，已保留基础评分' : 'Non-JSON LLM response, kept baseline scores');
+    }
+  };
+
+  const handleSyncPostClicks = async (post: LocalPost) => {
+    if (!activeMcpKey || !bridge?.callAiToEarnMcp) {
+      setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, clicks: (p.clicks ?? 0) + 1 } : p)));
+      Message.info(isZh ? '未配置 AiToEarn MCP，已手动记录 +1 归因点击' : 'Recorded +1 local click');
+      return;
+    }
+    const res = await bridge.callAiToEarnMcp({
+      endpoint: activeMcpEndpoint,
+      apiKey: activeMcpKey,
+      method: 'tools/call',
+      params: { name: 'short_link_stats', arguments: { shortLinkUrl: post.shortLinkUrl || '', postId: post.id } },
+    });
+    const data = (res.data ?? {}) as Record<string, unknown>;
+    if (res.ok && typeof data.clicks === 'number') {
+      setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, clicks: data.clicks as number } : p)));
+      Message.success(isZh ? `已同步短链点击：${data.clicks}` : `Synced clicks: ${data.clicks}`);
+    } else {
+      Message.warning(res.error || (isZh ? '未能从 MCP 获取短链统计' : 'Failed to fetch short-link stats'));
+    }
+  };
+
+  const handleInstallLocalPack = async () => {
+    if (!bridge?.installLocalPack) return;
+    const res = await bridge.installLocalPack();
+    if (res.canceled) return;
+    if (!res.ok) {
+      Message.error(res.error || (isZh ? '行业包安装失败' : 'Pack install failed'));
+      return;
+    }
+    await refreshInstalledPacks();
+    Message.success(isZh ? `已热插拔安装行业包：${res.packName}` : `Installed pack: ${res.packName}`);
+  };
+
+  const handleUninstallPack = async (packName: string) => {
+    if (!bridge?.uninstallPack) return;
+    await bridge.uninstallPack({ packName });
+    await refreshInstalledPacks();
+    Message.success(isZh ? `已卸载行业包：${packName}` : `Uninstalled pack: ${packName}`);
+  };
+
+  const navTabs: Array<{ id: 'create' | 'publish' | 'engage' | 'crm' | 'packs'; step: string; title: string; count?: number }> = [
     { id: 'create', step: '01', title: isZh ? 'AI 内容创作' : 'Create Studio' },
     { id: 'publish', step: '02', title: isZh ? '全渠道分发' : 'Omni-Publish', count: posts.length },
     { id: 'engage', step: '03', title: isZh ? '浏览器意向雷达' : 'Intent Radar', count: analyzedList.length },
     { id: 'crm', step: '04', title: isZh ? '线索 CRM' : 'Lead CRM', count: leads.length },
+    { id: 'packs', step: '05', title: isZh ? '插件与行业包' : 'Packs Market', count: installedPacks.length },
   ];
 
   return (
@@ -584,8 +821,8 @@ const LeadGenStudioPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Modern Segmented 4-Step Pipeline Navigation */}
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-8px p-4px rd-12px bg-2 border border-solid border-[var(--color-border-2)]'>
+        {/* Modern Segmented 5-Step Pipeline Navigation */}
+        <div className='grid grid-cols-2 md:grid-cols-5 gap-8px p-4px rd-12px bg-2 border border-solid border-[var(--color-border-2)]'>
           {navTabs.map((t) => {
             const active = activeTab === t.id;
             return (
@@ -676,7 +913,24 @@ const LeadGenStudioPage: React.FC = () => {
                 <Button type='outline' loading={creatingImg} onClick={handleAiGenerateImage}>
                   {isZh ? '🎨 AI 生成封面配图' : '🎨 Generate Cover Visual'}
                 </Button>
+                <Button type='outline' loading={creatingVideo} onClick={handleAiGenerateVideo}>
+                  {isZh
+                    ? targetLang !== 'zh-CN'
+                      ? '🎬 AI 视频 + 多语配音'
+                      : '🎬 AI 生成短视频'
+                    : '🎬 AI Video / Dubbing'}
+                </Button>
               </div>
+
+              {(creatingVideo || videoTaskStatus) && (
+                <div className='p-12px rd-10px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-6px'>
+                  <div className='flex items-center justify-between text-12px'>
+                    <span className='font-600 text-t-primary'>{videoTaskStatus}</span>
+                    <span className='text-t-secondary'>{videoTaskProgress}%</span>
+                  </div>
+                  <Progress percent={videoTaskProgress} size='small' showText={false} color='#4F46E5' />
+                </div>
+              )}
 
               <div className='h-1px bg-[var(--color-border-2)]' />
 
@@ -723,12 +977,14 @@ const LeadGenStudioPage: React.FC = () => {
                     <span className='text-11px text-t-secondary'>{selectedCreatePlatform.aspect}</span>
                   </div>
 
-                  {draftImageUrl ? (
+                  {draftVideoUrl ? (
+                    <video src={draftVideoUrl} controls className='w-full h-180px object-cover bg-black' />
+                  ) : draftImageUrl ? (
                     <img src={draftImageUrl} alt='AI Cover' className='w-full h-180px object-cover' />
                   ) : (
                     <div className='h-150px bg-2 flex flex-col items-center justify-center gap-4px text-12px text-t-secondary border-b border-solid border-[var(--color-border-2)]'>
-                      <span>{isZh ? '封面视觉预览区' : 'Visual Cover Preview'}</span>
-                      <span className='text-11px text-t-tertiary'>{isZh ? '点击左侧「AI 生成封面配图」' : 'Click Generate Cover Visual'}</span>
+                      <span>{isZh ? '封面视觉 / 视频预览区' : 'Visual & Video Preview'}</span>
+                      <span className='text-11px text-t-tertiary'>{isZh ? '点击左侧「AI 生成封面配图」或「AI 生成短视频」' : 'Click Generate Cover or Video'}</span>
                     </div>
                   )}
 
@@ -889,17 +1145,47 @@ const LeadGenStudioPage: React.FC = () => {
                   <Button type='primary' onClick={handleExtractLiveBrowserComments} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
                     {isZh ? '🎯 一键读取隔离浏览器当前页评论' : '🎯 Extract Live Browser Comments'}
                   </Button>
+                  <Button type='outline' loading={extractingFormula} onClick={handleExtractCompetitorFormula}>
+                    {isZh ? '🔍 提取竞品爆款结构' : '🔍 Extract Competitor Formula'}
+                  </Button>
                 </Space>
                 <Tag color='green'>{isZh ? '强制 PII 隐私脱敏 · 停在发送键前人工确认' : 'Mandatory PII Sanitizer · Human-in-the-Loop'}</Tag>
               </div>
 
-              <div className='flex items-center gap-8px'>
+              {extractedFormula && (
+                <div className='p-12px rd-10px bg-1 border border-solid border-[var(--color-border-2)] flex items-center justify-between gap-12px flex-wrap'>
+                  <div className='min-w-0 flex-1'>
+                    <div className='text-13px font-600 text-t-primary truncate'>🔍 {extractedFormula.title}</div>
+                    <div className='text-12px text-t-secondary line-clamp-2 mt-2px'>{extractedFormula.excerpt}</div>
+                  </div>
+                  <Button
+                    size='small'
+                    type='primary'
+                    style={{ background: '#4F46E5', borderColor: '#4F46E5' }}
+                    onClick={() =>
+                      handleSendToCreate(
+                        `${isZh ? '参考以下竞品爆款结构进行合规原创改写' : 'Rewrite based on competitor formula'}：\n标题：${extractedFormula.title}\n结构要点：${extractedFormula.excerpt}`,
+                        radarPlatform
+                      )
+                    }
+                  >
+                    {isZh ? '✨ 送入 01 创作工坊改写 →' : '✨ Rewrite in Create Studio →'}
+                  </Button>
+                </div>
+              )}
+
+              <div className='flex items-center gap-8px flex-wrap'>
                 <Select value={radarPlatform} onChange={setRadarPlatform} style={{ width: 160 }}>
                   {ALL_PLATFORMS.map((p) => (
                     <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
                   ))}
                 </Select>
                 <Button type='outline' onClick={handleAnalyzePastedComments}>{isZh ? '分析下方粘贴评论' : 'Analyze Pasted Comments'}</Button>
+                {analyzedList.length > 0 && (
+                  <Button type='outline' loading={scoringWithLlm} onClick={handleEnrichCommentsWithLlm}>
+                    {isZh ? '🧠 大模型语义精排与定制回复' : '🧠 LLM Semantic Intent Scoring'}
+                  </Button>
+                )}
               </div>
               <TextArea
                 rows={3}
@@ -961,7 +1247,8 @@ const LeadGenStudioPage: React.FC = () => {
               ))}
             </div>
 
-            <div className='flex justify-end'>
+            <div className='flex justify-between items-center flex-wrap gap-8px'>
+              <div className='text-14px font-600 text-t-primary'>{isZh ? '线索推进漏斗' : 'Lead Pipeline'}</div>
               <Button type='outline' onClick={handleExportCsv} disabled={leads.length === 0}>{isZh ? '导出 CSV 线索表' : 'Export CSV'}</Button>
             </div>
 
@@ -987,6 +1274,127 @@ const LeadGenStudioPage: React.FC = () => {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Channel & Content ROI Attribution */}
+            <div className='p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-12px'>
+              <div>
+                <div className='text-15px font-600 text-t-primary'>{isZh ? '📊 渠道与内容 ROI 归因复盘' : '📊 Channel & Content ROI Attribution'}</div>
+                <div className='text-12px text-t-secondary mt-2px'>
+                  {isZh ? '追踪已发布内容的短链点击、归因线索数，并一键复用爆款结构二次裂变' : 'Track short-link clicks, attributed leads, and re-spin winning posts'}
+                </div>
+              </div>
+              {posts.length === 0 ? (
+                <Empty description={isZh ? '暂无内容归因记录，请先在 01/02 创建并发布内容' : 'No posts to attribute yet'} />
+              ) : (
+                <div className='flex flex-col gap-8px'>
+                  {posts.map((post) => {
+                    const plat = ALL_PLATFORMS.find((p) => p.id === post.platformId);
+                    const attrLeads = leads.filter((l) => l.platformId === post.platformId).length;
+                    const clicks = post.clicks ?? 0;
+                    const cvr = clicks > 0 ? `${Math.round((attrLeads / clicks) * 100)}%` : `${attrLeads} leads`;
+                    return (
+                      <div key={post.id} className='p-12px rd-10px bg-1 border border-solid border-[var(--color-border-2)] flex items-center justify-between gap-12px flex-wrap'>
+                        <div className='min-w-0 flex-1'>
+                          <div className='text-13px font-600 text-t-primary truncate'>{post.title}</div>
+                          <Space size='mini' className='mt-4px'>
+                            <Tag size='small' color='arcoblue'>{plat ? (isZh ? plat.nameZh : plat.nameEn) : post.platformId}</Tag>
+                            <span className='text-11px text-t-secondary'>{isZh ? `点击: ${clicks}` : `Clicks: ${clicks}`}</span>
+                            <span className='text-11px text-t-secondary'>{isZh ? `归因线索: ${attrLeads}` : `Leads: ${attrLeads}`}</span>
+                            <Tag size='small' color='green'>{isZh ? `转化率 ${cvr}` : `CVR ${cvr}`}</Tag>
+                          </Space>
+                        </div>
+                        <Space>
+                          <Button size='mini' type='outline' onClick={() => handleSyncPostClicks(post)}>
+                            {isZh ? '🔄 同步点击' : '🔄 Sync Clicks'}
+                          </Button>
+                          <Button
+                            size='mini'
+                            type='primary'
+                            style={{ background: '#4F46E5', borderColor: '#4F46E5' }}
+                            onClick={() => handleSendToCreate(`${post.title}\n${post.body}`, post.platformId)}
+                          >
+                            {isZh ? '🔁 按此爆款裂变' : '🔁 Re-spin Post'}
+                          </Button>
+                        </Space>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: MICRO-KERNEL HOT-PLUG PACKS MARKET */}
+        {activeTab === 'packs' && (
+          <div className='flex flex-col gap-20px'>
+            <div className='p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex items-center justify-between flex-wrap gap-12px'>
+              <div>
+                <div className='text-15px font-600 text-t-primary'>
+                  {isZh ? '🧩 微内核热插拔行业包 (.bmpack)' : '🧩 Micro-Kernel Hot-Plug Industry Packs (.bmpack)'}
+                </div>
+                <div className='text-12px text-t-secondary mt-2px'>
+                  {isZh
+                    ? '支持本地 .bmpack 行业包即时加载与卸载，内置 Apache-2.0 / MIT 开源许可校验与权限沙箱声明'
+                    : 'Install and hot-unload local .bmpack vertical packs with license & permission checks'}
+                </div>
+              </div>
+              <Space>
+                <Button type='outline' loading={loadingPacks} onClick={refreshInstalledPacks}>
+                  {isZh ? '🔄 刷新列表' : '🔄 Refresh'}
+                </Button>
+                <Button type='primary' onClick={handleInstallLocalPack} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                  {isZh ? '📦 安装本地 .bmpack 行业包' : '📦 Install Local .bmpack'}
+                </Button>
+              </Space>
+            </div>
+
+            {installedPacks.length === 0 ? (
+              <Empty description={isZh ? '暂未安装扩展行业包，点击右上角选择本地 .bmpack 目录或 manifest.json 安装' : 'No packs installed yet'} />
+            ) : (
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-14px'>
+                {installedPacks.map((pack) => {
+                  const title =
+                    typeof pack.displayName === 'string'
+                      ? pack.displayName
+                      : (isZh ? pack.displayName?.['zh-CN'] : pack.displayName?.['en-US']) || pack.name;
+                  const desc =
+                    typeof pack.description === 'string'
+                      ? pack.description
+                      : (isZh ? pack.description?.['zh-CN'] : pack.description?.['en-US']) || '';
+                  const permKeys = Object.entries(pack.permissions || {})
+                    .filter(([, v]) => Boolean(v))
+                    .map(([k]) => k);
+                  return (
+                    <div key={pack.name} className='p-18px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col justify-between gap-12px'>
+                      <div className='flex flex-col gap-6px'>
+                        <div className='flex items-center justify-between gap-8px'>
+                          <span className='text-15px font-700 text-t-primary'>{title}</span>
+                          <Space size='mini'>
+                            <Tag size='small' color='arcoblue'>v{pack.version}</Tag>
+                            <Tag size='small' color='green'>{pack.license}</Tag>
+                          </Space>
+                        </div>
+                        <div className='text-12px text-t-secondary'>{desc}</div>
+                        <Space size='mini' wrap className='mt-4px'>
+                          <Tag size='small'>{isZh ? `助手 ${pack.assistantsCount}` : `Assistants ${pack.assistantsCount}`}</Tag>
+                          <Tag size='small'>{isZh ? `技能 ${pack.skillsCount}` : `Skills ${pack.skillsCount}`}</Tag>
+                          <Tag size='small'>{isZh ? `画布 ${pack.canvasesCount}` : `Canvases ${pack.canvasesCount}`}</Tag>
+                          {permKeys.map((perm) => (
+                            <Tag key={perm} size='small' color='orange'>🔒 {perm}</Tag>
+                          ))}
+                        </Space>
+                      </div>
+                      <div className='flex justify-end'>
+                        <Button size='small' status='danger' type='outline' onClick={() => handleUninstallPack(pack.name)}>
+                          {isZh ? '卸载行业包' : 'Uninstall'}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
