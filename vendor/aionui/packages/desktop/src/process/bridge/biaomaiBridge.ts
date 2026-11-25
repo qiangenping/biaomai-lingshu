@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserWindow, ipcMain, session } from 'electron';
+import { BrowserWindow, dialog, ipcMain, session } from 'electron';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const isolatedWindows = new Map<string, BrowserWindow>();
 
@@ -25,6 +28,14 @@ function sanitizePiiText(input: string): { text: string; redacted: number } {
   }
   return { text: text.trim(), redacted };
 }
+
+function getExtensionsDir(): string {
+  const dir = path.join(os.homedir(), '.aionui-dev', 'extensions');
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+const FORBIDDEN_LICENSES = [/\bAGPL/i, /\bGPL/i, /\bLGPL/i, /\bSSPL/i, /\bFSL\b/i, /Community Source/i];
 
 export function initBiaoMaiBridge(): void {
   // 1. Real Electron Multi-Account Isolated Browser Window (persist:bm-acc-*)
@@ -100,7 +111,35 @@ export function initBiaoMaiBridge(): void {
     }
   });
 
-  // 3. Compliant Human-in-the-Loop Reply Prefill (ALWAYS stops before clicking Send)
+  // 3. Semantic Competitor Post Extractor from Visible Browser Tab (Stagehand-style structured DOM summary)
+  ipcMain.handle('biaomai:extract-browser-page-formula', async (_evt, payload: { partition: string }) => {
+    const win = isolatedWindows.get(payload.partition);
+    if (!win || win.isDestroyed()) {
+      return { ok: false, error: '请先打开该账号的隔离浏览器窗口并浏览到竞品爆款页面' };
+    }
+    try {
+      const summary = (await win.webContents.executeJavaScript(`
+        (() => {
+          const title = document.title || '';
+          const h1 = (document.querySelector('h1, [class*="title"]')?.innerText || '').trim();
+          const paragraphs = Array.from(document.querySelectorAll('article, main, [class*="desc"], [class*="content"], p'))
+            .map((el) => (el.innerText || '').trim())
+            .filter((t) => t.length >= 15 && t.length <= 600)
+            .slice(0, 6);
+          return {
+            url: location.href,
+            title: h1 || title,
+            excerpt: paragraphs.join('\\n')
+          };
+        })();
+      `)) as { url: string; title: string; excerpt: string };
+      return { ok: true, ...summary };
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : String(err) };
+    }
+  });
+
+  // 4. Compliant Human-in-the-Loop Reply Prefill (ALWAYS stops before clicking Send)
   ipcMain.handle('biaomai:prefill-browser-reply', async (_evt, payload: { partition: string; replyText: string }) => {
     const win = isolatedWindows.get(payload.partition);
     if (!win || win.isDestroyed()) {
@@ -133,7 +172,7 @@ export function initBiaoMaiBridge(): void {
     return { ok: Boolean(filled), stopBeforeSubmit: true };
   });
 
-  // 4. Real OpenAI-Compatible LLM Call (Main Process — Zero CORS)
+  // 5. Real OpenAI-Compatible LLM Call (Main Process — Zero CORS)
   ipcMain.handle(
     'biaomai:run-llm',
     async (
@@ -171,7 +210,7 @@ export function initBiaoMaiBridge(): void {
     }
   );
 
-  // 5. Real AI Image Generation (OpenAI-compatible /images/generations — Zero CORS)
+  // 6. Real AI Image Generation (OpenAI-compatible /images/generations — Zero CORS)
   ipcMain.handle(
     'biaomai:generate-image',
     async (_evt, payload: { baseUrl: string; apiKey: string; model: string; prompt: string; size?: string }) => {
@@ -204,7 +243,7 @@ export function initBiaoMaiBridge(): void {
     }
   );
 
-  // 6. Real AiToEarn Unified MCP Call (CN / Global / Custom — Zero CORS)
+  // 7. Real AiToEarn Unified MCP Call (CN / Global / Custom — Zero CORS)
   ipcMain.handle(
     'biaomai:call-aitoearn-mcp',
     async (
@@ -249,4 +288,78 @@ export function initBiaoMaiBridge(): void {
       }
     }
   );
+
+  // 8. Hot-Pluggable Industry Pack Manager (.bmpack / aion-extension.json)
+  ipcMain.handle('biaomai:list-installed-packs', async () => {
+    const extDir = getExtensionsDir();
+    const list: Array<{
+      name: string;
+      displayName: unknown;
+      description: unknown;
+      version: string;
+      license: string;
+      category: string;
+      permissions: Record<string, unknown>;
+      assistantsCount: number;
+      skillsCount: number;
+      canvasesCount: number;
+    }> = [];
+
+    for (const entry of fs.readdirSync(extDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const manifestPath = path.join(extDir, entry.name, 'aion-extension.json');
+      if (!fs.existsSync(manifestPath)) continue;
+      try {
+        const m = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+        list.push({
+          name: m.name || entry.name,
+          displayName: m.displayName || m.name || entry.name,
+          description: m.description || '',
+          version: m.version || '1.0.0',
+          license: m.license || 'Apache-2.0',
+          category: m.category || 'utility',
+          permissions: m.permissions || {},
+          assistantsCount: (m.contributes?.assistants || []).length,
+          skillsCount: (m.contributes?.skills || []).length,
+          canvasesCount: (m.contributes?.canvases || []).length,
+        });
+      } catch {
+        // skip invalid manifest
+      }
+    }
+    return { ok: true, packs: list };
+  });
+
+  ipcMain.handle('biaomai:install-local-pack', async () => {
+    const picked = await dialog.showOpenDialog({
+      title: '选择行业扩展包目录 (包含 aion-extension.json)',
+      properties: ['openDirectory'],
+    });
+    if (picked.canceled || picked.filePaths.length === 0) {
+      return { ok: false, canceled: true };
+    }
+    const srcDir = picked.filePaths[0];
+    const manifestPath = path.join(srcDir, 'aion-extension.json');
+    if (!fs.existsSync(manifestPath)) {
+      return { ok: false, error: '所选目录缺少 aion-extension.json 清单文件' };
+    }
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as { name?: string; license?: string };
+    const licenseStr = String(manifest.license || 'Apache-2.0');
+    if (FORBIDDEN_LICENSES.some((re) => re.test(licenseStr))) {
+      return { ok: false, error: `协议合规拦截：不支持受限协议 "${licenseStr}"` };
+    }
+    const packName = manifest.name || path.basename(srcDir);
+    const destDir = path.join(getExtensionsDir(), packName);
+    fs.rmSync(destDir, { recursive: true, force: true });
+    fs.cpSync(srcDir, destDir, { recursive: true });
+    return { ok: true, packName };
+  });
+
+  ipcMain.handle('biaomai:uninstall-pack', async (_evt, payload: { packName: string }) => {
+    const destDir = path.join(getExtensionsDir(), payload.packName);
+    if (fs.existsSync(destDir)) {
+      fs.rmSync(destDir, { recursive: true, force: true });
+    }
+    return { ok: true };
+  });
 }
