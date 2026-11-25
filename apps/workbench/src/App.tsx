@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   CanvasRegistry,
   type Locale,
@@ -23,8 +23,25 @@ import { CalendarCanvas, type ScheduledPostItem } from '../../../packs/pack-lead
 import { BrowserRadarCanvas } from '../../../packs/pack-leadgen-ops/canvases/BrowserRadarCanvas';
 import { LeadCRMCanvas } from '../../../packs/pack-leadgen-ops/canvases/LeadCRMCanvas';
 import { SampleCanvas } from '../../../packs/pack-template/canvases/SampleCanvas';
-import { LeadCrmStore, type LeadStage } from '../../../packs/pack-leadgen-ops/core/lead-crm-store';
-import { computeChannelRoi } from '../../../packs/pack-leadgen-ops/core/attribution-service';
+import type { LeadRecord, LeadStage } from '../../../packs/pack-leadgen-ops/core/lead-crm-store';
+import type { ChannelRoiSummary } from '../../../packs/pack-leadgen-ops/core/attribution-service';
+
+declare global {
+  interface Window {
+    biaomaiElectron?: {
+      isElectron: boolean;
+      mountBrowser: (payload: {
+        partition: string;
+        url: string;
+        bounds: { x: number; y: number; width: number; height: number };
+      }) => Promise<{ ok: boolean; url?: string; cdpPort?: number }>;
+      hideBrowser: () => Promise<{ ok: boolean }>;
+      analyzeVisibleComments: () => Promise<{ ok: boolean; scored: ScoredCommentLead[]; error?: string }>;
+      prefillReply: (replyText: string) => Promise<{ ok: boolean; stopBeforeSubmit?: boolean }>;
+      encryptSecret: (plain: string) => Promise<string>;
+    };
+  }
+}
 
 const PROFILES: Record<RegionId, RegionProfile> = {
   'cn-official': chinaProfileJson as unknown as RegionProfile,
@@ -48,26 +65,37 @@ export const App: React.FC = () => {
   const [activePack, setActivePack] = useState<'pack-leadgen-ops' | 'pack-template'>('pack-leadgen-ops');
   const [activeAssistantId, setActiveAssistantId] = useState<string>('growth-leadgen-director');
   const [activeCanvasId, setActiveCanvasId] = useState<string>('browser-radar-canvas');
-  const [showMarketplace, setShowMarketplace] = useState(false);
+  const [centerMode, setCenterMode] = useState<'chat' | 'marketplace' | 'settings'>('chat');
+
   const [promptInput, setPromptInput] = useState('');
+  const [sending, setSending] = useState(false);
   const [pendingApproval, setPendingApproval] = useState<ScheduledPostItem | null>(null);
+  const [mcpStatus, setMcpStatus] = useState<string>('Idle');
+  const [mismatchBanner, setMismatchBanner] = useState<{ message: string; suggestedRegion?: RegionId } | null>(null);
+
+  // Settings form state
+  const [regionApiKeyInput, setRegionApiKeyInput] = useState('');
+  const [llmBaseUrl, setLlmBaseUrl] = useState('https://api.deepseek.com/v1');
+  const [llmModel, setLlmModel] = useState('deepseek-chat');
+  const [llmApiKeyInput, setLlmApiKeyInput] = useState('');
+  const [settingsFeedback, setSettingsFeedback] = useState('');
+
+  // Persisted data from real SQLite API server
+  const [leads, setLeads] = useState<LeadRecord[]>([]);
+  const [roiSummaries, setRoiSummaries] = useState<ChannelRoiSummary[]>([]);
+  const [posts, setPosts] = useState<ScheduledPostItem[]>([]);
+  const [packCount, setPackCount] = useState(2);
 
   const profile = PROFILES[regionId];
   const isZh = locale === 'zh-CN';
 
-  // Dynamic CanvasRegistry populated from active packs
   const canvasRegistry = useMemo(() => {
     const reg = new CanvasRegistry();
-    for (const c of leadgenManifest.contributes.canvases) {
-      reg.register(leadgenManifest.name, c);
-    }
-    for (const c of templateManifest.contributes.canvases) {
-      reg.register(templateManifest.name, c);
-    }
+    for (const c of leadgenManifest.contributes.canvases) reg.register(leadgenManifest.name, c);
+    for (const c of templateManifest.contributes.canvases) reg.register(templateManifest.name, c);
     return reg;
   }, []);
 
-  // Multi-account isolated browser sessions
   const sessionMgr = useMemo(() => {
     const mgr = new IsolatedSessionManager(19220);
     mgr.createOrGet('xiaohongshu', 'brand-main', 'RedNote Brand Main');
@@ -78,52 +106,16 @@ export const App: React.FC = () => {
   const sessions = sessionMgr.listSessions();
   const [activePartition, setActivePartition] = useState(sessions[0].partition);
 
-  // Lead CRM Store
-  const [crmVersion, setCrmVersion] = useState(0);
-  const crmStore = useMemo(() => {
-    const store = new LeadCrmStore();
-    const seed = store.addLead({
-      platform: 'tiktok',
-      sourcePostId: 'post-global-01',
-      shortLinkId: 'sl-tt-01',
-      nickname: 'GlobalSaaS_Buyer',
-      sanitizedComment: 'How much for the enterprise self-hosted license?',
-      intentTier: 'S',
-      intentScore: 95,
-    });
-    store.updateStage(seed.id, 'opportunity', 4900);
-    return store;
-  }, []);
-
   const [draft, setDraft] = useState<DraftPreviewData>({
     id: 'draft-1',
     platformId: 'tiktok',
     title: 'How 1 Person Runs 14 Global Channels with Open-Source AI',
-    body: 'Stop switching 14 browser tabs. Our Apache-2.0 workbench unifies Create, Publish, AI Browser Intent Radar, and Lead CRM.',
+    body: 'Unify Create, Publish, AI Browser Intent Radar, and SQLite Lead CRM in one Apache-2.0 workbench.',
     hashtags: ['AILeadGen', 'OpenSource', 'BiaoMaiLingshu'],
-    ctaHook: 'Grab the free repo',
+    ctaHook: 'Try BiaoMai Lingshu',
     shortLinkUrl: 'https://bm.link/sl-tt-01',
     aspect: '9:16',
   });
-
-  const [posts, setPosts] = useState<ScheduledPostItem[]>([
-    {
-      id: 'pub-1',
-      title: 'Global AI Lead-Gen Launch Demo',
-      platformId: 'tiktok',
-      scheduledAt: '2026-11-26 09:00 UTC',
-      status: 'scheduled',
-      shortLinkId: 'sl-tt-01',
-    },
-    {
-      id: 'pub-2',
-      title: 'Why Enterprises Need Micro-Kernel AI Workbenches',
-      platformId: 'linkedin',
-      scheduledAt: '2026-11-26 14:00 UTC',
-      status: 'draft',
-      shortLinkId: 'sl-li-02',
-    },
-  ]);
 
   const [scoredLeads, setScoredLeads] = useState<ScoredCommentLead[]>(() =>
     scoreExtractedComments([
@@ -147,16 +139,205 @@ export const App: React.FC = () => {
     {
       id: 'm1',
       role: 'assistant',
-      text: '欢迎来到标脉灵枢 AI 工作台（Apache-2.0 微内核 + 全球运营获客包）。请下达获客指令，或点击右侧画布体验内置隔离浏览器意向雷达与线索 CRM。',
-    },
-    {
-      id: 'm2',
-      role: 'mcp',
-      toolName: 'aitoearn-unified:list_channels',
-      latencyMs: 42,
-      text: 'Connected to active region profile MCP endpoint cleanly.',
+      text: '标脉灵枢已连接本地持久化 SQLite 服务。点击右上角「⚙️ 设置」配置大模型与 MCP API Key 后即可发起真实 AI 对话与全平台分发。',
     },
   ]);
+
+  const refreshData = async () => {
+    try {
+      const [settingsRes, leadsRes, postsRes, packsRes] = await Promise.all([
+        fetch('/api/settings').then((r) => r.json()),
+        fetch('/api/leads').then((r) => r.json()),
+        fetch('/api/posts').then((r) => r.json()),
+        fetch('/api/packs').then((r) => r.json()),
+      ]);
+      if (settingsRes.activeRegion) setRegionId(settingsRes.activeRegion);
+      if (settingsRes.llm?.baseUrl) setLlmBaseUrl(settingsRes.llm.baseUrl);
+      if (settingsRes.llm?.model) setLlmModel(settingsRes.llm.model);
+      if (Array.isArray(leadsRes.leads)) setLeads(leadsRes.leads);
+      if (Array.isArray(leadsRes.roi)) setRoiSummaries(leadsRes.roi);
+      if (Array.isArray(postsRes.posts)) setPosts(postsRes.posts);
+      if (Array.isArray(packsRes.packs)) setPackCount(packsRes.packs.length);
+    } catch {
+      // Backend may be starting up
+    }
+  };
+
+  useEffect(() => {
+    refreshData();
+  }, []);
+
+  const handleRegionChange = async (nextRegion: RegionId) => {
+    setRegionId(nextRegion);
+    setMismatchBanner(null);
+    await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activeRegion: nextRegion }),
+    }).catch(() => {});
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        activeRegion: regionId,
+        regionForKey: regionId,
+        regionApiKey: regionApiKeyInput || undefined,
+        llmBaseUrl,
+        llmModel,
+        llmApiKey: llmApiKeyInput || undefined,
+      }),
+    });
+    if (res.ok) {
+      setRegionApiKeyInput('');
+      setLlmApiKeyInput('');
+      setSettingsFeedback(isZh ? '✅ 已加密/持久化保存至本地 SQLite' : '✅ Saved to local SQLite store');
+    }
+  };
+
+  const handleTestMcp = async () => {
+    setMcpStatus('Testing...');
+    const res = await fetch('/api/mcp/test', { method: 'POST' });
+    const data = await res.json();
+    if (data.ok) {
+      setMcpStatus(`MCP Ready (${data.latencyMs}ms · ${data.data?.tools?.length ?? 0} tools)`);
+      setMismatchBanner(null);
+    } else {
+      setMcpStatus(`MCP Error (${data.httpStatus || 'net'})`);
+      if (data.regionMismatch?.isMismatch) {
+        setMismatchBanner({
+          message: data.regionMismatch.message[locale],
+          suggestedRegion: data.regionMismatch.suggestedRegion,
+        });
+      }
+      setSettingsFeedback(`❌ ${data.error}`);
+    }
+  };
+
+  const handleSendPrompt = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!promptInput.trim() || sending) return;
+    const text = promptInput.trim();
+    setPromptInput('');
+    setSending(true);
+    setMessages((prev) => [...prev, { id: `u-${Date.now()}`, role: 'user', text }]);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: text, assistantId: activeAssistantId, locale }),
+      });
+      const data = await res.json();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `a-${Date.now()}`,
+          role: 'assistant',
+          latencyMs: data.latencyMs,
+          text: data.ok ? data.content : data.content || data.error || 'Request failed',
+        },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { id: `e-${Date.now()}`, role: 'assistant', text: String(err) },
+      ]);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleAddToCalendar = async (item: DraftPreviewData) => {
+    await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: item.title,
+        platformId: item.platformId,
+        scheduledAt: new Date(Date.now() + 3600_000).toISOString(),
+        status: 'scheduled',
+        shortLinkId: `sl-${Date.now().toString(36)}`,
+      }),
+    });
+    await refreshData();
+    setActiveCanvasId('calendar-canvas');
+  };
+
+  const handleConfirmPublish = async () => {
+    if (!pendingApproval) return;
+    await fetch(`/api/posts/${pendingApproval.id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'published' }),
+    });
+    setPendingApproval(null);
+    await refreshData();
+  };
+
+  const handleAnalyzeBrowser = async () => {
+    if (window.biaomaiElectron?.isElectron) {
+      const res = await window.biaomaiElectron.analyzeVisibleComments();
+      if (res.ok && res.scored.length > 0) {
+        setScoredLeads(res.scored);
+        return;
+      }
+    }
+    const res = await fetch('/api/browser/score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        comments: [
+          {
+            commentId: `live-${Date.now()}`,
+            nickname: 'LiveVisitor',
+            content: '请问这套私有化部署怎么收费？支持 TikTok 和小红书吗？',
+            likeCount: 6,
+          },
+        ],
+      }),
+    });
+    const data = await res.json();
+    if (Array.isArray(data.scored)) {
+      setScoredLeads((prev) => [...data.scored, ...prev]);
+    }
+  };
+
+  const handleAdoptReply = async (_commentId: string, replyText: string) => {
+    if (window.biaomaiElectron?.isElectron) {
+      await window.biaomaiElectron.prefillReply(replyText);
+    }
+  };
+
+  const handleAddLeadToCrm = async (lead: ScoredCommentLead) => {
+    await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        platform: profile.platforms[0]?.id ?? 'tiktok',
+        sourcePostId: 'live-browser-post',
+        shortLinkId: posts[0]?.shortLinkId ?? 'sl-tt-01',
+        nickname: lead.comment.nickname,
+        sanitizedComment: lead.comment.content,
+        intentTier: lead.tier,
+        intentScore: lead.intentScore,
+      }),
+    });
+    await refreshData();
+    setActiveCanvasId('lead-crm-canvas');
+  };
+
+  const handleAdvanceStage = async (leadId: string, nextStage: LeadStage) => {
+    await fetch(`/api/leads/${leadId}/stage`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage: nextStage, dealValue: nextStage === 'won' ? 2980 : undefined }),
+    });
+    await refreshData();
+  };
 
   const toggleTheme = () => {
     const next = theme === 'lingshu-dark' ? 'lingshu-light' : 'lingshu-dark';
@@ -164,77 +345,6 @@ export const App: React.FC = () => {
     document.documentElement.setAttribute('data-theme', next);
     document.body.className = next;
   };
-
-  const handleSendPrompt = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!promptInput.trim()) return;
-    const text = promptInput.trim();
-    setMessages((prev) => [
-      ...prev,
-      { id: `u-${Date.now()}`, role: 'user', text },
-      {
-        id: `mcp-${Date.now() + 1}`,
-        role: 'mcp',
-        toolName: `${engine} -> aitoearn-unified:create_leadgen_draft`,
-        latencyMs: 318,
-        text: isZh ? '已生成获客草稿并同步到右侧预览画布。' : 'Generated lead-gen draft and synced to Preview Canvas.',
-      },
-    ]);
-    setPromptInput('');
-  };
-
-  const handleAddToCalendar = (item: DraftPreviewData) => {
-    const nextPost: ScheduledPostItem = {
-      id: `pub-${Date.now()}`,
-      title: item.title,
-      platformId: item.platformId,
-      scheduledAt: '2026-11-27 09:00 UTC',
-      status: 'scheduled',
-      shortLinkId: 'sl-new-01',
-    };
-    setPosts((prev) => [nextPost, ...prev]);
-    setActiveCanvasId('calendar-canvas');
-  };
-
-  const handleConfirmPublish = () => {
-    if (!pendingApproval) return;
-    setPosts((prev) =>
-      prev.map((p) => (p.id === pendingApproval.id ? { ...p, status: 'published' } : p)),
-    );
-    setPendingApproval(null);
-  };
-
-  const handleAddLeadToCrm = (lead: ScoredCommentLead) => {
-    crmStore.addLead({
-      platform: profile.platforms[0]?.id ?? 'tiktok',
-      sourcePostId: 'live-browser-post',
-      shortLinkId: 'sl-tt-01',
-      nickname: lead.comment.nickname,
-      sanitizedComment: lead.comment.content,
-      intentTier: lead.tier,
-      intentScore: lead.intentScore,
-    });
-    setCrmVersion((v) => v + 1);
-    setActiveCanvasId('lead-crm-canvas');
-  };
-
-  const handleAdvanceStage = (leadId: string, nextStage: LeadStage) => {
-    crmStore.updateStage(leadId, nextStage, nextStage === 'won' ? 2980 : undefined);
-    setCrmVersion((v) => v + 1);
-  };
-
-  const currentLeads = useMemo(() => crmStore.listByStage(), [crmStore, crmVersion]);
-  const roiSummaries = useMemo(
-    () =>
-      computeChannelRoi(
-        [
-          { shortLinkId: 'sl-tt-01', platform: 'tiktok', postTitle: 'Global AI Demo', clicks: 540 },
-          { shortLinkId: 'sl-li-02', platform: 'linkedin', postTitle: 'Enterprise Micro-Kernel', clicks: 210 },
-        ],
-        currentLeads,
-      ),
-    [currentLeads],
-  );
 
   const visibleCanvases = canvasRegistry.listByPack(activePack);
   const currentAssistants =
@@ -265,34 +375,30 @@ export const App: React.FC = () => {
             className="bm-select"
             aria-label="Region Profile"
             value={regionId}
-            onChange={(e) => setRegionId(e.target.value as RegionId)}
+            onChange={(e) => handleRegionChange(e.target.value as RegionId)}
           >
             <option value="cn-official">🇨🇳 国内版 CN (6 平台)</option>
             <option value="global-official">🌍 国际版 Global (8 平台)</option>
             <option value="self-hosted">🐳 本地 Docker 私有化</option>
           </select>
 
-          <button
-            type="button"
-            className="bm-chip"
-            onClick={() => setLocale(locale === 'zh-CN' ? 'en-US' : 'zh-CN')}
-          >
+          <button type="button" className="bm-chip" onClick={() => setLocale(locale === 'zh-CN' ? 'en-US' : 'zh-CN')}>
             {locale === 'zh-CN' ? '中 / EN' : 'EN / 中'}
           </button>
         </div>
 
         <div className="bm-topbar-right">
-          <span className="bm-badge bm-badge-success">● MCP Ready (42ms)</span>
-          <select
-            className="bm-select"
-            aria-label="Agent Engine"
-            value={engine}
-            onChange={(e) => setEngine(e.target.value as 'opencode' | 'codex' | 'builtin')}
-          >
+          <button type="button" className="bm-badge bm-badge-success" onClick={handleTestMcp} style={{ border: 'none', cursor: 'pointer' }}>
+            ● {mcpStatus}
+          </button>
+          <select className="bm-select" aria-label="Agent Engine" value={engine} onChange={(e) => setEngine(e.target.value as 'opencode' | 'codex' | 'builtin')}>
             <option value="opencode">OpenCode (MIT)</option>
             <option value="codex">Codex (Apache-2.0)</option>
             <option value="builtin">AionUi Built-in</option>
           </select>
+          <button type="button" className="bm-chip" onClick={() => setCenterMode(centerMode === 'settings' ? 'chat' : 'settings')}>
+            ⚙️ {isZh ? '设置' : 'Settings'}
+          </button>
           <button type="button" className="bm-chip" onClick={toggleTheme}>
             {theme === 'lingshu-dark' ? '☀️' : '🌙'}
           </button>
@@ -301,11 +407,7 @@ export const App: React.FC = () => {
 
       <div className="bm-workspace">
         <aside className="bm-sidebar">
-          <button
-            type="button"
-            className="bm-btn-primary"
-            onClick={() => setShowMarketplace(false)}
-          >
+          <button type="button" className="bm-btn-primary" onClick={() => setCenterMode('chat')}>
             {isZh ? '+ 新建获客任务' : '+ New Ops Task'}
           </button>
 
@@ -314,33 +416,29 @@ export const App: React.FC = () => {
             <button
               key={a.id}
               type="button"
-              className={`bm-expert-btn ${activeAssistantId === a.id && !showMarketplace ? 'bm-expert-active' : ''}`}
+              className={`bm-expert-btn ${activeAssistantId === a.id && centerMode === 'chat' ? 'bm-expert-active' : ''}`}
               onClick={() => {
-                setShowMarketplace(false);
+                setCenterMode('chat');
                 setActiveAssistantId(a.id);
                 if (a.defaultCanvasId) setActiveCanvasId(a.defaultCanvasId);
               }}
             >
               <strong>{typeof a.name === 'string' ? a.name : a.name[locale]}</strong>
-              <span className="bm-muted">
-                {typeof a.description === 'string' ? a.description : a.description[locale]}
-              </span>
+              <span className="bm-muted">{typeof a.description === 'string' ? a.description : a.description[locale]}</span>
             </button>
           ))}
 
           <div className="bm-section-label">{isZh ? '微内核平台能力' : 'Micro-Kernel'}</div>
           <button
             type="button"
-            className={`bm-expert-btn ${showMarketplace ? 'bm-expert-active' : ''}`}
-            onClick={() => setShowMarketplace((s) => !s)}
+            className={`bm-expert-btn ${centerMode === 'marketplace' ? 'bm-expert-active' : ''}`}
+            onClick={() => setCenterMode(centerMode === 'marketplace' ? 'chat' : 'marketplace')}
           >
-            <strong>🧩 {isZh ? '插件与技能市场' : 'Plugins & Skills Market'}</strong>
+            <strong>🧩 {isZh ? `插件与技能市场 (${packCount})` : `Plugins & Skills (${packCount})`}</strong>
             <span className="bm-muted">{isZh ? '热插拔 .bmpack / 权限沙盒' : 'Hot-plug .bmpack / Sandbox'}</span>
           </button>
           <div className="bm-card">
-            <div className="bm-section-label" style={{ marginTop: 0 }}>
-              ⏰ {isZh ? '24/7 Cron 模板' : '24/7 Cron Templates'}
-            </div>
+            <div className="bm-section-label" style={{ marginTop: 0 }}>⏰ {isZh ? '24/7 Cron 模板' : '24/7 Cron Templates'}</div>
             {cronTemplates.templates.map((t) => (
               <div key={t.id} className="bm-muted">
                 <span className="bm-mono">{t.cron}</span> · {t.name[locale]}
@@ -350,18 +448,56 @@ export const App: React.FC = () => {
         </aside>
 
         <main className="bm-chat-pane">
-          {showMarketplace ? (
+          {centerMode === 'settings' ? (
+            <form className="bm-chat-scroll" onSubmit={handleSaveSettings}>
+              <h3>⚙️ {isZh ? '区域 Relay 与大模型设置（本地 SQLite 持久化）' : 'Region Relay & LLM Settings (SQLite Persisted)'}</h3>
+              <div className="bm-card">
+                <label className="bm-field-label">{isZh ? `当前区域 (${profile.name[locale]}) MCP 端点` : `Active Region (${profile.name[locale]}) MCP Endpoint`}</label>
+                <div className="bm-mono">{profile.mcp.httpEndpoint}</div>
+                <label className="bm-field-label">{isZh ? '区域 MCP API Key（按环境独立隔离存储）' : 'Region MCP API Key (isolated per region)'}</label>
+                <input className="bm-input" type="password" value={regionApiKeyInput} onChange={(e) => setRegionApiKeyInput(e.target.value)} placeholder="cn_... / gl_..." />
+                <div className="bm-card-actions">
+                  <button type="button" className="bm-btn-ghost" onClick={handleTestMcp}>
+                    {isZh ? '🔌 测试真实 MCP 连接' : '🔌 Test Live MCP Connection'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="bm-card">
+                <label className="bm-field-label">{isZh ? '大模型 Base URL（支持 DeepSeek / OpenAI / 本地 Ollama）' : 'LLM Base URL (DeepSeek / OpenAI / Ollama)'}</label>
+                <input className="bm-input" value={llmBaseUrl} onChange={(e) => setLlmBaseUrl(e.target.value)} />
+                <label className="bm-field-label">{isZh ? '模型名称' : 'Model Name'}</label>
+                <input className="bm-input" value={llmModel} onChange={(e) => setLlmModel(e.target.value)} />
+                <label className="bm-field-label">{isZh ? '大模型 API Key' : 'LLM API Key'}</label>
+                <input className="bm-input" type="password" value={llmApiKeyInput} onChange={(e) => setLlmApiKeyInput(e.target.value)} placeholder="sk-..." />
+                <div className="bm-card-actions">
+                  <button type="submit" className="bm-btn-primary">{isZh ? '保存配置' : 'Save Settings'}</button>
+                </div>
+              </div>
+              {settingsFeedback && <div className="bm-banner bm-banner-success">{settingsFeedback}</div>}
+            </form>
+          ) : centerMode === 'marketplace' ? (
             <div className="bm-chat-scroll">
-              <h3>🧩 {isZh ? '插件与技能市场（对标 WorkBuddy 开放生态）' : 'Plugins & Skills Marketplace'}</h3>
+              <div className="bm-card-header">
+                <h3>🧩 {isZh ? '插件与技能市场（实时磁盘热加载）' : 'Plugins & Skills Marketplace (Live Disk Loader)'}</h3>
+                <button
+                  type="button"
+                  className="bm-btn-ghost"
+                  onClick={async () => {
+                    await fetch('/api/packs/reload', { method: 'POST' });
+                    await refreshData();
+                  }}
+                >
+                  {isZh ? '↻ 热重载扩展包' : '↻ Hot Reload Packs'}
+                </button>
+              </div>
               <div className="bm-card">
                 <div className="bm-card-header">
                   <strong>{leadgenManifest.displayName[locale]}</strong>
                   <span className="bm-badge bm-badge-success">{isZh ? '已启用' : 'Enabled'}</span>
                 </div>
                 <p className="bm-muted">{leadgenManifest.description[locale]}</p>
-                <div className="bm-muted">
-                  🛡️ Permissions: browserCdp=true · domains={leadgenManifest.permissions.netDomains.join(', ')} · Always-Ask={leadgenManifest.permissions.alwaysAskActions.join(', ')}
-                </div>
+                <div className="bm-muted">🛡️ browserCdp=true · Always-Ask={leadgenManifest.permissions.alwaysAskActions.join(', ')}</div>
               </div>
               <div className="bm-card">
                 <div className="bm-card-header">
@@ -374,19 +510,24 @@ export const App: React.FC = () => {
           ) : (
             <>
               <div className="bm-chat-scroll">
+                {mismatchBanner && (
+                  <div className="bm-card bm-approval-card">
+                    <strong>⚠️ {mismatchBanner.message}</strong>
+                    {mismatchBanner.suggestedRegion && (
+                      <button type="button" className="bm-btn-primary" onClick={() => handleRegionChange(mismatchBanner.suggestedRegion!)}>
+                        {isZh ? `一键切换至 ${mismatchBanner.suggestedRegion}` : `Switch to ${mismatchBanner.suggestedRegion}`}
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 {pendingApproval && (
                   <div className="bm-card bm-approval-card">
                     <strong>🛡️ {isZh ? '人工确认审批门禁（Always-Ask）' : 'Human-in-the-Loop Approval Required'}</strong>
-                    <div className="bm-muted">
-                      {isZh ? '即将发布：' : 'Ready to publish: '} {pendingApproval.title} ({pendingApproval.platformId})
-                    </div>
+                    <div className="bm-muted">{pendingApproval.title} ({pendingApproval.platformId})</div>
                     <div className="bm-card-actions">
-                      <button type="button" className="bm-btn-ghost" onClick={() => setPendingApproval(null)}>
-                        {isZh ? '取消' : 'Cancel'}
-                      </button>
-                      <button type="button" className="bm-btn-primary" onClick={handleConfirmPublish}>
-                        {isZh ? '确认执行发布' : 'Confirm Publish'}
-                      </button>
+                      <button type="button" className="bm-btn-ghost" onClick={() => setPendingApproval(null)}>{isZh ? '取消' : 'Cancel'}</button>
+                      <button type="button" className="bm-btn-primary" onClick={handleConfirmPublish}>{isZh ? '确认执行发布' : 'Confirm Publish'}</button>
                     </div>
                   </div>
                 )}
@@ -394,12 +535,10 @@ export const App: React.FC = () => {
                 {messages.map((m) => (
                   <div key={m.id} className="bm-card">
                     <div className="bm-card-header">
-                      <span className="bm-badge bm-badge-info">
-                        {m.role === 'mcp' ? `🔧 MCP · ${m.toolName}` : m.role === 'user' ? '👤 Operator' : '🤖 Expert'}
-                      </span>
+                      <span className="bm-badge bm-badge-info">{m.role === 'user' ? '👤 Operator' : '🤖 Expert'}</span>
                       {m.latencyMs && <span className="bm-mono">{m.latencyMs}ms</span>}
                     </div>
-                    <p className="bm-comment-text">{m.text}</p>
+                    <p className="bm-comment-text" style={{ whiteSpace: 'pre-wrap' }}>{m.text}</p>
                   </div>
                 ))}
               </div>
@@ -409,12 +548,12 @@ export const App: React.FC = () => {
                   <input
                     className="bm-input"
                     style={{ flex: 1 }}
-                    placeholder={isZh ? '输入获客指令，支持 / 唤起技能...' : 'Enter lead-gen goal, use / for skills...'}
+                    placeholder={isZh ? '输入真实获客指令（将自动加载专家 SKILL.zh.md 调用 LLM）...' : 'Enter lead-gen prompt (loads expert SKILL.en.md)...'}
                     value={promptInput}
                     onChange={(e) => setPromptInput(e.target.value)}
                   />
-                  <button type="submit" className="bm-btn-primary">
-                    {isZh ? '发送' : 'Send'}
+                  <button type="submit" className="bm-btn-primary" disabled={sending}>
+                    {sending ? '...' : isZh ? '发送' : 'Send'}
                   </button>
                 </div>
               </form>
@@ -437,21 +576,10 @@ export const App: React.FC = () => {
           </div>
 
           {activeCanvasId === 'preview-canvas' && (
-            <PreviewCanvas
-              locale={locale}
-              profile={profile}
-              draft={draft}
-              onDraftChange={setDraft}
-              onAddToCalendar={handleAddToCalendar}
-            />
+            <PreviewCanvas locale={locale} profile={profile} draft={draft} onDraftChange={setDraft} onAddToCalendar={handleAddToCalendar} />
           )}
           {activeCanvasId === 'calendar-canvas' && (
-            <CalendarCanvas
-              locale={locale}
-              profile={profile}
-              posts={posts}
-              onRequestPublishApproval={setPendingApproval}
-            />
+            <CalendarCanvas locale={locale} profile={profile} posts={posts} onRequestPublishApproval={setPendingApproval} />
           )}
           {activeCanvasId === 'browser-radar-canvas' && (
             <BrowserRadarCanvas
@@ -461,8 +589,8 @@ export const App: React.FC = () => {
               activePartition={activePartition}
               onSelectPartition={setActivePartition}
               scoredLeads={scoredLeads}
-              onAnalyzeCurrentPage={() => setScoredLeads((prev) => [...prev])}
-              onAdoptReply={() => {}}
+              onAnalyzeCurrentPage={handleAnalyzeBrowser}
+              onAdoptReply={handleAdoptReply}
               onAddLeadToCrm={handleAddLeadToCrm}
             />
           )}
@@ -470,13 +598,10 @@ export const App: React.FC = () => {
             <LeadCRMCanvas
               locale={locale}
               profile={profile}
-              leads={currentLeads}
+              leads={leads}
               roiSummaries={roiSummaries}
               onAdvanceStage={handleAdvanceStage}
-              onExportCsv={() => {
-                const csv = crmStore.exportCsv();
-                console.info('Exported CSV rows:', csv.split('\n').length - 1);
-              }}
+              onExportCsv={() => window.open('/api/leads/export.csv', '_blank')}
             />
           )}
           {activeCanvasId === 'sample-canvas' && <SampleCanvas locale={locale} />}
