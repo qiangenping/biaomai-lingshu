@@ -9,12 +9,23 @@ export interface ScheduledPostRecord {
   scheduledAt: string;
   status: 'draft' | 'scheduled' | 'publishing' | 'published' | 'auth_expired';
   shortLinkId: string;
+  clicks?: number;
+  createdAt: string;
+}
+
+export interface PersistedAccountRecord {
+  accountId: string;
+  platform: string;
+  displayLabel: string;
+  partition: string;
+  cdpPort: number;
   createdAt: string;
 }
 
 interface PersistedWorkspaceSnapshot {
   leads: LeadRecord[];
   posts: ScheduledPostRecord[];
+  accounts: PersistedAccountRecord[];
   settings: Record<string, string>;
 }
 
@@ -25,7 +36,7 @@ interface PersistedWorkspaceSnapshot {
  */
 export class SqliteWorkspaceStore {
   private readonly filePath: string;
-  private state: PersistedWorkspaceSnapshot = { leads: [], posts: [], settings: {} };
+  private state: PersistedWorkspaceSnapshot = { leads: [], posts: [], accounts: [], settings: {} };
 
   constructor(dbFilePath: string) {
     this.filePath = dbFilePath;
@@ -35,10 +46,11 @@ export class SqliteWorkspaceStore {
         this.state = {
           leads: Array.isArray(parsed.leads) ? parsed.leads : [],
           posts: Array.isArray(parsed.posts) ? parsed.posts : [],
+          accounts: Array.isArray(parsed.accounts) ? parsed.accounts : [],
           settings: parsed.settings && typeof parsed.settings === 'object' ? parsed.settings : {},
         };
       } catch {
-        this.state = { leads: [], posts: [], settings: {} };
+        this.state = { leads: [], posts: [], accounts: [], settings: {} };
       }
     }
   }
@@ -136,6 +148,28 @@ export class SqliteWorkspaceStore {
 
   getSetting(key: string): string | undefined {
     return this.state.settings[key];
+  }
+
+  addAccount(account: PersistedAccountRecord): PersistedAccountRecord {
+    const existing = this.state.accounts.find((a) => a.partition === account.partition);
+    if (existing) return existing;
+    this.state.accounts.push(account);
+    this.flush();
+    return account;
+  }
+
+  listAccounts(): PersistedAccountRecord[] {
+    return [...this.state.accounts];
+  }
+
+  removeAccount(partition: string): boolean {
+    const before = this.state.accounts.length;
+    this.state.accounts = this.state.accounts.filter((a) => a.partition !== partition);
+    if (this.state.accounts.length !== before) {
+      this.flush();
+      return true;
+    }
+    return false;
   }
 
   close(): void {
