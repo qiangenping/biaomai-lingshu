@@ -9,6 +9,8 @@
     "dev:web": "vite",
     "dev": "concurrently -k \"pnpm dev:server\" \"pnpm dev:web\"",
     "build": "vite build",
+    "dist:mac": "vite build && npx electron-builder --mac --config electron-builder.yml",
+    "dist:win": "vite build && npx electron-builder --win --config electron-builder.yml",
     "preview": "vite preview"
   },
   "dependencies": {
