@@ -97,8 +97,28 @@ const SidebarIcon: React.FC<{ size?: number; strokeWidth?: number }> = ({ size =
 );
 
 const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
-  const { t } = useTranslation();
-  const appTitle = useMemo(() => 'AionUi', []);
+  const { t, i18n } = useTranslation();
+  const isZh = (i18n.language || 'zh-CN').startsWith('zh');
+  const appTitle = useMemo(() => (isZh ? '标脉灵枢' : 'BiaoMai Lingshu'), [isZh]);
+  const [region, setRegion] = useState<'cn' | 'global'>(() => {
+    try {
+      return localStorage.getItem('biaomai:region') === 'global' ? 'global' : 'cn';
+    } catch {
+      return 'cn';
+    }
+  });
+  const handleToggleRegion = () => {
+    const next = region === 'cn' ? 'global' : 'cn';
+    setRegion(next);
+    try {
+      localStorage.setItem('biaomai:region', next);
+    } catch {
+      // ignore
+    }
+  };
+  const handleToggleLanguage = () => {
+    void i18n.changeLanguage(isZh ? 'en-US' : 'zh-CN');
+  };
   const [workspaceCollapsed, setWorkspaceCollapsed] = useState(true);
   const [mobileCenterTitle, setMobileCenterTitle] = useState(appTitle);
   const [mobileCenterOffset, setMobileCenterOffset] = useState(0);
@@ -409,6 +429,46 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
       </div>
       <div ref={toolbarRef} className='app-titlebar__toolbar'>
         {layout?.isMobile && <div id='app-titlebar-actions-slot' className='app-titlebar__actions-slot' />}
+        <button
+          type='button'
+          onClick={handleToggleRegion}
+          title={region === 'cn' ? 'MCP: https://aitoearn.cn/api/unified/mcp' : 'MCP: https://aitoearn.ai/api/unified/mcp'}
+          style={{
+            WebkitAppRegion: 'no-drag',
+            height: 26,
+            padding: '0 10px',
+            borderRadius: 9999,
+            border: '1px solid var(--border-base, rgba(148,163,184,0.3))',
+            background: 'var(--bg-2, rgba(148,163,184,0.12))',
+            color: 'var(--text-primary, inherit)',
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: 'pointer',
+            marginRight: 6,
+          } as React.CSSProperties}
+        >
+          {region === 'cn' ? (isZh ? '🇨🇳 国内 CN' : '🇨🇳 China CN') : (isZh ? '🌍 国际 Global' : '🌍 Global')}
+        </button>
+        <button
+          type='button'
+          onClick={handleToggleLanguage}
+          title={isZh ? 'Switch to English' : '切换为简体中文'}
+          style={{
+            WebkitAppRegion: 'no-drag',
+            height: 26,
+            padding: '0 10px',
+            borderRadius: 9999,
+            border: '1px solid var(--border-base, rgba(148,163,184,0.3))',
+            background: 'var(--bg-2, rgba(148,163,184,0.12))',
+            color: 'var(--text-primary, inherit)',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+            marginRight: 6,
+          } as React.CSSProperties}
+        >
+          {isZh ? '中 / EN' : 'EN / 中'}
+        </button>
         {IS_DISCONTINUED_BUILD && <MigrationInviteCapsule />}
         <button
           type='button'

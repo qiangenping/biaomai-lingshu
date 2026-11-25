@@ -10,3 +10,5 @@ coverage/
 *.sqlite
 *.db
 .biaomai-data/
+vendor/aionui/bin/
+vendor/aitoearn/.env

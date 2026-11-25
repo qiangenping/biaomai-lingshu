@@ -1,17 +1,17 @@
 {
-  "promptExamplesHint": "试试这些指令",
+  "promptExamplesHint": "试试这些运营获客指令",
   "defaultPrompts": {
-    "understand": "了解一下这个项目，用大白话告诉我它是做什么的、从哪里入手",
-    "cleanup": "帮我找出这个文件夹里重复和没用的文件，列出来让我确认",
-    "create": "帮我做一个精美的个人主页网页，做好后直接打开给我看"
+    "understand": "围绕我们的产品核心卖点，生成 3 条带 CTA 钩子与归因短链的小红书/抖音获客内容并排期",
+    "cleanup": "帮我把这条中文产品介绍改写为适合 TikTok、YouTube Shorts 和 LinkedIn 的英文出海获客脚本",
+    "create": "帮我分析以下评论区的客户购买意向（S/A/B 级分层），并生成高转化人工确认回复草稿"
   },
-  "selectAssistantHint": "选择一位助手开始任务",
+  "selectAssistantHint": "选择一位标脉获客专家开始任务",
   "workspace": {
-    "workInProject": "在项目中工作",
+    "workInProject": "在工作区中运行",
     "optional": "可选",
     "clearWorkspace": "清除",
-    "specifyWorkspace": "选择项目文件夹",
-    "searchPlaceholder": "搜索项目…",
-    "noProject": "不使用项目"
+    "specifyWorkspace": "选择素材/项目文件夹",
+    "searchPlaceholder": "搜索工作区…",
+    "noProject": "不使用工作区"
   }
 }
