@@ -1,0 +1,43 @@
+{
+  "templates": [
+    {
+      "id": "cron-daily-leadgen-topics",
+      "cron": "0 8 * * *",
+      "assistantId": "leadgen-content-studio",
+      "name": {
+        "zh-CN": "每日早 8 点热点获客选题生成",
+        "en-US": "Daily 8 AM Trending Lead-Gen Topic Generator"
+      },
+      "prompt": {
+        "zh-CN": "检索本行业近 24 小时热点痛点，生成 3 组带 CTA 钩子与归因短链的获客草稿，并推送至飞书/Telegram 等待人工确认排期。",
+        "en-US": "Research top industry pain points from the last 24h, draft 3 lead-gen posts with CTA hooks and UTM short-links, and notify IM for human approval."
+      }
+    },
+    {
+      "id": "cron-publish-health-check",
+      "cron": "0 */4 * * *",
+      "assistantId": "omni-matrix-publisher",
+      "name": {
+        "zh-CN": "每 4 小时矩阵账号授权与排期巡检",
+        "en-US": "4-Hourly Channel OAuth & Schedule Health Check"
+      },
+      "prompt": {
+        "zh-CN": "巡检所有已授权平台的 Token 有效期与待发队列，如发现 Auth Expired 立即告警提醒。",
+        "en-US": "Inspect OAuth token health and queued posts across all enabled channels; alert immediately on any Auth Expired status."
+      }
+    },
+    {
+      "id": "cron-daily-roi-digest",
+      "cron": "0 20 * * *",
+      "assistantId": "crm-conversion-analyst",
+      "name": {
+        "zh-CN": "每日晚 8 点获客线索与 ROI 战报推送",
+        "en-US": "Daily 8 PM Lead Funnel & ROI Digest"
+      },
+      "prompt": {
+        "zh-CN": "汇总今日短链点击、S/A 高意向评论数、新入库线索与成交转化，输出中英双语战报并推送至远程 IM 通道。",
+        "en-US": "Summarize today's short-link clicks, S/A intent comments, new CRM leads, and closed revenue; push digest to connected IM channel."
+      }
+    }
+  ]
+}

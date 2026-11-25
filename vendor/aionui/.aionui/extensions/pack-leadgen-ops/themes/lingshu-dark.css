@@ -1,0 +1,25 @@
+/* Lingshu Studio Dark Theme — Maps onto AionUi / Arco Design CSS Variables */
+:root[data-theme='lingshu-dark'],
+body.lingshu-dark {
+  --bm-bg-app: #0B0E14;
+  --bm-bg-sidebar: #11151E;
+  --bm-bg-surface: #161B26;
+  --bm-bg-elevated: #1E2534;
+  --bm-border-subtle: rgba(255, 255, 255, 0.08);
+  --bm-border-strong: rgba(255, 255, 255, 0.18);
+  --bm-text-primary: #F1F5F9;
+  --bm-text-secondary: #94A3B8;
+  --bm-brand-primary: #6366F1;
+  --bm-brand-primary-hover: #818CF8;
+  --bm-success: #10B981;
+  --bm-warning: #F59E0B;
+  --bm-danger: #EF4444;
+  --bm-info: #38BDF8;
+
+  --color-bg-1: var(--bm-bg-app);
+  --color-bg-2: var(--bm-bg-sidebar);
+  --color-bg-3: var(--bm-bg-surface);
+  --color-fill-2: var(--bm-bg-elevated);
+  --color-text-1: var(--bm-text-primary);
+  --color-text-2: var(--bm-text-secondary);
+}

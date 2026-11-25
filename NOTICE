@@ -1,0 +1,27 @@
+BiaoMai Lingshu AI Workbench (biaomai-operations-platform)
+Copyright 2026 BiaoMai Lingshu Contributors
+
+This product includes software developed under permissive open-source licenses:
+
+1. iOfficeAI/AionUi (https://github.com/iOfficeAI/AionUi)
+   Licensed under the Apache License, Version 2.0.
+
+2. yikart/AiToEarn (https://github.com/yikart/AiToEarn)
+   Licensed under the MIT License.
+
+3. anomalyco/opencode (https://github.com/anomalyco/opencode)
+   Licensed under the MIT License (integrated as optional/default ACP Agent Engine).
+
+4. openai/codex (https://github.com/openai/codex)
+   Licensed under the Apache License, Version 2.0 (integrated as optional ACP Agent Engine).
+
+5. vercel-labs/agent-browser (https://github.com/vercel-labs/agent-browser)
+   Licensed under the Apache License, Version 2.0.
+
+6. browserbase/stagehand (https://github.com/browserbase/stagehand)
+   Licensed under the MIT License.
+
+7. web-infra-dev/midscene (https://github.com/web-infra-dev/midscene)
+   Licensed under the MIT License (optional vision fallback).
+
+See THIRD_PARTY_NOTICES.md for full attribution and license compliance details.

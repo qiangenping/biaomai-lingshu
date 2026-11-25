@@ -1,0 +1,33 @@
+{
+  "id": "cn-official",
+  "name": {
+    "zh-CN": "国内版 CN",
+    "en-US": "China Official (CN)"
+  },
+  "defaultLocale": "zh-CN",
+  "currency": "CNY",
+  "currencySymbol": "¥",
+  "mcp": {
+    "httpEndpoint": "https://aitoearn.cn/api/unified/mcp",
+    "sseEndpoint": "https://aitoearn.cn/api/unified/sse",
+    "authHeader": "x-api-key",
+    "expectedKeyPrefix": "cn_"
+  },
+  "relays": {
+    "serverRelay": "https://aitoearn.cn/api/relay/server",
+    "aiRelay": "https://aitoearn.cn/api/relay/ai"
+  },
+  "defaultModels": {
+    "video": ["seedance-2.0", "minimax-h3", "happyhorse-1.0"],
+    "image": ["nano-banana-pro"],
+    "llm": ["deepseek-chat", "qwen-max"]
+  },
+  "platforms": [
+    { "id": "douyin", "name": { "zh-CN": "抖音", "en-US": "Douyin" }, "aspect": "9:16" },
+    { "id": "xiaohongshu", "name": { "zh-CN": "小红书", "en-US": "RedNote (XHS)" }, "aspect": "3:4" },
+    { "id": "kuaishou", "name": { "zh-CN": "快手", "en-US": "Kuaishou" }, "aspect": "9:16" },
+    { "id": "bilibili", "name": { "zh-CN": "B站", "en-US": "Bilibili" }, "aspect": "16:9" },
+    { "id": "wechat_channels", "name": { "zh-CN": "微信视频号", "en-US": "WeChat Channels" }, "aspect": "9:16" },
+    { "id": "wechat_oa", "name": { "zh-CN": "微信公众号", "en-US": "WeChat Official Account" }, "aspect": "16:9" }
+  ]
+}

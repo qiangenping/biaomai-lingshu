@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@biaomai/plugin-sdk": ["packages/plugin-sdk/src/index.ts"],
+      "@biaomai/plugin-runtime": ["packages/plugin-runtime/src/index.ts"],
+      "@biaomai/ai-browser": ["packages/ai-browser/src/index.ts"]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.tsx",
+    "packages/*/tests/**/*.ts",
+    "packs/*/core/**/*.ts",
+    "packs/*/canvases/**/*.tsx",
+    "packs/*/tests/**/*.ts",
+    "apps/workbench/src/**/*.ts",
+    "apps/workbench/src/**/*.tsx"
+  ],
+  "exclude": ["node_modules", "dist", "vendor"]
+}

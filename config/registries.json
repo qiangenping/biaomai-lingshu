@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "registries": [
+    {
+      "id": "biaomai-official",
+      "name": {
+        "zh-CN": "标脉官方插件与技能市场",
+        "en-US": "BiaoMai Official Marketplace"
+      },
+      "url": "https://registry.biaomai.ai/v1/index.json",
+      "trustLevel": "official",
+      "enabled": true
+    },
+    {
+      "id": "local-workspace",
+      "name": {
+        "zh-CN": "本地工作区扩展包",
+        "en-US": "Local Workspace Packs"
+      },
+      "url": "file://./packs",
+      "trustLevel": "local",
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "tabs": [
+    {
+      "id": "biaomai-region-relay",
+      "title": { "zh-CN": "区域与 Relay 路由", "en-US": "Region & Relay Routing" },
+      "fields": [
+        { "key": "activeRegion", "type": "select", "options": ["cn-official", "global-official", "self-hosted"] },
+        { "key": "cnApiKey", "type": "password", "encrypted": true },
+        { "key": "globalApiKey", "type": "password", "encrypted": true },
+        { "key": "selfHostedApiKey", "type": "password", "encrypted": true }
+      ]
+    },
+    {
+      "id": "biaomai-entitlement-registries",
+      "title": { "zh-CN": "插件源与商业版本", "en-US": "Plugin Registries & Edition" },
+      "fields": [
+        { "key": "editionTier", "type": "readonly", "default": "community" },
+        { "key": "privateRegistryUrl", "type": "text", "enterpriseOnly": true }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "global-official",
+  "name": {
+    "zh-CN": "国际版 Global",
+    "en-US": "Global Official"
+  },
+  "defaultLocale": "en-US",
+  "currency": "USD",
+  "currencySymbol": "$",
+  "mcp": {
+    "httpEndpoint": "https://aitoearn.ai/api/unified/mcp",
+    "sseEndpoint": "https://aitoearn.ai/api/unified/sse",
+    "authHeader": "x-api-key",
+    "expectedKeyPrefix": "gl_"
+  },
+  "relays": {
+    "serverRelay": "https://aitoearn.ai/api/relay/server",
+    "aiRelay": "https://aitoearn.ai/api/relay/ai"
+  },
+  "defaultModels": {
+    "video": ["grok-video", "veo", "seedance-2.0"],
+    "image": ["nano-banana-pro"],
+    "llm": ["claude-sonnet", "gpt-4.1", "gemini-2.5-pro"]
+  },
+  "platforms": [
+    { "id": "tiktok", "name": { "zh-CN": "TikTok", "en-US": "TikTok" }, "aspect": "9:16" },
+    { "id": "youtube", "name": { "zh-CN": "YouTube", "en-US": "YouTube & Shorts" }, "aspect": "16:9" },
+    { "id": "instagram", "name": { "zh-CN": "Instagram", "en-US": "Instagram" }, "aspect": "4:5" },
+    { "id": "facebook", "name": { "zh-CN": "Facebook", "en-US": "Facebook" }, "aspect": "16:9" },
+    { "id": "threads", "name": { "zh-CN": "Threads", "en-US": "Threads" }, "aspect": "1:1" },
+    { "id": "x", "name": { "zh-CN": "X (Twitter)", "en-US": "X (Twitter)" }, "aspect": "16:9" },
+    { "id": "pinterest", "name": { "zh-CN": "Pinterest", "en-US": "Pinterest" }, "aspect": "2:3" },
+    { "id": "linkedin", "name": { "zh-CN": "LinkedIn", "en-US": "LinkedIn" }, "aspect": "16:9" }
+  ]
+}
