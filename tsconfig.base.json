@@ -25,7 +25,8 @@
     "packs/*/canvases/**/*.tsx",
     "packs/*/tests/**/*.ts",
     "apps/workbench/src/**/*.ts",
-    "apps/workbench/src/**/*.tsx"
+    "apps/workbench/src/**/*.tsx",
+    "apps/workbench/server/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "vendor"]
 }

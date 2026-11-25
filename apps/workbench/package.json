@@ -5,12 +5,15 @@
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:server": "tsx server/api-server.ts",
+    "dev:web": "vite",
+    "dev": "concurrently -k \"pnpm dev:server\" \"pnpm dev:web\"",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "@biaomai/ai-browser": "workspace:*",
+    "@biaomai/plugin-runtime": "workspace:*",
     "@biaomai/plugin-sdk": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -19,6 +22,8 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.3",
     "vite": "^6.2.0"
   }
 }
