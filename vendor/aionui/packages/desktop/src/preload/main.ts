@@ -51,6 +51,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
   recoverCorruptedDatabase: () => ipcRenderer.invoke('backend:recover-corrupted-database'),
 });
 
+contextBridge.exposeInMainWorld('biaomaiAPI', {
+  openIsolatedBrowser: (payload: { partition: string; url: string; title?: string }) =>
+    ipcRenderer.invoke('biaomai:open-isolated-browser', payload),
+  extractBrowserComments: (payload: { partition: string }) =>
+    ipcRenderer.invoke('biaomai:extract-browser-comments', payload),
+  prefillBrowserReply: (payload: { partition: string; replyText: string }) =>
+    ipcRenderer.invoke('biaomai:prefill-browser-reply', payload),
+  runLlm: (payload: { baseUrl: string; apiKey: string; model: string; systemPrompt: string; userPrompt: string }) =>
+    ipcRenderer.invoke('biaomai:run-llm', payload),
+  generateImage: (payload: { baseUrl: string; apiKey: string; model: string; prompt: string; size?: string }) =>
+    ipcRenderer.invoke('biaomai:generate-image', payload),
+  callAiToEarnMcp: (payload: { endpoint: string; apiKey: string; method: string; params?: Record<string, unknown> }) =>
+    ipcRenderer.invoke('biaomai:call-aitoearn-mcp', payload),
+});
+
 // Synchronously fetch the aioncore port and expose it to the renderer
 // via contextBridge (direct window assignment is invisible under contextIsolation).
 const backendPort = ipcRenderer.sendSync('get-backend-port') as number;
