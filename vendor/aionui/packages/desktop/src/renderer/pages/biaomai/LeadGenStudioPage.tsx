@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import './studio.css';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -39,6 +40,15 @@ import { LeadCrmTab } from './components/LeadCrmTab';
 import { PacksMarketTab } from './components/PacksMarketTab';
 import { StudioModals } from './components/StudioModals';
 
+const studioSections = [
+  ['create', '内容创作', 'Content'],
+  ['publish', '渠道发布', 'Publishing'],
+  ['engage', '意向雷达', 'Intent radar'],
+  ['outbound', '企业寻客', 'Prospecting'],
+  ['crm', '线索管理', 'Lead CRM'],
+  ['packs', '插件中心', 'Extensions'],
+] as const;
+
 const LeadGenStudioPage: React.FC = () => {
   const { i18n } = useTranslation();
   const location = useLocation();
@@ -46,21 +56,11 @@ const LeadGenStudioPage: React.FC = () => {
   const isZh = (i18n.language || 'zh-CN').startsWith('zh');
   const bridge = getBridge();
 
-  const urlTab = (new URLSearchParams(location.search).get('tab') || 'create') as
-    | 'create'
-    | 'publish'
-    | 'engage'
-    | 'outbound'
-    | 'crm'
-    | 'packs';
-  const [activeTab, setActiveTabState] = useState<'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs'>(urlTab);
-  const setActiveTab = (tab: 'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs') => {
-    setActiveTabState(tab);
+  const requestedTab = new URLSearchParams(location.search).get('tab');
+  const activeTab = studioSections.find(([id]) => id === requestedTab)?.[0] ?? 'create';
+  const setActiveTab = (tab: typeof activeTab) => {
     void navigate(`/leadgen?tab=${tab}`, { replace: true });
   };
-  useEffect(() => {
-    if (urlTab !== activeTab) setActiveTabState(urlTab);
-  }, [urlTab]);
   const [industryId, setIndustryId] = useState<string>('foreign-trade');
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [cronModalOpen, setCronModalOpen] = useState(false);
@@ -567,11 +567,11 @@ const LeadGenStudioPage: React.FC = () => {
 
   return (
     <div className='h-full w-full overflow-y-auto bg-2 text-t-primary'>
-      <div className='max-w-1160px mx-auto px-28px py-22px flex flex-col gap-18px'>
-        <div className='flex items-center justify-between gap-12px flex-wrap pb-14px border-b border-solid border-[var(--color-border-2)]'>
+      <div className='bm-studio-shell'>
+        <div className='bm-studio-header'>
           <div className='flex items-center gap-10px flex-wrap'>
-            <h1 className='m-0 text-18px font-700 tracking-tight text-t-primary'>
-              {isZh ? '全球获客工作台' : 'Global Lead-Gen Studio'}
+            <h1 className='bm-studio-title'>
+              {isZh ? '标脉灵枢 · 全球获客工作台' : 'BiaoMai · Global Lead Studio'}
             </h1>
             <Select size='small' value={industryId} onChange={handleIndustryChange} style={{ width: 200 }}>
               {INDUSTRY_PRESETS.map((p) => (
@@ -615,6 +615,24 @@ const LeadGenStudioPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        <div className='bm-studio-metrics'>
+          {([
+            ['publish', isZh ? '渠道账号' : 'Channel accounts', accounts.length],
+            ['outbound', isZh ? '企业名录' : 'Companies', prospects.length],
+            ['crm', isZh ? 'CRM 线索' : 'CRM leads', leads.length],
+          ] as const).map(([tab, label, count]) => (
+            <button type='button' key={tab} onClick={() => setActiveTab(tab)}>
+              <span>{label}</span><strong>{count.toLocaleString(i18n.language)}</strong>
+            </button>
+          ))}
+        </div>
+        <nav className='bm-studio-nav' aria-label={isZh ? '获客流程' : 'Lead generation workflow'}>
+          {studioSections.map(([id, zh, en]) => (
+            <button type='button' key={id} aria-current={activeTab === id ? 'page' : undefined}
+              onClick={() => setActiveTab(id)}>{isZh ? zh : en}</button>
+          ))}
+        </nav>
 
         {activeTab === 'create' && (
           <CreateStudioTab

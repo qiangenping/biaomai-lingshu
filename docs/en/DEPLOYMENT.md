@@ -1,18 +1,32 @@
-# Self-Hosted Docker & Cloud Relay Deployment Guide
+# Deployment & Desktop Packaging Guide
 
-## Mode A: Cloud Relay Mode (Zero Infrastructure Setup)
-1. Select `global-official` (`aitoearn.ai`) or `cn-official` (`aitoearn.cn`) in the topbar.
-2. Paste your region API key in **Settings → Region & Relay**. Keys are encrypted locally via OS Keychain (`safeStorage`) and isolated per region.
+## Mode 0: Zero-Docker Local Desktop (Default for Individual & Open-Source Users)
 
-## Mode B: Full Self-Hosted Docker Stack (Data Sovereignty)
+No Docker or external database is required. All data persists locally in `userData/biaomai-studio-db.json`.
+
+```bash
+pnpm install
+pnpm verify:all   # Validates i18n, Apache-2.0/MIT licenses, .bmpack manifests, TypeScript, tests & build
+pnpm start        # Launches the Electron Desktop Workbench (alias for pnpm dev:aionui)
+```
+
+### Building Standalone Installers (Mac `.dmg` / Windows `.exe`)
+```bash
+pnpm dist:mac     # macOS installer
+pnpm dist:win     # Windows installer
+```
+
+---
+
+## Mode A: Cloud Relay Mode (Optional `AiToEarn MCP`)
+1. Open **Settings → AiToEarn MCP**.
+2. Select `cn` (`https://aitoearn.cn/api/unified/mcp`) or `global` (`https://aitoearn.ai/api/unified/mcp`).
+3. Enter your `x-api-key` and click **Test AiToEarn MCP**.
+
+---
+
+## Mode B: Full Self-Hosted Docker Stack (Enterprise Data Sovereignty)
 ```bash
 pnpm docker:up
 ```
-This launches the vendored `vendor/aitoearn/docker-compose.yml` stack:
-- MongoDB (rs0 replica set)
-- Redis
-- RustFS (S3-compatible object storage)
-- `aitoearn-server` (OAuth channels, publish queue, short-link, unified MCP)
-- `aitoearn-ai` (multimodal draft generation & model routing)
-
-Switch the desktop app to `self-hosted` (`config/self-hosted.profile.json`) and verify `http://localhost:8080/api/unified/mcp`.
+Launches the vendored `vendor/aitoearn/docker-compose.yml` stack (MongoDB, Redis, RustFS, `aitoearn-server`, `aitoearn-ai`). Switch **Settings → AiToEarn MCP** to `self-hosted` (`http://localhost:8080/api/unified/mcp`).

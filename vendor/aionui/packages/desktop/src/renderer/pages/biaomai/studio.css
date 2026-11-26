@@ -1,0 +1,71 @@
+.bm-studio-shell {
+  box-sizing: border-box;
+  max-width: 1240px;
+  margin: auto;
+  padding: clamp(12px, 2.5vw, 32px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.bm-studio-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: clamp(18px, 3vw, 32px);
+  border-radius: 16px;
+  background: linear-gradient(115deg, #142c44, #174b52);
+}
+.bm-studio-title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(19px, 2.3vw, 30px);
+  line-height: 1.25;
+}
+.bm-studio-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.bm-studio-metrics button, .bm-studio-nav {
+  border: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  border-radius: 12px;
+}
+.bm-studio-metrics button {
+  display: grid;
+  gap: 6px;
+  padding: clamp(10px, 2vw, 20px);
+  text-align: start;
+  color: var(--color-text-2);
+  cursor: pointer;
+}
+.bm-studio-metrics strong {
+  font-size: 26px;
+  color: var(--color-text-1);
+  font-variant-numeric: tabular-nums;
+}
+.bm-studio-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 5px;
+}
+.bm-studio-nav button {
+  flex: 1 1 90px;
+  padding: 9px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-2);
+  cursor: pointer;
+}
+.bm-studio-nav button:hover, .bm-studio-metrics button:hover {
+  background: var(--color-fill-2);
+}
+.bm-studio-nav button[aria-current] {
+  color: white;
+  background: #17645e;
+  font-weight: 600;
+}
