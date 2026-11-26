@@ -112,6 +112,8 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
     language: string;
     studioUrl?: string;
   }) => ipcRenderer.invoke('biaomai:generate-openmotion-video', payload),
+  openMotionStudioControl: (payload: { action: 'status' | 'start' | 'stop'; studioUrl?: string }) =>
+    ipcRenderer.invoke('biaomai:openmotion-studio-control', payload),
 });
 
 // Synchronously fetch the aioncore port and expose it to the renderer

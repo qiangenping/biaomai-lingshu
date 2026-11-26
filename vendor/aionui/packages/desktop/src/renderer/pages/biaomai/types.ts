@@ -120,6 +120,17 @@ export interface BiaoMaiElectronBridge {
     previewUrl: string;
     error?: string;
   }>;
+  openMotionStudioControl: (payload: {
+    action: 'status' | 'start' | 'stop';
+    studioUrl?: string;
+  }) => Promise<{
+    ok: boolean;
+    installed: boolean;
+    running: boolean;
+    url: string;
+    message?: string;
+    error?: string;
+  }>;
 }
 
 export interface OutreachStep {

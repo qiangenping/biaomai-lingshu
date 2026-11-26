@@ -1,15 +1,26 @@
 /**
- * Scoped flat-button design system for BiaoMai Lingshu Workbench.
- * Intentionally targets ONLY .arco-btn* inside .biaomai-workbench-root.
+ * Global typography and flat-button design system for BiaoMai Lingshu Workbench.
+ * Targets .biaomai-workbench-root typography and .arco-btn* controls uniformly.
  */
 
+.biaomai-workbench-root,
+.biaomai-workbench-root button,
+.biaomai-workbench-root input,
+.biaomai-workbench-root textarea,
+.biaomai-workbench-root select {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Inter', system-ui, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+}
+
 .biaomai-workbench-root .arco-btn {
+  height: 34px !important;
+  padding: 0 14px !important;
   border-radius: 8px !important;
+  border: none !important;
+  font-size: 13px !important;
   font-weight: 500 !important;
   box-shadow: none !important;
   white-space: nowrap !important;
-  padding-left: 14px !important;
-  padding-right: 14px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -17,60 +28,67 @@
   transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease !important;
 }
 
+.biaomai-workbench-root .arco-btn-size-small {
+  height: 28px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+}
+
+.biaomai-workbench-root .arco-btn-size-mini {
+  height: 26px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+
 .biaomai-workbench-root .arco-btn-secondary,
-.biaomai-workbench-root .arco-btn-outline {
-  border-color: transparent !important;
+.biaomai-workbench-root .arco-btn-outline,
+.biaomai-workbench-root .arco-btn-default {
   background-color: rgba(15, 23, 42, 0.06) !important;
   color: var(--color-text-1, #0f172a) !important;
 }
 
 .biaomai-workbench-root .arco-btn-secondary:hover,
-.biaomai-workbench-root .arco-btn-outline:hover {
-  border-color: transparent !important;
+.biaomai-workbench-root .arco-btn-outline:hover,
+.biaomai-workbench-root .arco-btn-default:hover {
   background-color: rgba(15, 23, 42, 0.11) !important;
 }
 
-.biaomai-workbench-root .arco-select-view {
-  border-radius: 8px !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-}
-
 .biaomai-workbench-root .arco-btn-primary {
-  border-color: transparent !important;
   background-color: #4f46e5 !important;
   color: #ffffff !important;
 }
 
 .biaomai-workbench-root .arco-btn-primary:hover {
-  border-color: transparent !important;
   background-color: #4338ca !important;
 }
 
-.biaomai-workbench-root .arco-btn-outline.arco-btn-status-danger,
-.biaomai-workbench-root .arco-btn-secondary.arco-btn-status-danger {
+.biaomai-workbench-root .arco-btn-status-danger {
   background-color: rgba(239, 68, 68, 0.1) !important;
   color: #dc2626 !important;
-  border-color: transparent !important;
 }
 
-.biaomai-workbench-root .arco-btn-outline.arco-btn-status-danger:hover,
-.biaomai-workbench-root .arco-btn-secondary.arco-btn-status-danger:hover {
+.biaomai-workbench-root .arco-btn-status-danger:hover {
   background-color: rgba(239, 68, 68, 0.18) !important;
 }
 
 .biaomai-workbench-root .arco-btn-text {
-  border-color: transparent !important;
   background-color: transparent !important;
 }
 
 .biaomai-workbench-root .arco-btn-text:hover {
-  background-color: var(--color-fill-2, #f1f5f9) !important;
+  background-color: rgba(15, 23, 42, 0.06) !important;
 }
 
 .biaomai-workbench-root .arco-btn-disabled,
 .biaomai-workbench-root .arco-btn[disabled] {
   opacity: 0.48 !important;
+}
+
+.biaomai-workbench-root .arco-select-view {
+  height: 32px !important;
+  border-radius: 8px !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
