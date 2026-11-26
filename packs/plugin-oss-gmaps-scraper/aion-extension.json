@@ -27,7 +27,10 @@
     "skills": [
       {
         "name": "gmaps-bulk-scraper",
-        "description": "Bulk Google Maps B2B prospect extraction skill",
+        "description": {
+          "zh-CN": "Google 地图批量获客：按行业与国家提取商家名称、官网与电话",
+          "en-US": "Bulk Google Maps B2B prospect extraction skill"
+        },
         "file": "skills/gmaps-bulk-scraper/SKILL.en.md",
         "localizedFiles": {
           "zh-CN": "skills/gmaps-bulk-scraper/SKILL.zh.md",

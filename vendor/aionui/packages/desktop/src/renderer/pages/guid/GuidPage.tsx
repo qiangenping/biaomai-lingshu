@@ -6,6 +6,7 @@
 
 import { ipcBridge } from '@/common';
 import { buildGuidSlashCommands } from '@/common/chat/slash/guidSlashCommands';
+import { localizeSkillDescription } from '@/common/chat/slash/localizedSkillDescriptions';
 import type { SlashCommandItem } from '@/common/chat/slash/types';
 import type { IMcpServer, TProviderWithModel } from '@/common/config/storage';
 import { resolveLocaleKey } from '@/common/utils';
@@ -188,9 +189,22 @@ const GuidPage: React.FC = () => {
     resolvedAssistantDefaults.disabledBuiltinSkillIds,
     resolvedAssistantDefaults.skillIds,
   ]);
+  const slashSkillNames = useMemo(() => {
+    const seen = new Set<string>(selectedSkillNames);
+    for (const skill of allSkills) {
+      seen.add(skill.name);
+    }
+    return Array.from(seen);
+  }, [allSkills, selectedSkillNames]);
   const skillDescriptionByName = useMemo(
-    () => new Map(allSkills.map((skill) => [skill.name, skill.description])),
-    [allSkills]
+    () =>
+      new Map(
+        allSkills.map((skill) => [
+          skill.name,
+          localizeSkillDescription(skill.name, skill.description, localeKey),
+        ])
+      ),
+    [allSkills, localeKey]
   );
   const guidBuiltinSlashCommands = useMemo<SlashCommandItem[]>(
     () => [
@@ -208,14 +222,14 @@ const GuidPage: React.FC = () => {
       buildGuidSlashCommands({
         builtinCommands: guidBuiltinSlashCommands,
         agentCommands: agentSelection.currentAgentAvailableCommands,
-        selectedSkills: selectedSkillNames,
+        selectedSkills: slashSkillNames,
         descriptionByName: skillDescriptionByName,
         skillFallbackDescription: t('conversation.skills.slashHint', { defaultValue: 'Skill' }),
       }),
     [
       agentSelection.currentAgentAvailableCommands,
       guidBuiltinSlashCommands,
-      selectedSkillNames,
+      slashSkillNames,
       skillDescriptionByName,
       t,
     ]
@@ -228,6 +242,13 @@ const GuidPage: React.FC = () => {
       guidInput.setInput('');
     },
     onSelectTemplate: (name) => {
+      const skillMeta = allSkills.find((s) => s.name === name);
+      if (skillMeta && !skillMeta.isAuto) {
+        setGuidEnabledSkills((prev) => {
+          const base = prev ?? resolvedAssistantDefaults.skillIds;
+          return base.includes(name) ? base : [...base, name];
+        });
+      }
       guidInput.setInput(`/${name} `);
     },
   });

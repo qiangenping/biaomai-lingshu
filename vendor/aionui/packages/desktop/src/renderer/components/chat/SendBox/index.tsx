@@ -51,6 +51,7 @@ import { CloseSmall, Plus, Quote } from '@icon-park/react';
 import { chatFileRefKey } from '@/common/types/chatFile';
 import type { SlashCommandItem } from '@/common/chat/slash/types';
 import { buildSkillSlashCommands, mergeSlashCommands } from '@/common/chat/slash/mergeSlashCommands';
+import { localizeSkillDescription } from '@/common/chat/slash/localizedSkillDescriptions';
 import React, { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
@@ -629,17 +630,20 @@ const SendBox: React.FC<{
   // the global skills index (shared SWR key `skills-index`) purely to attach a
   // human-readable description; the loadedSkills snapshot decides which appear.
   const loadedSkills = conversationContext?.loadedSkills;
-  const { data: skillIndex } = useSWR(loadedSkills && loadedSkills.length > 0 ? 'skills-index' : null, () =>
-    ipcBridge.fs.listAvailableSkills.invoke()
-  );
+  const { data: skillIndex } = useSWR('skills-index', () => ipcBridge.fs.listAvailableSkills.invoke());
   const skillSlashCommands = useMemo<SlashCommandItem[]>(() => {
-    const descriptionByName = new Map((skillIndex ?? []).map((s) => [s.name, s.description]));
+    const descriptionByName = new Map(
+      (skillIndex ?? []).map((s) => [s.name, localizeSkillDescription(s.name, s.description, i18n.language)])
+    );
+    const mergedSkillNames = Array.from(
+      new Set([...(loadedSkills ?? []), ...(skillIndex ?? []).map((s) => s.name)])
+    );
     return buildSkillSlashCommands(
-      loadedSkills,
+      mergedSkillNames,
       descriptionByName,
       t('conversation.skills.slashHint', { defaultValue: 'Skill' })
     );
-  }, [loadedSkills, skillIndex, t]);
+  }, [i18n.language, loadedSkills, skillIndex, t]);
 
   // Priority on name collisions: builtin > ACP agent commands > session skills.
   const mergedSlashCommands = useMemo(
