@@ -79,10 +79,13 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
     user: string;
     pass: string;
     from?: string;
+    fromName?: string;
     to: string;
     subject: string;
     text: string;
   }) => ipcRenderer.invoke('biaomai:send-smtp-email', payload),
+  lookupCnCompany: (payload: { companyName: string; excludeEmails?: string[]; excludePhones?: string[] }) =>
+    ipcRenderer.invoke('biaomai:lookup-cn-company', payload),
   dbGetAll: () => ipcRenderer.invoke('biaomai:db-get-all'),
   dbSaveCollection: (payload: { collection: string; items: unknown[] }) =>
     ipcRenderer.invoke('biaomai:db-save-collection', payload),
