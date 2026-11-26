@@ -1,0 +1,44 @@
+{
+  "name": "plugin-oss-crawl4ai",
+  "displayName": "Crawl4AI 全行业爬虫插件 (unclecode/crawl4ai)",
+  "version": "1.0.0",
+  "description": "封装 Apache-2.0 开源项目 unclecode/crawl4ai：将全球黄页、展会名录、政府招投标网站转换为结构化 Markdown/JSON 客户线索。",
+  "author": "BiaoMai Lingshu & UncleCode (Apache-2.0)",
+  "license": "Apache-2.0",
+  "category": "utility",
+  "i18n": {
+    "localesDir": "i18n",
+    "defaultLocale": "en-US"
+  },
+  "permissions": {
+    "fsReadPaths": [
+      "./exports"
+    ],
+    "fsWritePaths": [
+      "./exports"
+    ],
+    "netDomains": [
+      "*"
+    ],
+    "browserCdp": false,
+    "shellExec": false,
+    "imNotify": false,
+    "defaultApproval": "ask-once",
+    "alwaysAskActions": [
+      "crawl_industry_directory"
+    ]
+  },
+  "contributes": {
+    "skills": [
+      {
+        "name": "crawl4ai-extractor",
+        "description": "Universal AI web directory extraction skill",
+        "file": "skills/crawl4ai-extractor/SKILL.en.md",
+        "localizedFiles": {
+          "zh-CN": "skills/crawl4ai-extractor/SKILL.zh.md",
+          "en-US": "skills/crawl4ai-extractor/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}

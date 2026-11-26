@@ -1,0 +1,40 @@
+{
+  "name": "plugin-oss-quickly-mailer",
+  "displayName": "Quickly 多邮箱序列插件 (AbdelftahZowail/Quickly)",
+  "version": "1.0.0",
+  "description": "封装 MIT 开源项目 AbdelftahZowail/Quickly：支持多发件箱轮询防封、Day 1/4/9 多步跟进序列与 IMAP 自动停发。",
+  "author": "BiaoMai Lingshu & Quickly (MIT)",
+  "license": "MIT",
+  "category": "leadgen",
+  "i18n": {
+    "localesDir": "i18n",
+    "defaultLocale": "en-US"
+  },
+  "permissions": {
+    "fsReadPaths": [],
+    "fsWritePaths": [],
+    "netDomains": [
+      "*"
+    ],
+    "browserCdp": false,
+    "shellExec": false,
+    "imNotify": true,
+    "defaultApproval": "always-ask",
+    "alwaysAskActions": [
+      "send_smtp_email"
+    ]
+  },
+  "contributes": {
+    "skills": [
+      {
+        "name": "quickly-sequence",
+        "description": "Multi-inbox rotation & 3-step cold email sequence skill",
+        "file": "skills/quickly-sequence/SKILL.en.md",
+        "localizedFiles": {
+          "zh-CN": "skills/quickly-sequence/SKILL.zh.md",
+          "en-US": "skills/quickly-sequence/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}

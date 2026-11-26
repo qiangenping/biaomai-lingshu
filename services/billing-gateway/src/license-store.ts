@@ -145,7 +145,9 @@ export class BillingLedgerStore {
   }
 
   getByApiKey(apiKey: string): TenantAccount | undefined {
-    return this.accounts.get(apiKey);
+    const account = this.accounts.get(apiKey);
+    if (account?.expiresAt && Date.parse(account.expiresAt) <= Date.now()) return undefined;
+    return account;
   }
 
   addCredits(apiKey: string, amount: number): TenantAccount {

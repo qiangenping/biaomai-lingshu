@@ -97,7 +97,7 @@ export interface BiaoMaiElectronBridge {
   }) => Promise<{ ok: boolean; error?: string; repliedEmails: string[] }>;
   prefillSocialDm: (payload: { partition: string; text: string }) => Promise<{ ok: boolean; error?: string; stopBeforeSubmit?: boolean }>;
   triggerImWebhook: (payload: { webhookUrl: string; title: string; content: string }) => Promise<{ ok: boolean; error?: string }>;
-  runCrawlerMcp: (payload: { endpoint: string; targetUrl: string }) => Promise<{ ok: boolean; data?: unknown; error?: string }>;
+  runCrawlerMcp: (payload: { endpoint: string; targetUrl: string; token?: string }) => Promise<{ ok: boolean; data?: unknown; error?: string }>;
 }
 
 export interface OutreachStep {
@@ -106,6 +106,16 @@ export interface OutreachStep {
   subject: string;
   body: string;
   status: 'pending' | 'sent';
+}
+
+export function nextEmailDraft(item: GlobalProspect) {
+  if (item.replied) return;
+  const emails = item.sequence?.filter(step => step.channel === 'email' && step.body);
+  if (emails?.length) {
+    // Older records have only the boolean send receipt for their first email.
+    return emails.find((step, index) => step.status !== 'sent' && !(index === 0 && item.outreachSent));
+  }
+  if (!item.outreachSent && item.outreachBody) return { subject: item.outreachSubject, body: item.outreachBody };
 }
 
 export interface GlobalProspect {
@@ -166,6 +176,11 @@ export interface IndustryPreset {
 }
 
 export const INDUSTRY_PRESETS: IndustryPreset[] = [
+  {
+    id: 'custom', nameZh: '自定义行业与市场', nameEn: 'Custom industry and market',
+    defaultB2bIndustry: '', defaultCountry: '', defaultPitchZh: '', defaultPitchEn: '',
+    recommendedPack: 'pack-global-b2b-outbound',
+  },
   {
     id: 'foreign-trade',
     nameZh: '外贸制造业 (机械/汽配/建材)',
@@ -293,6 +308,7 @@ export interface StudioSettings {
   imapPort?: number;
   imWebhookUrl?: string;
   crawlerMcpUrl?: string;
+  crawlerToken?: string;
 }
 
 export interface AnalyzedComment {

@@ -11,6 +11,7 @@ export interface BillingGatewayOptions {
   ledgerPath?: string;
   upstreamMcpUrl?: string;
   region?: Exclude<RegionId, 'self-hosted'>;
+  upstreamApiKey?: string;
   signingSecret?: string;
   adminToken?: string;
 }
@@ -47,8 +48,10 @@ function sendJson(res: http.ServerResponse, status: number, body: unknown): void
 export function createBillingGateway(options: BillingGatewayOptions = {}) {
   const region = options.region ?? ((process.env.BIAOMAI_GATEWAY_REGION as Exclude<RegionId, 'self-hosted'>) || 'global-official');
   const upstreamMcpUrl = options.upstreamMcpUrl ?? process.env.UPSTREAM_MCP_URL ?? 'http://127.0.0.1:8080/api/unified/mcp';
-  const signingSecret = options.signingSecret ?? process.env.LICENSE_SIGNING_SECRET ?? 'dev-replace-in-production';
-  const adminToken = options.adminToken ?? process.env.BILLING_ADMIN_TOKEN ?? 'dev-admin-token';
+  const signingSecret = options.signingSecret ?? process.env.LICENSE_SIGNING_SECRET;
+  const adminToken = options.adminToken ?? process.env.BILLING_ADMIN_TOKEN;
+  if (!signingSecret || !adminToken) throw new Error('Configure LICENSE_SIGNING_SECRET and BILLING_ADMIN_TOKEN before starting the gateway');
+  const upstreamApiKey = options.upstreamApiKey ?? process.env.UPSTREAM_MCP_API_KEY;
   const ledgerPath = options.ledgerPath ?? path.resolve(__dirname, '../../../.biaomai-data/billing-ledger.json');
   const ledger = new BillingLedgerStore(ledgerPath);
 
@@ -76,6 +79,11 @@ export function createBillingGateway(options: BillingGatewayOptions = {}) {
           durationDays: Number(body.durationDays || 30),
         });
         return sendJson(res, 201, { account });
+      }
+
+      // Only a trusted fulfillment service may translate verified payments into grants.
+      if (req.method === 'POST' && pathname.startsWith('/v1/webhooks/') && req.headers['x-admin-token'] !== adminToken) {
+        return sendJson(res, 401, { error: 'Trusted fulfillment token required' });
       }
 
       // 2. Global USD Payment Webhook (Stripe / Paddle checkout.session.completed)
@@ -169,12 +177,32 @@ export function createBillingGateway(options: BillingGatewayOptions = {}) {
           }
         }
 
-        const upstreamRes = await fetch(upstreamMcpUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
-          body: JSON.stringify(body),
-        });
-        const upstreamText = await upstreamRes.text();
+        let upstreamRes: Response;
+        let upstreamText: string;
+        let chargeable = false;
+        try {
+          upstreamRes = await fetch(upstreamMcpUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream',
+              ...(upstreamApiKey ? { 'x-api-key': upstreamApiKey } : {}) },
+            body: JSON.stringify(body),
+            redirect: 'error',
+          });
+          upstreamText = await upstreamRes.text();
+          if (isPaidToolCall && upstreamRes.ok) {
+            const frames = upstreamRes.headers.get('content-type')?.includes('text/event-stream')
+              ? upstreamText.split(/\r?\n/).filter(line => line.startsWith('data:')).map(line => line.slice(5))
+              : [upstreamText];
+            chargeable = frames.some(frame => {
+              try {
+                const reply = JSON.parse(frame);
+                return reply?.id === body.id && reply.result != null && !reply.error && !reply.result.isError;
+              } catch { return false; }
+            });
+          }
+        } finally {
+          if (isPaidToolCall && !chargeable) ledger.addCredits(apiKey, 1);
+        }
         res.writeHead(upstreamRes.status, { 'Content-Type': upstreamRes.headers.get('content-type') || 'application/json' });
         res.end(upstreamText);
         return;

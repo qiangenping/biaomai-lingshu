@@ -841,13 +841,14 @@ export function initBiaoMaiBridge(): void {
   // 18. Optional Crawl4AI / Google-Maps-Scraper Local MCP Sidecar Bridge
   ipcMain.handle(
     'biaomai:run-crawler-mcp',
-    async (_evt, payload: { endpoint: string; targetUrl: string }) => {
+    async (_evt, payload: { endpoint: string; targetUrl: string; token?: string }) => {
       const endpoint = (payload.endpoint || 'http://localhost:11235/crawl').trim();
       try {
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ urls: [payload.targetUrl], priority: 5 }),
+          headers: { 'Content-Type': 'application/json', ...(payload.token ? { Authorization: `Bearer ${payload.token}` } : {}) },
+          redirect: 'error',
+          body: JSON.stringify({ urls: [payload.targetUrl] }),
           signal: AbortSignal.timeout(12000),
         });
         if (!res.ok) {
