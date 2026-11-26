@@ -6,11 +6,14 @@
 
 export interface BiaoMaiElectronBridge {
   openIsolatedBrowser: (payload: { partition: string; url: string; title?: string }) => Promise<{ ok: boolean; url?: string }>;
+  listOpenBrowsers: () => Promise<{ ok: boolean; windows: Array<{ partition: string; title: string; url: string }> }>;
+  prefillCreatorPost: (payload: { partition: string; title: string; body: string }) => Promise<{ ok: boolean; copied: boolean; filled: boolean }>;
   extractBrowserComments: (payload: { partition: string }) => Promise<{
     ok: boolean;
     url?: string;
+    pageTitle?: string;
     error?: string;
-    comments: Array<{ id: string; text: string; redacted: number }>;
+    comments: Array<{ id: string; author?: string; text: string; redacted: number }>;
   }>;
   extractBrowserPageFormula: (payload: { partition: string }) => Promise<{
     ok: boolean;
@@ -302,6 +305,8 @@ export interface LocalPost {
   body: string;
   imageUrl?: string;
   videoUrl?: string;
+  motionUrl?: string;
+  motionHtml?: string;
   shortLinkUrl?: string;
   clicks?: number;
   scheduledAt: string;
@@ -354,6 +359,8 @@ export interface StudioSettings {
 
 export interface AnalyzedComment {
   id: string;
+  author?: string;
+  sourceUrl?: string;
   text: string;
   redacted: number;
   tier: 'S' | 'A' | 'B' | 'C';

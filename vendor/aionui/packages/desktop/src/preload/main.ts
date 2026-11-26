@@ -54,6 +54,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 contextBridge.exposeInMainWorld('biaomaiAPI', {
   openIsolatedBrowser: (payload: { partition: string; url: string; title?: string }) =>
     ipcRenderer.invoke('biaomai:open-isolated-browser', payload),
+  listOpenBrowsers: () => ipcRenderer.invoke('biaomai:list-open-browsers'),
+  prefillCreatorPost: (payload: { partition: string; title: string; body: string }) =>
+    ipcRenderer.invoke('biaomai:prefill-creator-post', payload),
   extractBrowserComments: (payload: { partition: string }) =>
     ipcRenderer.invoke('biaomai:extract-browser-comments', payload),
   extractBrowserPageFormula: (payload: { partition: string }) =>

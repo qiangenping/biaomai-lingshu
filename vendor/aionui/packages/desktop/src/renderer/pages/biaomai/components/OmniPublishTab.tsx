@@ -23,6 +23,7 @@ interface OmniPublishTabProps {
   onOpenIsolatedWindow: (partition: string, url: string, label: string) => void;
   onAddAccount: () => void;
   onConfirmPublish: (post: LocalPost) => void;
+  onMarkPublished?: (postId: string) => void;
   onDeletePost?: (postId: string) => void;
 }
 
@@ -40,6 +41,7 @@ export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
   onOpenIsolatedWindow,
   onAddAccount,
   onConfirmPublish,
+  onMarkPublished,
   onDeletePost,
 }) => (
   <div className='flex flex-col gap-18px'>
@@ -88,9 +90,16 @@ export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
                     {isZh ? '复制' : 'Copy'}
                   </Button>
                   {post.status !== 'published' && (
-                    <Button size='small' type='primary' onClick={() => onConfirmPublish(post)}>
-                      {isZh ? '确认发布' : 'Publish'}
-                    </Button>
+                    <>
+                      <Button size='small' type='primary' onClick={() => onConfirmPublish(post)}>
+                        {isZh ? '去 AI 浏览器发布' : 'Publish in Browser'}
+                      </Button>
+                      {onMarkPublished && (
+                        <Button size='small' type='secondary' onClick={() => onMarkPublished(post.id)}>
+                          {isZh ? '标记已发布' : 'Mark Published'}
+                        </Button>
+                      )}
+                    </>
                   )}
                   {onDeletePost && (
                     <Button size='small' status='danger' type='secondary' icon={<IconDelete />} onClick={() => onDeletePost(post.id)} />
