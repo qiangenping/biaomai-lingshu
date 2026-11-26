@@ -414,6 +414,7 @@ const LeadGenStudioPage: React.FC = () => {
     };
     setPosts((prev) => [newPost, ...prev]);
     setActiveTab('publish');
+    navigate('/leadgen?tab=publish');
     Message.success(isZh ? '已加入排期日历' : 'Added to Calendar');
   };
 
@@ -822,6 +823,10 @@ const LeadGenStudioPage: React.FC = () => {
             onOpenIsolatedWindow={handleOpenIsolatedWindow}
             onAddAccount={handleAddAccount}
             onConfirmPublish={handleConfirmPublish}
+            onDeletePost={(id) => {
+              setPosts((prev) => prev.filter((p) => p.id !== id));
+              Message.success(isZh ? '已删除排期记录' : 'Deleted post');
+            }}
           />
         )}
 
