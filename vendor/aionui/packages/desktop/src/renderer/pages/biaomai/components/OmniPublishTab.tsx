@@ -73,11 +73,11 @@ export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
                 </span>
                 <span className='text-10px font-600 text-t-tertiary'>{p.region === 'cn' ? 'CN' : 'GL'}</span>
               </div>
-              <div>
+              <div className='pb-2px'>
                 <div className='text-13px font-600 text-t-primary'>{isZh ? p.nameZh : p.nameEn}</div>
-                <div className='text-11px text-t-secondary truncate mt-2px'>{acc ? acc.label : p.aspect}</div>
+                <div className='text-11px text-t-secondary truncate mt-3px'>{acc ? acc.label : p.aspect}</div>
               </div>
-              <Button size='mini' type='secondary' long onClick={() => onOpenIsolatedWindow(partition, p.creatorUrl, acc?.label || p.nameZh)}>
+              <Button size='small' type='secondary' long onClick={() => onOpenIsolatedWindow(partition, p.creatorUrl, acc?.label || p.nameZh)}>
                 {isZh ? '打开后台' : 'Launch'}
               </Button>
             </div>

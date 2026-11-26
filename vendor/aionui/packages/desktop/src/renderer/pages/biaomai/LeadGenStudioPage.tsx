@@ -653,26 +653,26 @@ const LeadGenStudioPage: React.FC = () => {
   const currentMeta = sectionMeta[activeTab] || sectionMeta.create;
 
   return (
-    <div className='biaomai-workbench-root h-full w-full overflow-y-auto bg-2 text-t-primary'>
-      <div className='w-full px-24px py-18px flex flex-col gap-16px'>
-        {/* Slim Per-Feature Header (Zero Giant Banner, Zero Duplicate Tabs) */}
+    <div className='biaomai-workbench-root h-full w-full overflow-y-auto overflow-x-hidden bg-2 text-t-primary box-border'>
+      <div className='w-full px-20px py-16px flex flex-col gap-16px box-border'>
+        {/* Slim Per-Feature Header */}
         <div className='flex items-center justify-between gap-12px flex-wrap pb-12px border-b border-solid border-[var(--color-border-2)]'>
-          <div className='flex items-center gap-10px flex-wrap'>
-            <h1 className='m-0 text-17px font-700 tracking-tight text-t-primary'>
+          <div className='flex items-center gap-12px flex-wrap min-w-0'>
+            <h1 className='m-0 text-18px font-700 leading-tight tracking-tight text-t-primary whitespace-nowrap'>
               {isZh ? currentMeta.zh : currentMeta.en}
             </h1>
-            <Select size='small' value={industryId} onChange={handleIndustryChange} style={{ width: 195 }}>
+            <Select value={industryId} onChange={handleIndustryChange} style={{ width: 215 }}>
               {INDUSTRY_PRESETS.map((p) => (
                 <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
               ))}
             </Select>
           </div>
 
-          <div className='flex items-center gap-8px flex-wrap'>
+          <div className='flex items-center gap-8px flex-wrap shrink-0'>
             <button
               type='button'
               onClick={() => setGuideModalOpen(true)}
-              className='h-32px px-12px rd-8px border-none bg-1 hover:bg-[#E2E8F0] text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors'
+              className='h-32px px-12px rd-8px border-none bg-1 hover:bg-[#E2E8F0] text-13px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors whitespace-nowrap shrink-0'
             >
               <IconQuestionCircle />
               {isZh ? '使用指南' : 'Guide'}
@@ -680,7 +680,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setCronModalOpen(true)}
-              className='h-32px px-12px rd-8px border-none bg-1 hover:bg-[#E2E8F0] text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors'
+              className='h-32px px-12px rd-8px border-none bg-1 hover:bg-[#E2E8F0] text-13px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors whitespace-nowrap shrink-0'
             >
               <IconClockCircle />
               {isZh ? '定时巡检' : 'Cron'}
@@ -688,7 +688,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-32px px-12px rd-8px border-none bg-1 hover:bg-[#E2E8F0] text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
+              className='h-32px px-12px rd-8px border-none bg-1 hover:bg-[#E2E8F0] text-13px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors whitespace-nowrap shrink-0'
             >
               <span className='inline-block size-6px rd-full' style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }} />
               {settings.llmApiKey ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
@@ -696,7 +696,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-32px px-14px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors'
+              className='h-32px px-14px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-13px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors whitespace-nowrap shrink-0'
             >
               <IconSettings />
               {isZh ? '接口配置' : 'Settings'}
