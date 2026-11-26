@@ -400,32 +400,21 @@ const Layout: React.FC<{
                 )}
               >
                 <div
-                  className={classNames('bg-black shrink-0 size-32px relative rd-0.5rem', {
-                    '!size-24px': collapsed,
+                  className={classNames('shrink-0 size-32px relative rd-8px overflow-hidden bg-[#0A0A0C] flex items-center justify-center shadow-sm', {
+                    '!size-24px !rd-6px': collapsed,
                   })}
                   onClick={onClick}
                 >
-                  <svg
-                    className={classNames('w-5.5 h-5.5 absolute inset-0 m-auto', {
-                      'scale-140': !collapsed,
-                    })}
-                    viewBox='0 0 80 80'
-                    fill='none'
-                  >
+                  <svg className='size-full' viewBox='0 0 80 80' fill='none'>
+                    <rect width='80' height='80' rx='18' fill='#0A0A0C' />
                     <path
-                      key='logo-path-1'
-                      d='M40 20 Q38 22 25 40 Q23 42 26 42 L30 42 Q32 40 40 30 Q48 40 50 42 L54 42 Q57 42 55 40 Q42 22 40 20'
-                      fill='white'
-                    ></path>
-                    <circle key='logo-circle' cx='40' cy='46' r='3' fill='white'></circle>
-                    <path
-                      key='logo-path-2'
-                      d='M18 50 Q40 70 62 50'
-                      stroke='white'
-                      strokeWidth='3.5'
-                      fill='none'
-                      strokeLinecap='round'
-                    ></path>
+                      d='M26 18 H47 L58 29 V58 C58 60.2 56.2 62 54 62 H26 C23.8 62 22 60.2 22 58 V22 C22 19.8 23.8 18 26 18 Z'
+                      stroke='#6B7280'
+                      strokeWidth='4.2'
+                      strokeLinejoin='round'
+                    />
+                    <path d='M46 18 V27 C46 28.6 47.4 30 49 30 H58' stroke='#6B7280' strokeWidth='4.2' strokeLinejoin='round' />
+                    <circle cx='66' cy='43' r='4.2' fill='#3FE0D0' />
                   </svg>
                 </div>
                 {isSettingsRoute ? (

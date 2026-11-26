@@ -18,6 +18,7 @@ import {
   Space,
   Tag,
 } from '@arco-design/web-react';
+import { IconClockCircle, IconSettings } from '@arco-design/web-react/icon';
 
 const { TextArea } = Input;
 
@@ -1210,22 +1211,36 @@ const LeadGenStudioPage: React.FC = () => {
   return (
     <div className='h-full w-full overflow-y-auto bg-1 text-t-primary'>
       <div className='max-w-1240px mx-auto px-28px py-24px flex flex-col gap-20px'>
-        {/* Top Studio Header — Linear / Vercel Aesthetic */}
-        <div className='flex items-start justify-between flex-wrap gap-16px pb-16px border-b border-solid border-[var(--color-border-2)]'>
-          <div className='flex flex-col gap-4px'>
-            <div className='flex items-center gap-10px'>
-              <span className='text-22px font-700 tracking-tight text-t-primary'>
-                {isZh ? '全媒介全自动获客工作台' : 'Omni-Media Lead-Gen Studio'}
-              </span>
-              <span className='px-8px py-2px rd-full text-11px font-600 bg-[rgba(99,102,241,0.12)] text-[#6366F1]'>
-                Zero-Docker Local
+        {/* Top Studio Header — BiaoMai Brand + Linear / Vercel Aesthetic */}
+        <div className='flex items-center justify-between flex-wrap gap-16px pb-16px border-b border-solid border-[var(--color-border-2)]'>
+          <div className='flex items-center gap-12px'>
+            <div className='size-38px rd-10px bg-[#0A0A0C] flex items-center justify-center shrink-0 shadow-sm'>
+              <svg className='size-28px' viewBox='0 0 80 80' fill='none'>
+                <path
+                  d='M26 18 H47 L58 29 V58 C58 60.2 56.2 62 54 62 H26 C23.8 62 22 60.2 22 58 V22 C22 19.8 23.8 18 26 18 Z'
+                  stroke='#9CA3AF'
+                  strokeWidth='4.2'
+                  strokeLinejoin='round'
+                />
+                <path d='M46 18 V27 C46 28.6 47.4 30 49 30 H58' stroke='#9CA3AF' strokeWidth='4.2' strokeLinejoin='round' />
+                <circle cx='66' cy='43' r='4.5' fill='#3FE0D0' />
+              </svg>
+            </div>
+            <div className='flex flex-col gap-2px'>
+              <div className='flex items-center gap-8px'>
+                <span className='text-20px font-700 tracking-tight text-t-primary'>
+                  {isZh ? '标脉灵枢 · 全球获客工作台' : 'BiaoMai Lingshu · Global Lead-Gen Studio'}
+                </span>
+                <span className='px-8px py-2px rd-full text-11px font-600 bg-[rgba(63,224,208,0.14)] text-[#0D9488]'>
+                  Apache-2.0 · Zero-Docker
+                </span>
+              </div>
+              <span className='text-12px text-t-secondary'>
+                {isZh
+                  ? 'AI 内容创作 → 17 平台分发 → 社媒意向雷达 → 全球与国内 B2B 寻客 → 线索 CRM 闭环'
+                  : 'Create → 17-Channel Publish → Social Intent Radar → Global & CN B2B Outbound → Lead CRM'}
               </span>
             </div>
-            <span className='text-13px text-t-secondary'>
-              {isZh
-                ? '创作 → 17 大全球平台隔离分发 → 实时评论意向捕获 → 本地线索 CRM 闭环'
-                : 'Create → 17-Channel Isolated Distribution → Live Browser Intent Radar → Local Lead CRM'}
-            </span>
           </div>
 
           <div className='flex items-center gap-8px flex-wrap'>
@@ -1234,7 +1249,8 @@ const LeadGenStudioPage: React.FC = () => {
               onClick={() => setCronModalOpen(true)}
               className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-2 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
             >
-              ⏱️ {isZh ? '定时巡检 & IM' : 'Cron & IM'}
+              <IconClockCircle />
+              {isZh ? '定时巡检 & IM' : 'Cron & IM'}
             </button>
 
             <button
@@ -1256,7 +1272,7 @@ const LeadGenStudioPage: React.FC = () => {
             >
               <span
                 className='inline-block size-7px rd-full'
-                style={{ background: activeMcpKey ? '#10B981' : '#6366F1' }}
+                style={{ background: activeMcpKey ? '#10B981' : '#3FE0D0' }}
               />
               {activeMcpKey ? 'AiToEarn MCP' : (isZh ? '隔离浏览器直连' : 'Isolated Browser')}
             </button>
@@ -1264,15 +1280,16 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-32px px-14px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer transition-colors'
+              className='h-32px px-14px rd-8px border-none bg-[#0F172A] hover:bg-[#1E293B] text-12px font-600 text-white cursor-pointer flex items-center gap-6px transition-colors'
             >
-              {isZh ? '⚙️ 接口配置' : '⚙️ API Settings'}
+              <IconSettings />
+              {isZh ? '接口配置' : 'API Settings'}
             </button>
           </div>
         </div>
 
-        {/* Modern Segmented 6-Step Pipeline Navigation */}
-        <div className='grid grid-cols-2 md:grid-cols-6 gap-8px p-4px rd-12px bg-2 border border-solid border-[var(--color-border-2)]'>
+        {/* Clean Scrollable Pill Navigation — Zero Squishing */}
+        <div className='flex items-center gap-6px p-5px rd-12px bg-2 border border-solid border-[var(--color-border-2)] overflow-x-auto'>
           {navTabs.map((t) => {
             const active = activeTab === t.id;
             return (
@@ -1280,18 +1297,16 @@ const LeadGenStudioPage: React.FC = () => {
                 key={t.id}
                 type='button'
                 onClick={() => setActiveTab(t.id)}
-                className={`h-38px px-14px rd-8px border-none cursor-pointer flex items-center justify-between text-13px font-600 transition-all ${
+                className={`shrink-0 whitespace-nowrap h-36px px-14px rd-8px cursor-pointer flex items-center gap-8px text-13px font-600 transition-all ${
                   active
-                    ? 'bg-1 text-t-primary shadow-sm'
-                    : 'bg-transparent text-t-secondary hover:text-t-primary'
+                    ? 'bg-1 text-t-primary shadow-sm border border-solid border-[var(--color-border-2)]'
+                    : 'bg-transparent border border-solid border-transparent text-t-secondary hover:text-t-primary hover:bg-fill-1'
                 }`}
               >
-                <span className='flex items-center gap-8px'>
-                  <span className={`text-11px font-700 ${active ? 'text-[#4F46E5]' : 'text-t-tertiary'}`}>{t.step}</span>
-                  <span>{t.title}</span>
-                </span>
+                <span className={`text-11px font-700 ${active ? 'text-[#4F46E5]' : 'text-t-tertiary'}`}>{t.step}</span>
+                <span>{t.title}</span>
                 {typeof t.count === 'number' && (
-                  <span className='px-7px py-1px rd-full text-11px font-600 bg-fill-2 text-t-secondary'>
+                  <span className={`px-7px py-1px rd-full text-11px font-600 ${active ? 'bg-[rgba(79,70,229,0.12)] text-[#4F46E5]' : 'bg-fill-2 text-t-secondary'}`}>
                     {t.count}
                   </span>
                 )}
