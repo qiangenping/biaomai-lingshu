@@ -114,6 +114,8 @@ const LeadGenStudioPage: React.FC = () => {
   const [draftBody, setDraftBody] = useState('');
   const [draftImageUrl, setDraftImageUrl] = useState('');
   const [draftVideoUrl, setDraftVideoUrl] = useState('');
+  const [draftMotionUrl, setDraftMotionUrl] = useState('');
+  const [draftMotionHtml, setDraftMotionHtml] = useState('');
   const [draftShortLink, setDraftShortLink] = useState('');
   const [scheduledTime, setScheduledTime] = useState('2026-11-26 09:00');
 
@@ -287,16 +289,23 @@ const LeadGenStudioPage: React.FC = () => {
     Message.success(isZh ? `AI 创作完成 (${res.latencyMs}ms)` : `Generated in ${res.latencyMs}ms`);
   };
 
+  const buildLocalBrandCover = (titleText: string) => {
+    const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${selectedCreatePlatform.brandColor}"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><text x="48" y="96" fill="#ffffffcc" font-family="sans-serif" font-size="24" font-weight="600">${esc(isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn)} · ${esc(selectedCreatePlatform.aspect)}</text><text x="48" y="290" fill="#ffffff" font-family="sans-serif" font-size="38" font-weight="700">${esc(titleText.slice(0, 22))}</text><text x="48" y="350" fill="#ffffffb3" font-family="sans-serif" font-size="22">${esc(isZh ? '标脉灵枢 · 全球 AI 获客工坊' : 'BiaoMai Lingshu · AI Studio')}</text></svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  };
+
   const handleAiGenerateImage = async () => {
     const prompt = (draftTitle || topicInput || b2bIndustry || 'BiaoMai Lingshu').trim();
-    const canCallRemoteImageApi =
-      Boolean(settings.imageApiKey?.trim()) ||
-      (Boolean(settings.llmApiKey?.trim()) && /openai\.com|siliconflow|together|fireworks/i.test(settings.imageBaseUrl || settings.llmBaseUrl));
-    const key = settings.imageApiKey?.trim() || settings.llmApiKey?.trim();
-    if (!canCallRemoteImageApi || !key) {
-      const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${selectedCreatePlatform.brandColor}"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><text x="48" y="96" fill="#ffffffcc" font-family="sans-serif" font-size="24" font-weight="600">${esc(isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn)} · ${esc(selectedCreatePlatform.aspect)}</text><text x="48" y="290" fill="#ffffff" font-family="sans-serif" font-size="40" font-weight="700">${esc(prompt.slice(0, 22))}</text><text x="48" y="350" fill="#ffffffb3" font-family="sans-serif" font-size="22">${esc(isZh ? '标脉灵枢 · 全球 AI 获客工坊' : 'BiaoMai Lingshu · AI Studio')}</text></svg>`;
-      setDraftImageUrl(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
+    const explicitImageKey = settings.imageApiKey?.trim();
+    const canUseLlmKeyForImage =
+      !explicitImageKey &&
+      Boolean(settings.llmApiKey?.trim()) &&
+      /openai\.com|siliconflow|together|fireworks/i.test(settings.llmBaseUrl || '');
+    const key = explicitImageKey || (canUseLlmKeyForImage ? settings.llmApiKey.trim() : '');
+    if (!key) {
+      setDraftMotionUrl('');
+      setDraftImageUrl(buildLocalBrandCover(prompt));
       Message.success(isZh ? '已生成品牌视觉封面（配置独立生图 Key 后可启用 AI 生图）' : 'Generated brand cover');
       return;
     }
@@ -310,10 +319,13 @@ const LeadGenStudioPage: React.FC = () => {
     });
     setCreatingImg(false);
     if (res.ok && res.imageUrl) {
+      setDraftMotionUrl('');
       setDraftImageUrl(res.imageUrl);
       Message.success(isZh ? 'AI 配图生成成功' : 'AI visual generated');
     } else {
-      Message.error(res.error || 'Image generation failed');
+      setDraftMotionUrl('');
+      setDraftImageUrl(buildLocalBrandCover(prompt));
+      Message.warning(isZh ? '远程生图接口未授权，已自动切换为品牌视觉封面' : 'Remote image key rejected, fell back to brand cover');
     }
   };
 
@@ -370,15 +382,16 @@ const LeadGenStudioPage: React.FC = () => {
         language: targetLang,
       });
       if (!res.ok) return Message.error(res.error || 'OpenMotion failed');
+      setDraftMotionUrl(res.previewUrl);
+      setDraftMotionHtml(res.previewHtml || '');
       setVideoTaskProgress(100);
       setVideoTaskStatus(
         isZh
-          ? `OpenMotion 动效工程已生成 (${res.mode === 'server' ? '已同步本地 Studio' : 'HTML5 动效预览'}): ${res.projectDir}`
-          : `OpenMotion project ready (${res.mode}): ${res.projectDir}`
+          ? `OpenMotion 动效已同步右侧预览 (${res.mode === 'server' ? '本地 Studio' : 'HTML5 动效'}): ${res.projectDir}`
+          : `OpenMotion ready in preview (${res.mode}): ${res.projectDir}`
       );
       if (!draftBody.trim()) setDraftBody(res.motionMd);
-      await handleOpenIsolatedWindow('biaomai-openmotion', res.previewUrl, 'OpenMotion Video Studio');
-      Message.success(isZh ? '已生成 Motion.md 并打开动效预览窗口' : 'Generated Motion.md & opened preview');
+      Message.success(isZh ? 'OpenMotion 动效已加载到右侧手机预览' : 'OpenMotion preview loaded');
     } finally {
       setCreatingVideo(false);
     }
@@ -778,6 +791,9 @@ const LeadGenStudioPage: React.FC = () => {
             setDraftBody={setDraftBody}
             draftImageUrl={draftImageUrl}
             draftVideoUrl={draftVideoUrl}
+            draftMotionUrl={draftMotionUrl}
+            draftMotionHtml={draftMotionHtml}
+            onOpenMotionWindow={() => draftMotionUrl && void handleOpenIsolatedWindow('biaomai-openmotion', draftMotionUrl, 'OpenMotion Studio')}
             draftShortLink={draftShortLink}
             setDraftShortLink={setDraftShortLink}
             scheduledTime={scheduledTime}

@@ -118,6 +118,7 @@ export interface BiaoMaiElectronBridge {
     projectDir: string;
     motionMd: string;
     previewUrl: string;
+    previewHtml?: string;
     error?: string;
   }>;
   openMotionStudioControl: (payload: {
