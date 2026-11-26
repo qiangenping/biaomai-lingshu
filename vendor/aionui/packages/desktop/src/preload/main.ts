@@ -69,6 +69,20 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
   listInstalledPacks: () => ipcRenderer.invoke('biaomai:list-installed-packs'),
   installLocalPack: () => ipcRenderer.invoke('biaomai:install-local-pack'),
   uninstallPack: (payload: { packName: string }) => ipcRenderer.invoke('biaomai:uninstall-pack', payload),
+  extractGlobalProspects: (payload: { partition: string }) => ipcRenderer.invoke('biaomai:extract-global-prospects', payload),
+  enrichCompanyDomain: (payload: { website?: string; email?: string }) =>
+    ipcRenderer.invoke('biaomai:enrich-company-domain', payload),
+  sendSmtpEmail: (payload: {
+    host: string;
+    port: number;
+    secure?: boolean;
+    user: string;
+    pass: string;
+    from?: string;
+    to: string;
+    subject: string;
+    text: string;
+  }) => ipcRenderer.invoke('biaomai:send-smtp-email', payload),
 });
 
 // Synchronously fetch the aioncore port and expose it to the renderer

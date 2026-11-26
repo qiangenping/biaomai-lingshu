@@ -5,9 +5,12 @@
  */
 
 import { BrowserWindow, dialog, ipcMain, session } from 'electron';
+import dns from 'node:dns/promises';
 import fs from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
+import tls from 'node:tls';
 
 const isolatedWindows = new Map<string, BrowserWindow>();
 
@@ -362,4 +365,267 @@ export function initBiaoMaiBridge(): void {
     }
     return { ok: true };
   });
+
+  // 11. Global B2B Prospect Extractor from Isolated Browser (Google Maps / LinkedIn / Directories)
+  ipcMain.handle('biaomai:extract-global-prospects', async (_evt, payload: { partition: string }) => {
+    const win = isolatedWindows.get(payload.partition);
+    if (!win || win.isDestroyed()) {
+      return { ok: false, error: '请先打开隔离浏览器并浏览到 Google Maps / LinkedIn / B2B 黄页搜索结果页', prospects: [] };
+    }
+    try {
+      const result = (await win.webContents.executeJavaScript(`
+        (() => {
+          const url = location.href;
+          const out = [];
+          const seen = new Set();
+          const emailRe = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/;
+          const phoneRe = /\\+?\\d[\\d\\s\\-().]{6,18}\\d/;
+
+          // 1) Google Maps cards or generic directory cards
+          const cards = Array.from(document.querySelectorAll('[role="article"], li.reusable-search__result-container, .entity-result__item, article, .result, .company-card'));
+          for (let i = 0; i < cards.length && out.length < 25; i++) {
+            const card = cards[i];
+            const text = (card.innerText || '').trim();
+            if (text.length < 6) continue;
+            const lines = text.split('\\n').map(l => l.trim()).filter(Boolean);
+            const name = (card.querySelector('h1,h2,h3,h4,.fontHeadlineSmall,a[aria-label]')?.textContent || card.getAttribute('aria-label') || lines[0] || '').trim();
+            if (!name || name.length > 100 || seen.has(name.toLowerCase())) continue;
+            seen.add(name.toLowerCase());
+            const links = Array.from(card.querySelectorAll('a[href]')).map(a => a.href).filter(h => /^https?:\\/\\//i.test(h) && !h.includes('google.com/maps') && !h.includes('linkedin.com/search'));
+            const emailMatch = text.match(emailRe);
+            const phoneMatch = text.match(phoneRe);
+            out.push({
+              id: 'b2b_' + i + '_' + Date.now(),
+              companyName: name,
+              website: links[0] || '',
+              email: emailMatch ? emailMatch[0] : '',
+              phone: phoneMatch ? phoneMatch[0].trim() : '',
+              snippet: lines.slice(0, 3).join(' · ').slice(0, 180),
+              sourceUrl: url,
+            });
+          }
+
+          // 2) Fallback: extract external business links if no structured cards matched
+          if (out.length === 0) {
+            const anchors = Array.from(document.querySelectorAll('a[href^="http"]'));
+            for (let i = 0; i < anchors.length && out.length < 20; i++) {
+              const a = anchors[i];
+              const title = (a.innerText || '').trim();
+              if (!title || title.length < 3 || title.length > 80 || seen.has(title.toLowerCase())) continue;
+              if (/google\\.|bing\\.|baidu\\.|gstatic\\.|doubleclick\\./i.test(a.hostname)) continue;
+              seen.add(title.toLowerCase());
+              out.push({
+                id: 'lnk_' + i + '_' + Date.now(),
+                companyName: title,
+                website: a.href,
+                email: '',
+                phone: '',
+                snippet: a.hostname,
+                sourceUrl: url,
+              });
+            }
+          }
+          return { url, prospects: out };
+        })();
+      `)) as { url: string; prospects: Array<{ id: string; companyName: string; website: string; email: string; phone: string; snippet: string; sourceUrl: string }> };
+      return { ok: true, url: result.url, prospects: result.prospects || [] };
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : String(err), prospects: [] };
+    }
+  });
+
+  // 12. Company Website Public Contact Enrichment + DNS MX Verification
+  ipcMain.handle('biaomai:enrich-company-domain', async (_evt, payload: { website?: string; email?: string }) => {
+    let foundEmail = (payload.email || '').trim();
+    let foundPhone = '';
+    let whatsappUrl = '';
+    let linkedinUrl = '';
+
+    const rawSite = (payload.website || '').trim();
+    if (rawSite) {
+      const normalized = /^https?:\/\//i.test(rawSite) ? rawSite : `https://${rawSite}`;
+      const base = normalized.replace(/\/+$/, '');
+      const candidateUrls = [normalized, `${base}/contact`, `${base}/contact-us`, `${base}/about`];
+      const emailRegex = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+      const phoneRegex = /\+\d[\d\s\-().]{7,18}\d/g;
+
+      for (const targetUrl of candidateUrls) {
+        if (foundEmail && foundPhone && whatsappUrl) break;
+        try {
+          const res = await fetch(targetUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BiaoMaiLingshu/1.0)' },
+            signal: AbortSignal.timeout(7000),
+          });
+          if (!res.ok) continue;
+          const html = await res.text();
+          if (!foundEmail) {
+            const matches = html.match(emailRegex) || [];
+            const valid = matches.find(
+              (m) => !/\.(png|jpg|jpeg|gif|svg|webp|css|js)$/i.test(m) && !/(example\.com|sentry\.io|wixpress\.com|w3\.org)/i.test(m)
+            );
+            if (valid) foundEmail = valid;
+          }
+          if (!foundPhone) {
+            const phones = html.match(phoneRegex) || [];
+            if (phones[0]) foundPhone = phones[0].trim();
+          }
+          if (!whatsappUrl) {
+            const wa = html.match(/https?:\/\/(?:wa\.me|api\.whatsapp\.com)\/[^\s"'<>]+/i);
+            if (wa) whatsappUrl = wa[0];
+          }
+          if (!linkedinUrl) {
+            const li = html.match(/https?:\/\/(?:www\.)?linkedin\.com\/company\/[^\s"'<>]+/i);
+            if (li) linkedinUrl = li[0];
+          }
+        } catch {
+          // continue to next candidate URL
+        }
+      }
+    }
+
+    let mxValid = false;
+    let mxHost = '';
+    const emailDomain = foundEmail.includes('@') ? foundEmail.split('@')[1].trim() : '';
+    if (emailDomain) {
+      try {
+        const records = await dns.resolveMx(emailDomain);
+        if (records && records.length > 0) {
+          mxValid = true;
+          mxHost = records.sort((a, b) => a.priority - b.priority)[0].exchange;
+        }
+      } catch {
+        mxValid = false;
+      }
+    }
+
+    return { ok: true, email: foundEmail, phone: foundPhone, whatsappUrl, linkedinUrl, mxValid, mxHost };
+  });
+
+  // 13. Zero-Dependency TLS/STARTTLS SMTP Mailer (Apache-2.0 clean, Human-in-the-Loop gated)
+  ipcMain.handle(
+    'biaomai:send-smtp-email',
+    async (
+      _evt,
+      payload: {
+        host: string;
+        port: number;
+        secure?: boolean;
+        user: string;
+        pass: string;
+        from?: string;
+        to: string;
+        subject: string;
+        text: string;
+      }
+    ) => {
+      const { host, port, user, pass, to, subject, text } = payload;
+      const fromAddr = payload.from || user;
+      if (!host || !user || !pass || !to) {
+        return { ok: false, error: '请先完整填写 SMTP 服务器、发件账号、授权码及收件邮箱' };
+      }
+
+      const sendViaSmtp = (): Promise<{ ok: boolean; error?: string }> =>
+        new Promise((resolve) => {
+          const useImplicitTls = payload.secure ?? port === 465;
+          let socket: net.Socket | tls.TLSSocket = useImplicitTls
+            ? tls.connect({ host, port, servername: host, rejectUnauthorized: true })
+            : net.createConnection({ host, port });
+
+          let buffer = '';
+          let step = 0;
+          let finished = false;
+          const done = (res: { ok: boolean; error?: string }) => {
+            if (finished) return;
+            finished = true;
+            try {
+              socket.end();
+            } catch {
+              // ignore
+            }
+            resolve(res);
+          };
+
+          socket.setTimeout(15000, () => done({ ok: false, error: 'SMTP 连接超时 (15s)' }));
+          socket.on('error', (err) => done({ ok: false, error: err.message }));
+
+          const sendLine = (line: string) => socket.write(`${line}\r\n`);
+
+          const handleResponse = (code: number, fullLine: string) => {
+            if (code >= 400) {
+              done({ ok: false, error: `SMTP ${code}: ${fullLine.trim()}` });
+              return;
+            }
+            if (step === 0 && code === 220) {
+              step = 1;
+              sendLine('EHLO biaomai.local');
+            } else if (step === 1 && code === 250) {
+              if (!useImplicitTls && fullLine.includes('STARTTLS')) {
+                step = 2;
+                sendLine('STARTTLS');
+              } else {
+                step = 3;
+                sendLine('AUTH LOGIN');
+              }
+            } else if (step === 2 && code === 220) {
+              const upgraded = tls.connect({ socket, servername: host, rejectUnauthorized: true }, () => {
+                step = 1;
+                sendLine('EHLO biaomai.local');
+              });
+              upgraded.on('data', onData);
+              upgraded.on('error', (err) => done({ ok: false, error: err.message }));
+              socket = upgraded;
+            } else if (step === 3 && code === 334) {
+              step = 4;
+              sendLine(Buffer.from(user).toString('base64'));
+            } else if (step === 4 && code === 334) {
+              step = 5;
+              sendLine(Buffer.from(pass).toString('base64'));
+            } else if (step === 5 && code === 235) {
+              step = 6;
+              sendLine(`MAIL FROM:<${fromAddr}>`);
+            } else if (step === 6 && code === 250) {
+              step = 7;
+              sendLine(`RCPT TO:<${to}>`);
+            } else if (step === 7 && code === 250) {
+              step = 8;
+              sendLine('DATA');
+            } else if (step === 8 && code === 354) {
+              step = 9;
+              const encodedSubj = `=?UTF-8?B?${Buffer.from(subject, 'utf8').toString('base64')}?=`;
+              const mime = [
+                `From: <${fromAddr}>`,
+                `To: <${to}>`,
+                `Subject: ${encodedSubj}`,
+                'MIME-Version: 1.0',
+                'Content-Type: text/plain; charset=UTF-8',
+                '',
+                text.replace(/^\./gm, '..'),
+                '.',
+              ].join('\r\n');
+              sendLine(mime);
+            } else if (step === 9 && code === 250) {
+              step = 10;
+              sendLine('QUIT');
+              done({ ok: true });
+            }
+          };
+
+          const onData = (chunk: Buffer) => {
+            buffer += chunk.toString('utf8');
+            const lines = buffer.split(/\r?\n/);
+            buffer = lines.pop() ?? '';
+            const lastComplete = lines.filter(Boolean).pop();
+            if (!lastComplete) return;
+            const match = lastComplete.match(/^(\d{3})([ -])(.*)$/);
+            if (match && match[2] === ' ') {
+              handleResponse(Number(match[1]), lines.join('\n'));
+            }
+          };
+
+          socket.on('data', onData);
+        });
+
+      return await sendViaSmtp();
+    }
+  );
 }

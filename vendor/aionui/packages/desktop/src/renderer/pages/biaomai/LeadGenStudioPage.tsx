@@ -62,6 +62,59 @@ interface BiaoMaiElectronBridge {
   }>;
   installLocalPack: () => Promise<{ ok: boolean; canceled?: boolean; packName?: string; error?: string }>;
   uninstallPack: (payload: { packName: string }) => Promise<{ ok: boolean }>;
+  extractGlobalProspects: (payload: { partition: string }) => Promise<{
+    ok: boolean;
+    url?: string;
+    error?: string;
+    prospects: Array<{
+      id: string;
+      companyName: string;
+      website: string;
+      email: string;
+      phone: string;
+      snippet: string;
+      sourceUrl: string;
+    }>;
+  }>;
+  enrichCompanyDomain: (payload: { website?: string; email?: string }) => Promise<{
+    ok: boolean;
+    email?: string;
+    phone?: string;
+    whatsappUrl?: string;
+    linkedinUrl?: string;
+    mxValid: boolean;
+    mxHost?: string;
+  }>;
+  sendSmtpEmail: (payload: {
+    host: string;
+    port: number;
+    secure?: boolean;
+    user: string;
+    pass: string;
+    from?: string;
+    to: string;
+    subject: string;
+    text: string;
+  }) => Promise<{ ok: boolean; error?: string }>;
+}
+
+interface GlobalProspect {
+  id: string;
+  companyName: string;
+  industry: string;
+  country: string;
+  website: string;
+  email: string;
+  phone: string;
+  whatsappUrl?: string;
+  linkedinUrl?: string;
+  mxValid?: boolean;
+  mxHost?: string;
+  snippet: string;
+  sourceUrl: string;
+  outreachSubject?: string;
+  outreachBody?: string;
+  outreachSent?: boolean;
 }
 
 interface InstalledPack {
@@ -159,6 +212,10 @@ interface StudioSettings {
   cnMcpKey: string;
   globalMcpKey: string;
   customMcpUrl: string;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUser?: string;
+  smtpPass?: string;
 }
 
 interface AnalyzedComment {
@@ -236,7 +293,7 @@ const LeadGenStudioPage: React.FC = () => {
   const isZh = (i18n.language || 'zh-CN').startsWith('zh');
   const bridge = getBridge();
 
-  const [activeTab, setActiveTab] = useState<'create' | 'publish' | 'engage' | 'crm' | 'packs'>('create');
+  const [activeTab, setActiveTab] = useState<'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs'>('create');
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [settings, setSettings] = useState<StudioSettings>(() =>
     readJson<StudioSettings>(KEYS.settings, {
@@ -250,6 +307,10 @@ const LeadGenStudioPage: React.FC = () => {
       cnMcpKey: '',
       globalMcpKey: '',
       customMcpUrl: 'http://localhost:8080/api/unified/mcp',
+      smtpHost: 'smtp.gmail.com',
+      smtpPort: 465,
+      smtpUser: '',
+      smtpPass: '',
     })
   );
   const [mcpTestMsg, setMcpTestMsg] = useState<string>('');
@@ -258,6 +319,14 @@ const LeadGenStudioPage: React.FC = () => {
   const [accounts, setAccounts] = useState<LocalAccount[]>(() => readJson<LocalAccount[]>(KEYS.accounts, []));
   const [posts, setPosts] = useState<LocalPost[]>(() => readJson<LocalPost[]>(KEYS.posts, []));
   const [leads, setLeads] = useState<LocalLead[]>(() => readJson<LocalLead[]>(KEYS.leads, []));
+  const [prospects, setProspects] = useState<GlobalProspect[]>(() => readJson<GlobalProspect[]>('biaomai:local:prospects', []));
+  const [b2bIndustry, setB2bIndustry] = useState('CNC Machining & Industrial Parts');
+  const [b2bCountry, setB2bCountry] = useState('Germany');
+  const [b2bLang, setB2bLang] = useState<'en-US' | 'de-DE' | 'es-ES' | 'ja-JP' | 'ar-SA'>('en-US');
+  const [extractingB2b, setExtractingB2b] = useState(false);
+  const [enrichingId, setEnrichingId] = useState<string>('');
+  const [draftingOutreachId, setDraftingOutreachId] = useState<string>('');
+  const [sendingEmailId, setSendingEmailId] = useState<string>('');
 
   // Create State
   const [createPlatform, setCreatePlatform] = useState('xiaohongshu');
@@ -757,12 +826,179 @@ const LeadGenStudioPage: React.FC = () => {
     Message.success(isZh ? `已卸载行业包：${packName}` : `Uninstalled pack: ${packName}`);
   };
 
-  const navTabs: Array<{ id: 'create' | 'publish' | 'engage' | 'crm' | 'packs'; step: string; title: string; count?: number }> = [
+  useEffect(() => localStorage.setItem('biaomai:local:prospects', JSON.stringify(prospects)), [prospects]);
+
+  const b2bPartition = 'persist:bm-b2b-global-radar';
+  const handleOpenB2bDirectory = async (channel: 'gmaps' | 'linkedin' | 'thomasnet' | 'europages' | 'alibaba') => {
+    const q = encodeURIComponent(`${b2bIndustry} ${b2bCountry}`.trim());
+    const urls: Record<typeof channel, string> = {
+      gmaps: `https://www.google.com/maps/search/${q}`,
+      linkedin: `https://www.linkedin.com/search/results/companies/?keywords=${q}`,
+      thomasnet: `https://www.thomasnet.com/nsearch.html?cov=NA&heading=&searchterm=${encodeURIComponent(b2bIndustry)}`,
+      europages: `https://www.europages.co.uk/companies/${encodeURIComponent(b2bIndustry)}.html`,
+      alibaba: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(b2bIndustry)}`,
+    };
+    await handleOpenIsolatedWindow(b2bPartition, urls[channel], `Global B2B · ${channel}`);
+  };
+
+  const handleExtractB2bProspects = async () => {
+    if (!bridge?.extractGlobalProspects) return;
+    setExtractingB2b(true);
+    const res = await bridge.extractGlobalProspects({ partition: b2bPartition });
+    setExtractingB2b(false);
+    if (!res.ok || res.prospects.length === 0) {
+      Message.warning(res.error || (isZh ? '未提取到企业列表，请先在隔离浏览器打开 Google Maps/LinkedIn/黄页搜索结果' : 'No prospects extracted'));
+      return;
+    }
+    const mapped: GlobalProspect[] = res.prospects.map((p) => ({
+      ...p,
+      industry: b2bIndustry,
+      country: b2bCountry,
+    }));
+    setProspects((prev) => {
+      const existingNames = new Set(prev.map((x) => x.companyName.toLowerCase()));
+      const fresh = mapped.filter((x) => !existingNames.has(x.companyName.toLowerCase()));
+      return [...fresh, ...prev];
+    });
+    Message.success(isZh ? `已提取 ${mapped.length} 家真实企业线索` : `Extracted ${mapped.length} prospects`);
+  };
+
+  const handleEnrichProspect = async (item: GlobalProspect) => {
+    if (!bridge?.enrichCompanyDomain) return;
+    if (!item.website && !item.email) {
+      Message.warning(isZh ? '该企业暂无官网域名或邮箱可供验真' : 'No website or email to enrich');
+      return;
+    }
+    setEnrichingId(item.id);
+    const res = await bridge.enrichCompanyDomain({ website: item.website, email: item.email });
+    setEnrichingId('');
+    if (res.ok) {
+      setProspects((prev) =>
+        prev.map((p) =>
+          p.id === item.id
+            ? {
+                ...p,
+                email: res.email || p.email,
+                phone: res.phone || p.phone,
+                whatsappUrl: res.whatsappUrl || p.whatsappUrl,
+                linkedinUrl: res.linkedinUrl || p.linkedinUrl,
+                mxValid: res.mxValid,
+                mxHost: res.mxHost,
+              }
+            : p
+        )
+      );
+      Message.success(
+        res.mxValid
+          ? isZh
+            ? `✅ 补全成功，邮箱 MX 有效 (${res.mxHost})`
+            : `✅ Enriched & MX valid (${res.mxHost})`
+          : isZh
+            ? '已完成官网公开信息抓取（暂未检测到有效邮箱 MX）'
+            : 'Website checked (no valid MX email found yet)'
+      );
+    }
+  };
+
+  const handleGenerateColdEmail = async (item: GlobalProspect) => {
+    if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost') && !settings.llmBaseUrl.includes('127.0.0.1')) {
+      setSettingsModalOpen(true);
+      Message.info(isZh ? '请先配置大模型 API Key 以生成多语种开发信' : 'Configure LLM API Key first');
+      return;
+    }
+    if (!bridge?.runLlm) return;
+    setDraftingOutreachId(item.id);
+    const res = await bridge.runLlm({
+      baseUrl: settings.llmBaseUrl,
+      apiKey: settings.llmApiKey,
+      model: settings.llmModel,
+      systemPrompt: `You are an elite global B2B foreign-trade sales strategist. Output strict JSON {"subject": string, "body": string} in language ${b2bLang}. Include Day-1 personalized icebreaker + low-friction CTA + brief WhatsApp follow-up line at bottom.`,
+      userPrompt: `Target company: ${item.companyName}\nCountry: ${item.country}\nIndustry: ${item.industry}\nWebsite: ${item.website}\nContext: ${item.snippet}`,
+    });
+    setDraftingOutreachId('');
+    if (!res.ok || !res.content) {
+      Message.error(res.error || 'Failed to draft cold email');
+      return;
+    }
+    try {
+      const cleaned = res.content.replace(/```json\s*|```/g, '').trim();
+      const parsed = JSON.parse(cleaned) as { subject?: string; body?: string };
+      setProspects((prev) =>
+        prev.map((p) =>
+          p.id === item.id ? { ...p, outreachSubject: parsed.subject || `Partnership with ${item.companyName}`, outreachBody: parsed.body || res.content } : p
+        )
+      );
+    } catch {
+      setProspects((prev) =>
+        prev.map((p) => (p.id === item.id ? { ...p, outreachSubject: `Inquiry for ${item.companyName}`, outreachBody: res.content } : p))
+      );
+    }
+    Message.success(isZh ? '已生成定制开发信与 WhatsApp 跟进话术' : 'Cold email drafted');
+  };
+
+  const handleSendColdEmail = (item: GlobalProspect) => {
+    if (!item.email || !item.outreachBody) {
+      Message.warning(isZh ? '请先补全对方邮箱并生成开发信草稿' : 'Enrich email and generate draft first');
+      return;
+    }
+    if (!settings.smtpUser || !settings.smtpPass || !settings.smtpHost) {
+      setSettingsModalOpen(true);
+      Message.info(isZh ? '请先在「接口配置」中填写您的发件 SMTP 邮箱与授权码' : 'Configure SMTP credentials in Settings first');
+      return;
+    }
+    Modal.confirm({
+      title: isZh ? '人工确认发送外贸开发信（防群发垃圾邮件门禁）' : 'Human-in-the-Loop Cold Email Confirmation',
+      content: isZh
+        ? `收件企业：${item.companyName} (${item.email})\n主题：${item.outreachSubject}`
+        : `To: ${item.companyName} (${item.email})\nSubject: ${item.outreachSubject}`,
+      okText: isZh ? '确认通过 SMTP 发送' : 'Confirm & Send via SMTP',
+      cancelText: isZh ? '取消' : 'Cancel',
+      onOk: async () => {
+        if (!bridge?.sendSmtpEmail) return;
+        setSendingEmailId(item.id);
+        const res = await bridge.sendSmtpEmail({
+          host: settings.smtpHost || 'smtp.gmail.com',
+          port: Number(settings.smtpPort || 465),
+          user: settings.smtpUser || '',
+          pass: settings.smtpPass || '',
+          to: item.email,
+          subject: item.outreachSubject || `Collaboration with ${item.companyName}`,
+          text: item.outreachBody || '',
+        });
+        setSendingEmailId('');
+        if (res.ok) {
+          setProspects((prev) => prev.map((p) => (p.id === item.id ? { ...p, outreachSent: true } : p)));
+          Message.success(isZh ? `✅ 已成功发送开发信至 ${item.email}` : `✅ Sent to ${item.email}`);
+        } else {
+          Message.error(res.error || 'SMTP send failed');
+        }
+      },
+    });
+  };
+
+  const handleAddProspectToCrm = (item: GlobalProspect) => {
+    const lead: LocalLead = {
+      id: `lead_${Date.now()}`,
+      platformId: 'global-b2b',
+      nickname: item.companyName,
+      sanitizedComment: `${item.country} · ${item.industry}${item.email ? ` · ${item.email}` : ''}${item.website ? ` · ${item.website}` : ''}`,
+      tier: item.mxValid ? 'S' : 'A',
+      score: item.mxValid ? 92 : 78,
+      stage: item.outreachSent ? 'engaged' : 'new',
+      dealValue: 0,
+      createdAt: new Date().toISOString(),
+    };
+    setLeads((prev) => [lead, ...prev]);
+    Message.success(isZh ? `已将「${item.companyName}」入库线索 CRM` : `Added ${item.companyName} to CRM`);
+  };
+
+  const navTabs: Array<{ id: 'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs'; step: string; title: string; count?: number }> = [
     { id: 'create', step: '01', title: isZh ? 'AI 内容创作' : 'Create Studio' },
     { id: 'publish', step: '02', title: isZh ? '全渠道分发' : 'Omni-Publish', count: posts.length },
-    { id: 'engage', step: '03', title: isZh ? '浏览器意向雷达' : 'Intent Radar', count: analyzedList.length },
-    { id: 'crm', step: '04', title: isZh ? '线索 CRM' : 'Lead CRM', count: leads.length },
-    { id: 'packs', step: '05', title: isZh ? '插件与行业包' : 'Packs Market', count: installedPacks.length },
+    { id: 'engage', step: '03', title: isZh ? '社媒意向雷达' : 'Intent Radar', count: analyzedList.length },
+    { id: 'outbound', step: '04', title: isZh ? '全球 B2B 寻客' : 'Global Outbound', count: prospects.length },
+    { id: 'crm', step: '05', title: isZh ? '线索 CRM' : 'Lead CRM', count: leads.length },
+    { id: 'packs', step: '06', title: isZh ? '插件与行业包' : 'Packs Market', count: installedPacks.length },
   ];
 
   return (
@@ -821,8 +1057,8 @@ const LeadGenStudioPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Modern Segmented 5-Step Pipeline Navigation */}
-        <div className='grid grid-cols-2 md:grid-cols-5 gap-8px p-4px rd-12px bg-2 border border-solid border-[var(--color-border-2)]'>
+        {/* Modern Segmented 6-Step Pipeline Navigation */}
+        <div className='grid grid-cols-2 md:grid-cols-6 gap-8px p-4px rd-12px bg-2 border border-solid border-[var(--color-border-2)]'>
           {navTabs.map((t) => {
             const active = activeTab === t.id;
             return (
@@ -1230,6 +1466,118 @@ const LeadGenStudioPage: React.FC = () => {
           </div>
         )}
 
+        {/* TAB 4: GLOBAL B2B & FOREIGN-TRADE OUTBOUND */}
+        {activeTab === 'outbound' && (
+          <div className='flex flex-col gap-20px'>
+            <div className='p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-14px'>
+              <div className='flex items-center justify-between flex-wrap gap-10px'>
+                <div>
+                  <div className='text-15px font-600 text-t-primary'>
+                    {isZh ? '🌍 全球外贸与全行业 B2B 主动寻客雷达' : '🌍 Global B2B & Foreign-Trade Prospector'}
+                  </div>
+                  <div className='text-12px text-t-secondary mt-2px'>
+                    {isZh
+                      ? '直连 Google Maps / LinkedIn / 欧美黄页提取真实采购商 → 官网公开邮箱抓取与 DNS MX 验真 → 多语种开发信人工确认直发'
+                      : 'Extract real buyers from Google Maps / LinkedIn / B2B directories → Enrich emails & DNS MX verify → Multilingual cold email'}
+                  </div>
+                </div>
+                <Tag color='arcoblue'>pack-global-b2b-outbound</Tag>
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-12px'>
+                <div className='flex flex-col gap-4px'>
+                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '目标行业 / 产品关键词' : 'Target Industry / Keywords'}</label>
+                  <Input value={b2bIndustry} onChange={setB2bIndustry} placeholder='e.g. CNC Machining, Solar Inverter, Packaging' />
+                </div>
+                <div className='flex flex-col gap-4px'>
+                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '目标国家 / 城市' : 'Target Country / City'}</label>
+                  <Input value={b2bCountry} onChange={setB2bCountry} placeholder='e.g. Germany, USA, UAE, Japan' />
+                </div>
+                <div className='flex flex-col gap-4px'>
+                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '开发信目标语种' : 'Outreach Language'}</label>
+                  <Select value={b2bLang} onChange={setB2bLang}>
+                    <Select.Option value='en-US'>English (Global B2B)</Select.Option>
+                    <Select.Option value='de-DE'>Deutsch (DACH)</Select.Option>
+                    <Select.Option value='es-ES'>Español (LATAM / Spain)</Select.Option>
+                    <Select.Option value='ja-JP'>日本語 (Japan)</Select.Option>
+                    <Select.Option value='ar-SA'>العربية (Middle East)</Select.Option>
+                  </Select>
+                </div>
+              </div>
+
+              <div className='flex items-center justify-between flex-wrap gap-10px'>
+                <Space wrap>
+                  <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('gmaps')}>🗺️ Google Maps</Button>
+                  <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('linkedin')}>💼 LinkedIn</Button>
+                  <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('thomasnet')}>🏭 Thomasnet (北美)</Button>
+                  <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('europages')}>🇪🇺 Europages (欧洲)</Button>
+                  <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('alibaba')}>🚢 Alibaba</Button>
+                </Space>
+                <Button type='primary' loading={extractingB2b} onClick={handleExtractB2bProspects} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                  {isZh ? '🔍 从当前隔离浏览器页面提取企业线索' : '🔍 Extract Prospects from Browser'}
+                </Button>
+              </div>
+            </div>
+
+            {prospects.length === 0 ? (
+              <Empty description={isZh ? '点击上方任一全球目录打开隔离浏览器搜索，然后点击「提取企业线索」' : 'Open a global directory and extract prospects'} />
+            ) : (
+              <div className='flex flex-col gap-12px'>
+                {prospects.map((item) => (
+                  <div key={item.id} className='p-16px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-10px'>
+                    <div className='flex items-start justify-between gap-12px flex-wrap'>
+                      <div className='flex flex-col gap-4px min-w-0 flex-1'>
+                        <div className='flex items-center gap-8px flex-wrap'>
+                          <span className='text-15px font-700 text-t-primary'>{item.companyName}</span>
+                          <Tag size='small' color='arcoblue'>{item.country}</Tag>
+                          {item.mxValid === true && <Tag size='small' color='green'>✅ MX Valid ({item.mxHost})</Tag>}
+                          {item.mxValid === false && <Tag size='small' color='orange'>⚠️ No MX</Tag>}
+                          {item.outreachSent && <Tag size='small' color='purple'>✉️ 已发送开发信</Tag>}
+                        </div>
+                        <div className='text-12px text-t-secondary flex items-center gap-12px flex-wrap'>
+                          {item.website && <span>🌐 {item.website}</span>}
+                          {item.email && <span>✉️ {item.email}</span>}
+                          {item.phone && <span>📞 {item.phone}</span>}
+                          {item.whatsappUrl && <span>💬 WhatsApp Ready</span>}
+                        </div>
+                        {item.snippet && <div className='text-12px text-t-tertiary'>{item.snippet}</div>}
+                      </div>
+                      <Space wrap>
+                        <Button size='small' type='outline' loading={enrichingId === item.id} onClick={() => handleEnrichProspect(item)}>
+                          {isZh ? '🔎 官网抓邮箱 + MX 验真' : '🔎 Enrich & MX Verify'}
+                        </Button>
+                        <Button size='small' type='outline' loading={draftingOutreachId === item.id} onClick={() => handleGenerateColdEmail(item)}>
+                          {isZh ? '✨ AI 写多语开发信' : '✨ Draft Cold Email'}
+                        </Button>
+                        <Button size='small' type='primary' onClick={() => handleAddProspectToCrm(item)} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                          {isZh ? '+ 入库 CRM' : '+ Add CRM'}
+                        </Button>
+                      </Space>
+                    </div>
+
+                    {item.outreachBody && (
+                      <div className='p-12px rd-10px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-8px'>
+                        <div className='text-12px font-600 text-t-primary'>Subject: {item.outreachSubject}</div>
+                        <div className='text-12px text-t-secondary whitespace-pre-wrap'>{item.outreachBody}</div>
+                        <div className='flex justify-end gap-8px'>
+                          {item.whatsappUrl && (
+                            <Button size='mini' type='outline' onClick={() => handleOpenIsolatedWindow(b2bPartition, item.whatsappUrl || 'https://web.whatsapp.com/', 'WhatsApp')}>
+                              💬 打开 WhatsApp 跟进
+                            </Button>
+                          )}
+                          <Button size='mini' type='primary' loading={sendingEmailId === item.id} onClick={() => handleSendColdEmail(item)} style={{ background: '#0F172A', borderColor: '#0F172A' }}>
+                            {isZh ? '📤 人工确认并通过本地 SMTP 发送' : '📤 Confirm & Send SMTP'}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* TAB 4: CONVERT CRM */}
         {activeTab === 'crm' && (
           <div className='flex flex-col gap-20px'>
@@ -1443,6 +1791,14 @@ const LeadGenStudioPage: React.FC = () => {
               <Button type='outline' onClick={handleTestAiToEarnMcp}>{isZh ? '🔌 测试 AiToEarn MCP 连通性' : '🔌 Test AiToEarn MCP'}</Button>
               {mcpTestMsg && <span>{mcpTestMsg}</span>}
             </Space>
+
+            <div className='font-600 mt-6px'>{isZh ? '4. 外贸开发信本地 SMTP 发件箱（Gmail / 企业邮 / 飞书邮）' : '4. Outbound Cold Email SMTP'}</div>
+            <div className='grid grid-cols-2 gap-8px'>
+              <Input addBefore='SMTP Host' value={settings.smtpHost || ''} onChange={(v) => setSettings({ ...settings, smtpHost: v })} placeholder='smtp.gmail.com' />
+              <Input addBefore='Port' value={String(settings.smtpPort || 465)} onChange={(v) => setSettings({ ...settings, smtpPort: Number(v) || 465 })} placeholder='465' />
+            </div>
+            <Input addBefore='Email' value={settings.smtpUser || ''} onChange={(v) => setSettings({ ...settings, smtpUser: v })} placeholder='sales@yourcompany.com' />
+            <Input.Password addBefore='App Password' value={settings.smtpPass || ''} onChange={(v) => setSettings({ ...settings, smtpPass: v })} placeholder='SMTP 授权码 / App Password' />
           </div>
         </Modal>
       </div>
