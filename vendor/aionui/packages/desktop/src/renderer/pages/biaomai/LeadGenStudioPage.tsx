@@ -6,8 +6,22 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Message, Modal, Select } from '@arco-design/web-react';
-import { IconClockCircle, IconQuestionCircle, IconSettings } from '@arco-design/web-react/icon';
+import { Message, Modal, Select, Tooltip } from '@arco-design/web-react';
+import {
+  IconApps,
+  IconClockCircle,
+  IconCompass,
+  IconDown,
+  IconEdit,
+  IconMenuFold,
+  IconMenuUnfold,
+  IconQuestionCircle,
+  IconRight,
+  IconSearch,
+  IconSend,
+  IconSettings,
+  IconUserGroup,
+} from '@arco-design/web-react/icon';
 import {
   ALL_PLATFORMS,
   type AnalyzedComment,
@@ -40,6 +54,13 @@ const LeadGenStudioPage: React.FC = () => {
   const bridge = getBridge();
 
   const [activeTab, setActiveTab] = useState<'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs'>('create');
+  const [menuCollapsed, setMenuCollapsed] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    inbound: true,
+    outbound: true,
+    convert: true,
+    system: false,
+  });
   const [industryId, setIndustryId] = useState<string>('foreign-trade');
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [cronModalOpen, setCronModalOpen] = useState(false);
@@ -544,91 +565,164 @@ const LeadGenStudioPage: React.FC = () => {
     ? { new: '新意向', engaged: '已回复', qualified: '已留资', opportunity: '商机', won: '已成交' }
     : { new: 'New', engaged: 'Engaged', qualified: 'Qualified', opportunity: 'Opportunity', won: 'Won' };
 
-  const navTabs: Array<{ id: 'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs'; step: string; title: string; count?: number }> = [
-    { id: 'create', step: '01', title: isZh ? '内容创作' : 'Create' },
-    { id: 'publish', step: '02', title: isZh ? '渠道分发' : 'Publish', count: posts.length },
-    { id: 'engage', step: '03', title: isZh ? '社媒雷达' : 'Radar', count: analyzedList.length },
-    { id: 'outbound', step: '04', title: isZh ? '企业寻客' : 'Outbound', count: prospects.length },
-    { id: 'crm', step: '05', title: isZh ? '线索 CRM' : 'CRM', count: leads.length },
-    { id: 'packs', step: '06', title: isZh ? '行业插件' : 'Plugins', count: installedPacks.length },
+  const menuGroups: Array<{
+    key: string;
+    label: string;
+    items: Array<{
+      id: string;
+      title: string;
+      icon: React.ReactNode;
+      count?: number;
+      onClick: () => void;
+      isActive?: boolean;
+    }>;
+  }> = [
+    {
+      key: 'inbound',
+      label: isZh ? '内容引流' : 'Inbound',
+      items: [
+        { id: 'create', title: isZh ? '内容创作' : 'Create', icon: <IconEdit />, onClick: () => setActiveTab('create'), isActive: activeTab === 'create' },
+        { id: 'publish', title: isZh ? '渠道分发' : 'Publish', icon: <IconSend />, count: posts.length, onClick: () => setActiveTab('publish'), isActive: activeTab === 'publish' },
+        { id: 'engage', title: isZh ? '社媒雷达' : 'Radar', icon: <IconSearch />, count: analyzedList.length, onClick: () => setActiveTab('engage'), isActive: activeTab === 'engage' },
+      ],
+    },
+    {
+      key: 'outbound',
+      label: isZh ? '主动寻客' : 'Outbound',
+      items: [
+        { id: 'outbound', title: isZh ? '企业寻客' : 'Prospector', icon: <IconCompass />, count: prospects.length, onClick: () => setActiveTab('outbound'), isActive: activeTab === 'outbound' },
+      ],
+    },
+    {
+      key: 'convert',
+      label: isZh ? '转化与生态' : 'Convert',
+      items: [
+        { id: 'crm', title: isZh ? '线索 CRM' : 'Lead CRM', icon: <IconUserGroup />, count: leads.length, onClick: () => setActiveTab('crm'), isActive: activeTab === 'crm' },
+        { id: 'packs', title: isZh ? '行业插件' : 'Plugins', icon: <IconApps />, count: installedPacks.length, onClick: () => setActiveTab('packs'), isActive: activeTab === 'packs' },
+      ],
+    },
+    {
+      key: 'system',
+      label: isZh ? '系统与自动化' : 'System',
+      items: [
+        { id: 'cron', title: isZh ? '定时巡检' : 'Cron & IM', icon: <IconClockCircle />, onClick: () => setCronModalOpen(true) },
+        { id: 'settings', title: isZh ? '接口配置' : 'Settings', icon: <IconSettings />, onClick: () => setSettingsModalOpen(true) },
+        { id: 'guide', title: isZh ? '使用指南' : 'Guide', icon: <IconQuestionCircle />, onClick: () => setGuideModalOpen(true) },
+      ],
+    },
   ];
 
-  return (
-    <div className='h-full w-full overflow-y-auto bg-[var(--color-fill-1)] text-t-primary'>
-      <div className='max-w-1180px mx-auto px-24px py-18px flex flex-col gap-14px'>
-        <div className='flex items-center justify-between gap-12px flex-wrap'>
-          <div className='flex items-center gap-10px flex-wrap'>
-            <h1 className='m-0 text-18px font-700 tracking-tight text-t-primary'>
-              {isZh ? '全球获客工作台' : 'Global Lead-Gen Studio'}
-            </h1>
-            <Select size='small' value={industryId} onChange={handleIndustryChange} style={{ width: 210 }}>
-              {INDUSTRY_PRESETS.map((p) => (
-                <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
-              ))}
-            </Select>
-          </div>
+  const toggleGroup = (key: string) => setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
 
-          <div className='flex items-center gap-8px flex-wrap'>
-            <button
-              type='button'
-              onClick={() => setGuideModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
-            >
-              <IconQuestionCircle />
-              {isZh ? '使用指南' : 'Guide'}
-            </button>
-            <button
-              type='button'
-              onClick={() => setCronModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
-            >
-              <IconClockCircle />
-              {isZh ? '定时巡检' : 'Cron'}
-            </button>
-            <button
-              type='button'
-              onClick={() => setSettingsModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
-            >
-              <span className='inline-block size-6px rd-full' style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }} />
-              {settings.llmApiKey ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
-            </button>
-            <button
-              type='button'
-              onClick={() => setSettingsModalOpen(true)}
-              className='h-30px px-12px rd-8px border-none bg-[#0F172A] hover:bg-[#1E293B] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors shadow-sm'
-            >
-              <IconSettings />
-              {isZh ? '接口配置' : 'Settings'}
-            </button>
-          </div>
+  return (
+    <div className='h-full w-full flex overflow-hidden bg-[var(--color-fill-1)] text-t-primary'>
+      {/* Collapsible Grouped Functional Menu */}
+      <aside
+        className={`shrink-0 h-full bg-1 border-r border-solid border-[var(--color-border-2)] flex flex-col transition-all duration-200 ${
+          menuCollapsed ? 'w-56px' : 'w-208px'
+        }`}
+      >
+        <div className='h-48px px-12px border-b border-solid border-[var(--color-border-2)] flex items-center justify-between'>
+          {!menuCollapsed && (
+            <span className='text-12px font-700 tracking-wide text-t-secondary uppercase'>
+              {isZh ? '获客功能菜单' : 'Workbench Menu'}
+            </span>
+          )}
+          <button
+            type='button'
+            onClick={() => setMenuCollapsed(!menuCollapsed)}
+            title={menuCollapsed ? (isZh ? '展开菜单' : 'Expand') : (isZh ? '折叠菜单' : 'Collapse')}
+            className='size-28px rd-6px border-none bg-transparent hover:bg-fill-2 text-t-secondary cursor-pointer flex items-center justify-center mx-auto'
+          >
+            {menuCollapsed ? <IconMenuUnfold /> : <IconMenuFold />}
+          </button>
         </div>
 
-        <div className='grid grid-cols-3 md:grid-cols-6 gap-4px p-4px rd-10px bg-2 border border-solid border-[var(--color-border-2)]'>
-          {navTabs.map((t) => {
-            const active = activeTab === t.id;
+        <div className='flex-1 overflow-y-auto py-10px px-8px flex flex-col gap-10px'>
+          {menuGroups.map((group) => {
+            const isOpen = openGroups[group.key] !== false;
             return (
-              <button
-                key={t.id}
-                type='button'
-                onClick={() => setActiveTab(t.id)}
-                className={`h-34px px-10px rd-7px cursor-pointer flex items-center justify-center gap-6px text-12px font-600 transition-all whitespace-nowrap ${
-                  active
-                    ? 'bg-1 text-t-primary shadow-[0_1px_3px_rgba(15,23,42,0.08)] border border-solid border-[var(--color-border-2)]'
-                    : 'bg-transparent border border-solid border-transparent text-t-secondary hover:text-t-primary'
-                }`}
-              >
-                <span className={`text-11px font-700 ${active ? 'text-[#4F46E5]' : 'text-t-tertiary'}`}>{t.step}</span>
-                <span>{t.title}</span>
-                {typeof t.count === 'number' && t.count > 0 && (
-                  <span className={`px-6px py-0 rd-full text-10px font-600 ${active ? 'bg-[rgba(79,70,229,0.12)] text-[#4F46E5]' : 'bg-fill-2 text-t-secondary'}`}>
-                    {t.count}
-                  </span>
+              <div key={group.key} className='flex flex-col gap-3px'>
+                {!menuCollapsed && (
+                  <button
+                    type='button'
+                    onClick={() => toggleGroup(group.key)}
+                    className='px-8px py-4px border-none bg-transparent text-11px font-600 text-t-tertiary hover:text-t-primary cursor-pointer flex items-center justify-between'
+                  >
+                    <span>{group.label}</span>
+                    {isOpen ? <IconDown style={{ fontSize: 10 }} /> : <IconRight style={{ fontSize: 10 }} />}
+                  </button>
                 )}
-              </button>
+                {(menuCollapsed || isOpen) &&
+                  group.items.map((item) => {
+                    const btn = (
+                      <button
+                        key={item.id}
+                        type='button'
+                        onClick={item.onClick}
+                        className={`h-34px px-10px rd-8px border-none cursor-pointer flex items-center justify-between text-13px font-500 transition-colors ${
+                          item.isActive
+                            ? 'bg-[rgba(79,70,229,0.1)] text-[#4F46E5] font-600'
+                            : 'bg-transparent text-t-primary hover:bg-fill-2'
+                        }`}
+                      >
+                        <span className='flex items-center gap-8px truncate'>
+                          <span className='text-15px flex items-center'>{item.icon}</span>
+                          {!menuCollapsed && <span className='truncate'>{item.title}</span>}
+                        </span>
+                        {!menuCollapsed && typeof item.count === 'number' && item.count > 0 && (
+                          <span className='px-6px py-0 rd-full text-10px font-600 bg-fill-2 text-t-secondary'>{item.count}</span>
+                        )}
+                      </button>
+                    );
+                    return menuCollapsed ? (
+                      <Tooltip key={item.id} content={item.title} position='right'>
+                        {btn}
+                      </Tooltip>
+                    ) : (
+                      btn
+                    );
+                  })}
+              </div>
             );
           })}
         </div>
+      </aside>
+
+      {/* Main Content Canvas */}
+      <div className='flex-1 h-full overflow-y-auto'>
+        <div className='max-w-1120px mx-auto px-24px py-18px flex flex-col gap-16px'>
+          <div className='flex items-center justify-between gap-12px flex-wrap'>
+            <div className='flex items-center gap-10px flex-wrap'>
+              <h1 className='m-0 text-18px font-700 tracking-tight text-t-primary'>
+                {isZh ? '全球获客工作台' : 'Global Lead-Gen Studio'}
+              </h1>
+              <Select size='small' value={industryId} onChange={handleIndustryChange} style={{ width: 210 }}>
+                {INDUSTRY_PRESETS.map((p) => (
+                  <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
+                ))}
+              </Select>
+            </div>
+
+            <div className='flex items-center gap-8px flex-wrap'>
+              <button
+                type='button'
+                onClick={() => setSettingsModalOpen(true)}
+                className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              >
+                <span className='inline-block size-6px rd-full' style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }} />
+                {settings.llmApiKey ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
+              </button>
+              <button
+                type='button'
+                onClick={() => setSettingsModalOpen(true)}
+                className='h-30px px-12px rd-8px border-none bg-[#0F172A] hover:bg-[#1E293B] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors shadow-sm'
+              >
+                <IconSettings />
+                {isZh ? '接口配置' : 'Settings'}
+              </button>
+            </div>
+          </div>
 
         {activeTab === 'create' && (
           <CreateStudioTab
@@ -845,6 +939,7 @@ const LeadGenStudioPage: React.FC = () => {
           guideModalOpen={guideModalOpen}
           setGuideModalOpen={setGuideModalOpen}
         />
+        </div>
       </div>
     </div>
   );
