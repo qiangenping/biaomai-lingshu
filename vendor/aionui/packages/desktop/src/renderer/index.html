@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="application-name" content="AionUi" />
+    <meta name="application-name" content="标脉灵枢" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="AionUi" />
+    <meta name="apple-mobile-web-app-title" content="标脉灵枢" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#4E5969" />
+    <meta name="theme-color" content="#4F46E5" />
     <link rel="icon" type="image/png" href="./pwa/icon-192.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./pwa/icon-180.png" />
-    <title>AionUi</title>
+    <title>标脉灵枢 · BiaoMai Lingshu</title>
     <script>
       // Synchronously restore theme appearance from localStorage to prevent theme flash
       (function () {
@@ -31,6 +31,16 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+      html[data-theme='dark'],
+      html[data-theme='dark'] body,
+      html[data-theme='dark'] #root {
+        background-color: #0f172a;
+        color: #f8fafc;
       }
     </style>
   </head>
