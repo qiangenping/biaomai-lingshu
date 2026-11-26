@@ -1067,13 +1067,13 @@ export function initBiaoMaiBridge(): void {
           signal: AbortSignal.timeout(2500),
         });
         if (res.ok) {
-          return { ok: true, mode: 'server' as const, projectDir: baseDir, motionMd, previewUrl: studioBase };
+          return { ok: true, mode: 'server' as const, projectDir: baseDir, motionMd, previewUrl: studioBase, previewHtml: html };
         }
       } catch {
         // Fallback to local self-contained HTML5 motion preview when OpenMotion server is not running
       }
 
-      return { ok: true, mode: 'local-html' as const, projectDir: baseDir, motionMd, previewUrl: localFileUrl };
+      return { ok: true, mode: 'local-html' as const, projectDir: baseDir, motionMd, previewUrl: localFileUrl, previewHtml: html };
     }
   );
 

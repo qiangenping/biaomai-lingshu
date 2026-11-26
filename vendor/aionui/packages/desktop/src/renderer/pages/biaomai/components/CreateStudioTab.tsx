@@ -38,6 +38,9 @@ interface CreateStudioTabProps {
   setDraftBody: (v: string) => void;
   draftImageUrl: string;
   draftVideoUrl: string;
+  draftMotionUrl?: string;
+  draftMotionHtml?: string;
+  onOpenMotionWindow?: () => void;
   draftShortLink: string;
   setDraftShortLink: (v: string) => void;
   scheduledTime: string;
@@ -69,6 +72,9 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
   setDraftBody,
   draftImageUrl,
   draftVideoUrl,
+  draftMotionUrl,
+  draftMotionHtml,
+  onOpenMotionWindow,
   draftShortLink,
   setDraftShortLink,
   scheduledTime,
@@ -207,7 +213,25 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
             <span className='text-10px px-6px py-1px rd-4px bg-fill-2 text-t-secondary'>{selectedCreatePlatform.aspect}</span>
           </div>
 
-          {draftVideoUrl ? (
+          {(draftMotionHtml || draftMotionUrl) ? (
+            <div className='relative w-full h-240px bg-[#090d16]'>
+              <iframe
+                srcDoc={draftMotionHtml || undefined}
+                src={!draftMotionHtml ? draftMotionUrl : undefined}
+                title='OpenMotion Preview'
+                className='w-full h-full border-none'
+              />
+              {onOpenMotionWindow && (
+                <button
+                  type='button'
+                  onClick={onOpenMotionWindow}
+                  className='absolute right-8px bottom-8px px-10px py-4px rd-6px border-none bg-[#4F46E5] text-white text-11px font-600 cursor-pointer'
+                >
+                  {isZh ? '放大预览' : 'Expand'}
+                </button>
+              )}
+            </div>
+          ) : draftVideoUrl ? (
             <video src={draftVideoUrl} controls className='w-full h-220px object-cover bg-black' />
           ) : draftImageUrl ? (
             <img src={draftImageUrl} alt='AI Cover' className='w-full h-220px object-cover' />
