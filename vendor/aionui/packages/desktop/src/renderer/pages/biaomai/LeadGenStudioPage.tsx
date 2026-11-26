@@ -5,6 +5,7 @@
  */
 
 import { crawlerProspects, mergeProspects } from './prospect-import';
+import { ipcBridge } from '@/common';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './flat-buttons.css';
 import { useTranslation } from 'react-i18next';
@@ -144,6 +145,31 @@ const LeadGenStudioPage: React.FC = () => {
   const [syncingCrm, setSyncingCrm] = useState(false);
   const [openMotionRunning, setOpenMotionRunning] = useState(false);
   const [openMotionBusy, setOpenMotionBusy] = useState(false);
+  const [systemModelReady, setSystemModelReady] = useState(false);
+
+  useEffect(() => {
+    void ipcBridge.mode.listProviders
+      .invoke()
+      .then((providers) => {
+        if (!Array.isArray(providers) || providers.length === 0) return;
+        const active =
+          providers.find((p) => Boolean(p.api_key?.trim()) && p.models?.length > 0) ||
+          providers.find((p) => Boolean(p.api_key?.trim())) ||
+          providers.find((p) => Boolean(p.base_url?.trim()) && p.models?.length > 0);
+        if (!active) return;
+        setSystemModelReady(true);
+        setSettings((prev) => {
+          if (prev.llmApiKey?.trim()) return prev;
+          return {
+            ...prev,
+            llmBaseUrl: active.base_url?.trim() || prev.llmBaseUrl,
+            llmModel: active.models?.[0] || prev.llmModel,
+            llmApiKey: active.api_key?.trim() || prev.llmApiKey,
+          };
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   const refreshOpenMotionStatus = useCallback(async () => {
     if (!bridge?.openMotionStudioControl) return;
@@ -715,8 +741,8 @@ const LeadGenStudioPage: React.FC = () => {
               onClick={() => setSettingsModalOpen(true)}
               className='h-32px px-12px rd-8px border-none bg-1 hover:bg-[#E2E8F0] text-13px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors whitespace-nowrap shrink-0'
             >
-              <span className='inline-block size-6px rd-full' style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }} />
-              {settings.llmApiKey ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
+              <span className='inline-block size-6px rd-full' style={{ background: settings.llmApiKey || systemModelReady ? '#10B981' : '#F59E0B' }} />
+              {settings.llmApiKey || systemModelReady ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
             </button>
             <button
               type='button'
