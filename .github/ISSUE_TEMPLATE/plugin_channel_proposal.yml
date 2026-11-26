@@ -1,0 +1,51 @@
+name: Global Channel / CRM / Plugin Proposal
+description: Propose or claim a new Global Channel adapter, CRM connector, .bmpack industry playbook, or UI language pack
+title: "[Proposal] "
+labels: ["enhancement", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping expand **BiaoMai Lingshu** for global customer acquisition!
+        Check our [ROADMAP.md](https://github.com/qiangenping/biaomai-lingshu/blob/main/ROADMAP.md) first to see if this track already exists.
+  - type: dropdown
+    id: track
+    attributes:
+      label: Contribution Track
+      options:
+        - Global Social / Messaging Channel Adapter
+        - CRM / B2B Data Connector
+        - .bmpack Industry Playbook / Skill
+        - New UI Language / Localization (i18n)
+        - Built-in AI Browser Site Recipe
+        - Other Global Growth Capability
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Target Platform / Region / Language
+      placeholder: "e.g., WhatsApp Business, HubSpot CRM, Japanese (ja-JP), Shopify DTC Pack"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Global Lead-Gen Value & Use Case
+      description: How does this help global teams acquire, engage, or convert customers?
+      placeholder: "Describe the target audience, region, and workflow..."
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Proposed Integration Approach
+      description: Official API, webhook, CSV/JSON adapter, or human-in-the-loop AI Browser recipe? (Must remain Apache-2.0 & platform-compliant)
+      placeholder: "Outline the technical approach..."
+  - type: checkboxes
+    id: volunteer
+    attributes:
+      label: Contributor Commitment
+      options:
+        - label: I would like to implement this and submit a Pull Request
+        - label: I confirm the proposed dependencies are Apache-2.0 / MIT compatible (no GPL/AGPL)

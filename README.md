@@ -185,7 +185,19 @@ Verifies: `verify:i18n` (symmetric `zh-CN`/`en-US` keys) → `verify:licenses` (
 | **Architecture Overview** | [ARCHITECTURE.md](./docs/en/ARCHITECTURE.md) | [系统架构](./docs/zh-CN/ARCHITECTURE.md) |
 | **Plugin SDK Guide** | [PLUGIN_SDK_GUIDE.md](./docs/en/PLUGIN_SDK_GUIDE.md) | [插件开发指南](./docs/zh-CN/PLUGIN_SDK_GUIDE.md) |
 | **Deployment Guide** | [DEPLOYMENT.md](./docs/en/DEPLOYMENT.md) | [部署指南](./docs/zh-CN/DEPLOYMENT.md) |
+| **Global Roadmap** | [ROADMAP.md](./ROADMAP.md) | [全球共建路线图](./ROADMAP.md) |
 | **Governance & Security** | [CONTRIBUTING.md](./CONTRIBUTING.md) · [SECURITY.md](./SECURITY.md) · [PRIVACY_AND_COMPLIANCE.md](./PRIVACY_AND_COMPLIANCE.md) | [贡献指南](./CONTRIBUTING.zh-CN.md) · [更新日志](./CHANGELOG.md) |
+
+---
+
+## Build Global Customer Acquisition With Us (Contributors Wanted!)
+
+We are building **BiaoMai Lingshu** as a truly global, community-driven open-source growth engine. Developers, growth engineers, designers, and marketers worldwide are warmly invited to join:
+
+- **Explore the Roadmap**: See upcoming global channels, CRM connectors, and AI Browser tracks in [ROADMAP.md](./ROADMAP.md).
+- **Claim a Starter Task**: Pick up a [`good first issue`](https://github.com/qiangenping/biaomai-lingshu/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [`help wanted`](https://github.com/qiangenping/biaomai-lingshu/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) issue — add WhatsApp/Telegram/Threads, HubSpot/Salesforce CRM sync, new UI languages (`es`/`ja`/`de`/`ko`/`pt-BR`), or a `.bmpack` industry playbook.
+- **15-Minute First PR**: Follow our step-by-step [CONTRIBUTING.md](./CONTRIBUTING.md) playbook (`pnpm verify:all` + `git commit -s`).
+- **Join the Community**: Pitch ideas, showcase your growth workflows, or ask questions in [GitHub Discussions](https://github.com/qiangenping/biaomai-lingshu/discussions).
 
 ---
 
@@ -193,7 +205,8 @@ Verifies: `verify:i18n` (symmetric `zh-CN`/`en-US` keys) → `verify:licenses` (
 
 - **Website**: [https://biao5fen.com](https://biao5fen.com)
 - **GitHub**: [https://github.com/qiangenping/biaomai-lingshu](https://github.com/qiangenping/biaomai-lingshu)
-- **Issues & Feature Requests**: [GitHub Issues](https://github.com/qiangenping/biaomai-lingshu/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/qiangenping/biaomai-lingshu/discussions)
+- **Issues & Proposals**: [GitHub Issues](https://github.com/qiangenping/biaomai-lingshu/issues)
 - **Contact**: [genpingqian@gmail.com](mailto:genpingqian@gmail.com)
 
 If BiaoMai Lingshu helps your global growth workflow, please consider giving us a **Star** on GitHub!
