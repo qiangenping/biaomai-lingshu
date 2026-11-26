@@ -18,7 +18,17 @@ import {
   Space,
   Tag,
 } from '@arco-design/web-react';
-import { IconClockCircle, IconSettings } from '@arco-design/web-react/icon';
+import {
+  IconArrowRight,
+  IconClockCircle,
+  IconEdit,
+  IconHeart,
+  IconImage,
+  IconMessage,
+  IconSettings,
+  IconShareAlt,
+  IconVideoCamera,
+} from '@arco-design/web-react/icon';
 
 const { TextArea } = Input;
 
@@ -1200,96 +1210,63 @@ const LeadGenStudioPage: React.FC = () => {
   };
 
   const navTabs: Array<{ id: 'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs'; step: string; title: string; count?: number }> = [
-    { id: 'create', step: '01', title: isZh ? 'AI 内容创作' : 'Create Studio' },
-    { id: 'publish', step: '02', title: isZh ? '全渠道分发' : 'Omni-Publish', count: posts.length },
-    { id: 'engage', step: '03', title: isZh ? '社媒意向雷达' : 'Intent Radar', count: analyzedList.length },
-    { id: 'outbound', step: '04', title: isZh ? '全球与国内寻客' : 'Global & CN Outbound', count: prospects.length },
-    { id: 'crm', step: '05', title: isZh ? '线索 CRM' : 'Lead CRM', count: leads.length },
-    { id: 'packs', step: '06', title: isZh ? '插件与行业包' : 'Packs Market', count: installedPacks.length },
+    { id: 'create', step: '01', title: isZh ? '内容创作' : 'Create' },
+    { id: 'publish', step: '02', title: isZh ? '渠道分发' : 'Publish', count: posts.length },
+    { id: 'engage', step: '03', title: isZh ? '社媒雷达' : 'Radar', count: analyzedList.length },
+    { id: 'outbound', step: '04', title: isZh ? '企业寻客' : 'Outbound', count: prospects.length },
+    { id: 'crm', step: '05', title: isZh ? '线索 CRM' : 'CRM', count: leads.length },
+    { id: 'packs', step: '06', title: isZh ? '行业插件' : 'Plugins', count: installedPacks.length },
   ];
 
   return (
-    <div className='h-full w-full overflow-y-auto bg-1 text-t-primary'>
-      <div className='max-w-1240px mx-auto px-28px py-24px flex flex-col gap-20px'>
-        {/* Top Studio Header — BiaoMai Brand + Linear / Vercel Aesthetic */}
-        <div className='flex items-center justify-between flex-wrap gap-16px pb-16px border-b border-solid border-[var(--color-border-2)]'>
-          <div className='flex items-center gap-12px'>
-            <div className='size-38px rd-10px bg-[#0A0A0C] flex items-center justify-center shrink-0 shadow-sm'>
-              <svg className='size-28px' viewBox='0 0 80 80' fill='none'>
-                <path
-                  d='M26 18 H47 L58 29 V58 C58 60.2 56.2 62 54 62 H26 C23.8 62 22 60.2 22 58 V22 C22 19.8 23.8 18 26 18 Z'
-                  stroke='#9CA3AF'
-                  strokeWidth='4.2'
-                  strokeLinejoin='round'
-                />
-                <path d='M46 18 V27 C46 28.6 47.4 30 49 30 H58' stroke='#9CA3AF' strokeWidth='4.2' strokeLinejoin='round' />
-                <circle cx='66' cy='43' r='4.5' fill='#3FE0D0' />
-              </svg>
-            </div>
-            <div className='flex flex-col gap-2px'>
-              <div className='flex items-center gap-8px'>
-                <span className='text-20px font-700 tracking-tight text-t-primary'>
-                  {isZh ? '标脉灵枢 · 全球获客工作台' : 'BiaoMai Lingshu · Global Lead-Gen Studio'}
-                </span>
-                <span className='px-8px py-2px rd-full text-11px font-600 bg-[rgba(63,224,208,0.14)] text-[#0D9488]'>
-                  Apache-2.0 · Zero-Docker
-                </span>
-              </div>
-              <span className='text-12px text-t-secondary'>
-                {isZh
-                  ? 'AI 内容创作 → 17 平台分发 → 社媒意向雷达 → 全球与国内 B2B 寻客 → 线索 CRM 闭环'
-                  : 'Create → 17-Channel Publish → Social Intent Radar → Global & CN B2B Outbound → Lead CRM'}
-              </span>
-            </div>
+    <div className='h-full w-full overflow-y-auto bg-[var(--color-fill-1)] text-t-primary'>
+      <div className='max-w-1180px mx-auto px-24px py-18px flex flex-col gap-14px'>
+        {/* Single-Row Commercial Header */}
+        <div className='flex items-center justify-between gap-12px flex-wrap'>
+          <div className='flex items-center gap-10px'>
+            <h1 className='m-0 text-18px font-700 tracking-tight text-t-primary'>
+              {isZh ? '全球获客工作台' : 'Global Lead-Gen Studio'}
+            </h1>
+            <span className='px-8px py-2px rd-full text-11px font-600 bg-[rgba(13,148,136,0.1)] text-[#0D9488]'>
+              Zero-Docker
+            </span>
           </div>
 
           <div className='flex items-center gap-8px flex-wrap'>
             <button
               type='button'
               onClick={() => setCronModalOpen(true)}
-              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-2 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
+              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
             >
               <IconClockCircle />
-              {isZh ? '定时巡检 & IM' : 'Cron & IM'}
+              {isZh ? '定时巡检' : 'Cron'}
             </button>
 
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-2 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
+              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
             >
               <span
-                className='inline-block size-7px rd-full'
+                className='inline-block size-6px rd-full'
                 style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }}
               />
-              {settings.llmApiKey ? settings.llmModel : (isZh ? '配置模型密钥' : 'Configure LLM')}
+              {settings.llmApiKey ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
             </button>
 
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-2 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
-            >
-              <span
-                className='inline-block size-7px rd-full'
-                style={{ background: activeMcpKey ? '#10B981' : '#3FE0D0' }}
-              />
-              {activeMcpKey ? 'AiToEarn MCP' : (isZh ? '隔离浏览器直连' : 'Isolated Browser')}
-            </button>
-
-            <button
-              type='button'
-              onClick={() => setSettingsModalOpen(true)}
-              className='h-32px px-14px rd-8px border-none bg-[#0F172A] hover:bg-[#1E293B] text-12px font-600 text-white cursor-pointer flex items-center gap-6px transition-colors'
+              className='h-30px px-12px rd-8px border-none bg-[#0F172A] hover:bg-[#1E293B] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors shadow-sm'
             >
               <IconSettings />
-              {isZh ? '接口配置' : 'API Settings'}
+              {isZh ? '接口配置' : 'Settings'}
             </button>
           </div>
         </div>
 
-        {/* Clean Scrollable Pill Navigation — Zero Squishing */}
-        <div className='flex items-center gap-6px p-5px rd-12px bg-2 border border-solid border-[var(--color-border-2)] overflow-x-auto'>
+        {/* Zero-Clip 6-Tab Commercial Segmented Bar */}
+        <div className='grid grid-cols-3 md:grid-cols-6 gap-4px p-4px rd-10px bg-2 border border-solid border-[var(--color-border-2)]'>
           {navTabs.map((t) => {
             const active = activeTab === t.id;
             return (
@@ -1297,16 +1274,16 @@ const LeadGenStudioPage: React.FC = () => {
                 key={t.id}
                 type='button'
                 onClick={() => setActiveTab(t.id)}
-                className={`shrink-0 whitespace-nowrap h-36px px-14px rd-8px cursor-pointer flex items-center gap-8px text-13px font-600 transition-all ${
+                className={`h-34px px-10px rd-7px cursor-pointer flex items-center justify-center gap-6px text-12px font-600 transition-all whitespace-nowrap ${
                   active
-                    ? 'bg-1 text-t-primary shadow-sm border border-solid border-[var(--color-border-2)]'
-                    : 'bg-transparent border border-solid border-transparent text-t-secondary hover:text-t-primary hover:bg-fill-1'
+                    ? 'bg-1 text-t-primary shadow-[0_1px_3px_rgba(15,23,42,0.08)] border border-solid border-[var(--color-border-2)]'
+                    : 'bg-transparent border border-solid border-transparent text-t-secondary hover:text-t-primary'
                 }`}
               >
                 <span className={`text-11px font-700 ${active ? 'text-[#4F46E5]' : 'text-t-tertiary'}`}>{t.step}</span>
                 <span>{t.title}</span>
-                {typeof t.count === 'number' && (
-                  <span className={`px-7px py-1px rd-full text-11px font-600 ${active ? 'bg-[rgba(79,70,229,0.12)] text-[#4F46E5]' : 'bg-fill-2 text-t-secondary'}`}>
+                {typeof t.count === 'number' && t.count > 0 && (
+                  <span className={`px-6px py-0 rd-full text-10px font-600 ${active ? 'bg-[rgba(79,70,229,0.12)] text-[#4F46E5]' : 'bg-fill-2 text-t-secondary'}`}>
                     {t.count}
                   </span>
                 )}
@@ -1317,8 +1294,8 @@ const LeadGenStudioPage: React.FC = () => {
 
         {/* TAB 1: CREATE STUDIO */}
         {activeTab === 'create' && (
-          <div className='grid grid-cols-1 lg:grid-cols-12 gap-20px items-start'>
-            <div className='lg:col-span-7 p-20px rd-14px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-16px'>
+          <div className='grid grid-cols-1 lg:grid-cols-12 gap-18px items-start'>
+            <div className='lg:col-span-7 p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] shadow-[0_1px_3px_rgba(15,23,42,0.05)] flex flex-col gap-14px'>
               <div className='flex items-center justify-between'>
                 <div>
                   <div className='text-15px font-600 text-t-primary'>
@@ -1334,7 +1311,7 @@ const LeadGenStudioPage: React.FC = () => {
               </div>
 
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-12px'>
-                <div className='flex flex-col gap-6px'>
+                <div className='flex flex-col gap-4px'>
                   <label className='text-12px font-500 text-t-secondary'>{isZh ? '目标发布平台' : 'Target Channel'}</label>
                   <Select value={createPlatform} onChange={setCreatePlatform}>
                     {ALL_PLATFORMS.map((p) => (
@@ -1344,7 +1321,7 @@ const LeadGenStudioPage: React.FC = () => {
                     ))}
                   </Select>
                 </div>
-                <div className='flex flex-col gap-6px'>
+                <div className='flex flex-col gap-4px'>
                   <label className='text-12px font-500 text-t-secondary'>{isZh ? '内容生成语种' : 'Output Language'}</label>
                   <Select value={targetLang} onChange={setTargetLang}>
                     <Select.Option value='zh-CN'>简体中文 (zh-CN)</Select.Option>
@@ -1355,40 +1332,36 @@ const LeadGenStudioPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className='flex flex-col gap-6px'>
+              <div className='flex flex-col gap-4px'>
                 <label className='text-12px font-500 text-t-secondary'>
                   {isZh ? '产品卖点与目标客户痛点' : 'Product Pitch & Target ICP Pain Points'}
                 </label>
                 <TextArea
-                  rows={4}
+                  rows={3}
                   value={topicInput}
                   onChange={setTopicInput}
                   placeholder={
                     isZh
-                      ? '例如：标脉灵枢是一款开源免 Docker 的企业 AI 获客工作台，帮跨境团队 1 个人管理 17 个社媒矩阵，自动捕捉评论区询价客户...'
-                      : 'e.g., BiaoMai Lingshu is an Apache-2.0 zero-Docker AI workbench helping lean teams run 17 channels & capture buyer intent...'
+                      ? '输入产品卖点、目标客户痛点或要推广的主题，AI 将按所选平台生成高转化文案...'
+                      : 'Describe your product pitch & buyer pain points...'
                   }
                 />
               </div>
 
-              <div className='flex items-center gap-10px flex-wrap'>
-                <Button type='primary' loading={creatingCopy} onClick={handleAiGenerateCopy} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
-                  {isZh ? '✨ AI 生成获客文案' : '✨ Generate Copy'}
+              <div className='flex items-center gap-8px flex-wrap'>
+                <Button type='primary' icon={<IconEdit />} loading={creatingCopy} onClick={handleAiGenerateCopy} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                  {isZh ? 'AI 生成文案' : 'Generate Copy'}
                 </Button>
-                <Button type='outline' loading={creatingImg} onClick={handleAiGenerateImage}>
-                  {isZh ? '🎨 AI 生成封面配图' : '🎨 Generate Cover Visual'}
+                <Button type='outline' icon={<IconImage />} loading={creatingImg} onClick={handleAiGenerateImage}>
+                  {isZh ? '生成封面配图' : 'Cover Visual'}
                 </Button>
-                <Button type='outline' loading={creatingVideo} onClick={handleAiGenerateVideo}>
-                  {isZh
-                    ? targetLang !== 'zh-CN'
-                      ? '🎬 AI 视频 + 多语配音'
-                      : '🎬 AI 生成短视频'
-                    : '🎬 AI Video / Dubbing'}
+                <Button type='outline' icon={<IconVideoCamera />} loading={creatingVideo} onClick={handleAiGenerateVideo}>
+                  {isZh ? (targetLang !== 'zh-CN' ? 'AI 视频 + 配音' : 'AI 短视频') : 'AI Video'}
                 </Button>
               </div>
 
               {(creatingVideo || videoTaskStatus) && (
-                <div className='p-12px rd-10px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-6px'>
+                <div className='p-10px rd-10px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-6px'>
                   <div className='flex items-center justify-between text-12px'>
                     <span className='font-600 text-t-primary'>{videoTaskStatus}</span>
                     <span className='text-t-secondary'>{videoTaskProgress}%</span>
@@ -1400,35 +1373,38 @@ const LeadGenStudioPage: React.FC = () => {
               <div className='h-1px bg-[var(--color-border-2)]' />
 
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-12px'>
-                <div className='flex flex-col gap-6px'>
-                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '归因短链 / UTM（可选）' : 'UTM / Short-Link (Optional)'}</label>
+                <div className='flex flex-col gap-4px'>
+                  <label className='text-12px font-500 text-t-secondary'>{isZh ? '归因短链 / UTM（可选）' : 'UTM / Short-Link'}</label>
                   <Input value={draftShortLink} onChange={setDraftShortLink} placeholder='https://...' />
                 </div>
-                <div className='flex flex-col gap-6px'>
+                <div className='flex flex-col gap-4px'>
                   <label className='text-12px font-500 text-t-secondary'>{isZh ? '计划发布时间' : 'Schedule Time'}</label>
                   <Input value={scheduledTime} onChange={setScheduledTime} placeholder='YYYY-MM-DD HH:mm' />
                 </div>
               </div>
 
-              <div className='flex justify-end pt-4px'>
-                <Button type='primary' size='large' onClick={handleSaveToSchedule} style={{ background: '#0F172A', borderColor: '#0F172A' }}>
-                  {isZh ? '保存草稿并进入排期分发 →' : 'Save & Continue to Publish →'}
+              <div className='flex justify-end pt-2px'>
+                <Button type='primary' onClick={handleSaveToSchedule} style={{ background: '#0F172A', borderColor: '#0F172A' }}>
+                  <span className='flex items-center gap-6px'>
+                    {isZh ? '保存草稿并进入排期分发' : 'Save & Continue to Publish'}
+                    <IconArrowRight />
+                  </span>
                 </Button>
               </div>
             </div>
 
-            {/* Right: Realistic iPhone Device Mockup */}
+            {/* Right: Seamless Commercial Mobile Preview */}
             <div className='lg:col-span-5 flex justify-center'>
-              <div className='w-full max-w-360px p-14px rd-28px bg-[#0F172A] shadow-xl border-4 border-solid border-[#1E293B]'>
+              <div className='w-full max-w-330px p-10px rd-30px bg-[#0F172A] shadow-2xl border-2 border-solid border-[#334155]'>
                 {/* Dynamic Island */}
-                <div className='flex items-center justify-between px-12px pb-10px text-white/80 text-11px'>
+                <div className='flex items-center justify-between px-14px pb-8px pt-2px text-white/75 text-10px font-600'>
                   <span>9:41</span>
-                  <div className='w-84px h-18px rd-full bg-black' />
+                  <div className='w-76px h-16px rd-full bg-black' />
                   <span>5G</span>
                 </div>
 
                 {/* Inner Screen */}
-                <div className='rd-20px bg-1 overflow-hidden border border-solid border-[var(--color-border-2)] flex flex-col'>
+                <div className='rd-22px bg-1 overflow-hidden flex flex-col'>
                   <div className='px-12px py-8px border-b border-solid border-[var(--color-border-2)] flex items-center justify-between text-12px'>
                     <span className='font-600 flex items-center gap-6px'>
                       <span
@@ -1439,38 +1415,45 @@ const LeadGenStudioPage: React.FC = () => {
                       </span>
                       {isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn}
                     </span>
-                    <span className='text-11px text-t-secondary'>{selectedCreatePlatform.aspect}</span>
+                    <span className='text-10px px-6px py-1px rd-4px bg-fill-2 text-t-secondary'>{selectedCreatePlatform.aspect}</span>
                   </div>
 
                   {draftVideoUrl ? (
-                    <video src={draftVideoUrl} controls className='w-full h-180px object-cover bg-black' />
+                    <video src={draftVideoUrl} controls className='w-full h-170px object-cover bg-black' />
                   ) : draftImageUrl ? (
-                    <img src={draftImageUrl} alt='AI Cover' className='w-full h-180px object-cover' />
+                    <img src={draftImageUrl} alt='AI Cover' className='w-full h-170px object-cover' />
                   ) : (
-                    <div className='h-150px bg-2 flex flex-col items-center justify-center gap-4px text-12px text-t-secondary border-b border-solid border-[var(--color-border-2)]'>
-                      <span>{isZh ? '封面视觉 / 视频预览区' : 'Visual & Video Preview'}</span>
-                      <span className='text-11px text-t-tertiary'>{isZh ? '点击左侧「AI 生成封面配图」或「AI 生成短视频」' : 'Click Generate Cover or Video'}</span>
+                    <div className='h-148px bg-2 flex flex-col items-center justify-center gap-4px text-12px text-t-secondary border-b border-solid border-[var(--color-border-2)]'>
+                      <IconImage style={{ fontSize: 22, opacity: 0.45 }} />
+                      <span className='font-500'>{isZh ? '封面视觉预览' : 'Cover Preview'}</span>
                     </div>
                   )}
 
-                  <div className='p-12px flex flex-col gap-8px'>
-                    <Input
+                  <div className='p-12px flex flex-col gap-6px'>
+                    <input
                       value={draftTitle}
-                      onChange={setDraftTitle}
-                      placeholder={isZh ? '标题（生成后可在此行内微调）' : 'Headline (editable inline)'}
-                      style={{ fontWeight: 600 }}
+                      onChange={(e) => setDraftTitle(e.target.value)}
+                      placeholder={isZh ? '点击输入或由 AI 生成标题...' : 'Headline...'}
+                      className='w-full border-none outline-none bg-transparent text-14px font-700 text-t-primary'
                     />
-                    <TextArea
-                      rows={5}
+                    <textarea
+                      rows={4}
                       value={draftBody}
-                      onChange={setDraftBody}
-                      placeholder={isZh ? '正文与 CTA 钩子（生成后可微调）' : 'Body & CTA hook (editable inline)'}
+                      onChange={(e) => setDraftBody(e.target.value)}
+                      placeholder={isZh ? '正文与 CTA 钩子（生成后可直接在此编辑）...' : 'Body copy & CTA...'}
+                      className='w-full resize-none border-none outline-none bg-transparent text-12px leading-relaxed text-t-secondary'
                     />
                     {draftShortLink && (
-                      <div className='px-8px py-4px rd-6px bg-[rgba(79,70,229,0.08)] text-[#4F46E5] text-11px truncate'>
-                        🔗 {draftShortLink}
+                      <div className='px-8px py-3px rd-6px bg-[rgba(79,70,229,0.08)] text-[#4F46E5] text-11px truncate'>
+                        {draftShortLink}
                       </div>
                     )}
+                  </div>
+
+                  <div className='px-12px py-8px border-t border-solid border-[var(--color-border-2)] flex items-center justify-between text-t-tertiary text-12px'>
+                    <span className='flex items-center gap-4px'><IconHeart /> 1.2k</span>
+                    <span className='flex items-center gap-4px'><IconMessage /> 86</span>
+                    <span className='flex items-center gap-4px'><IconShareAlt /> {isZh ? '转发' : 'Share'}</span>
                   </div>
                 </div>
               </div>
