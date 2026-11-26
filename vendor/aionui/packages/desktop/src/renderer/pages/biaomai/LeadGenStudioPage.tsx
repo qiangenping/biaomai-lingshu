@@ -142,6 +142,18 @@ const LeadGenStudioPage: React.FC = () => {
   const [checkingImap, setCheckingImap] = useState(false);
   const [crawlingMcp, setCrawlingMcp] = useState(false);
   const [syncingCrm, setSyncingCrm] = useState(false);
+  const [openMotionRunning, setOpenMotionRunning] = useState(false);
+  const [openMotionBusy, setOpenMotionBusy] = useState(false);
+
+  const refreshOpenMotionStatus = useCallback(async () => {
+    if (!bridge?.openMotionStudioControl) return;
+    const res = await bridge.openMotionStudioControl({ action: 'status' });
+    if (res?.ok) setOpenMotionRunning(res.running);
+  }, [bridge]);
+
+  useEffect(() => {
+    if (activeTab === 'packs') void refreshOpenMotionStatus();
+  }, [activeTab, refreshOpenMotionStatus]);
 
   // Packs State
   const [installedPacks, setInstalledPacks] = useState<InstalledPack[]>([]);
@@ -938,6 +950,41 @@ const LeadGenStudioPage: React.FC = () => {
             onUninstallPack={async (packName) => {
               await bridge?.uninstallPack?.({ packName });
               await refreshInstalledPacks();
+            }}
+            openMotionRunning={openMotionRunning}
+            openMotionBusy={openMotionBusy}
+            onStartOpenMotion={async () => {
+              if (!bridge?.openMotionStudioControl) return;
+              setOpenMotionBusy(true);
+              Message.info(isZh ? '正在启动本地完整版 OpenMotion Studio（首次将自动拉取并构建，请稍候）...' : 'Starting local OpenMotion Studio...');
+              try {
+                const res = await bridge.openMotionStudioControl({ action: 'start' });
+                setOpenMotionRunning(res.running);
+                if (res.ok && res.running) {
+                  Message.success(res.message || (isZh ? 'OpenMotion Studio 已启动' : 'Started'));
+                  await handleOpenIsolatedWindow('biaomai-openmotion-studio', res.url, 'OpenMotion Studio');
+                } else if (res.ok) {
+                  Message.info(res.message || 'Initializing...');
+                } else {
+                  Message.error(res.error || 'Start failed');
+                }
+              } finally {
+                setOpenMotionBusy(false);
+              }
+            }}
+            onOpenOpenMotion={() => {
+              void handleOpenIsolatedWindow('biaomai-openmotion-studio', 'http://localhost:3001', 'OpenMotion Studio');
+            }}
+            onStopOpenMotion={async () => {
+              if (!bridge?.openMotionStudioControl) return;
+              setOpenMotionBusy(true);
+              try {
+                const res = await bridge.openMotionStudioControl({ action: 'stop' });
+                setOpenMotionRunning(res.running);
+                Message.info(res.message || (isZh ? '已停止 OpenMotion Studio' : 'Stopped'));
+              } finally {
+                setOpenMotionBusy(false);
+              }
             }}
           />
         )}

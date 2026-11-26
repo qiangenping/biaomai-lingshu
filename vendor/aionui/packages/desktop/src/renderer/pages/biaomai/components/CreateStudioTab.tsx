@@ -80,8 +80,8 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
   onGenerateOpenMotion,
   onSaveToSchedule,
 }) => (
-  <div className='grid grid-cols-1 lg:grid-cols-12 gap-18px items-start'>
-    <div className='lg:col-span-7 p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] shadow-[0_1px_3px_rgba(15,23,42,0.05)] flex flex-col gap-14px'>
+  <div className='grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-20px items-start w-full'>
+    <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-14px w-full min-w-0'>
       <div className='flex items-center justify-between'>
         <div>
           <div className='text-15px font-600 text-t-primary'>
@@ -173,7 +173,7 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
       </div>
 
       <div className='flex justify-end pt-2px'>
-        <Button type='primary' onClick={onSaveToSchedule} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+        <Button type='primary' onClick={onSaveToSchedule}>
           <span className='flex items-center gap-6px'>
             {isZh ? '保存草稿并进入排期分发' : 'Save & Continue to Publish'}
             <IconArrowRight />
@@ -182,7 +182,7 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
       </div>
     </div>
 
-    <div className='lg:col-span-5 flex justify-center'>
+    <div className='flex justify-center lg:justify-end w-full'>
       <div className='w-full max-w-330px p-10px rd-30px bg-[#0F172A] shadow-2xl border-2 border-solid border-[#334155]'>
         <div className='flex items-center justify-between px-14px pb-8px pt-2px text-white/75 text-10px font-600'>
           <span>9:41</span>

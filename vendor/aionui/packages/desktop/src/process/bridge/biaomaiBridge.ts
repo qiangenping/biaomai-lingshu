@@ -5,6 +5,7 @@
  */
 
 import { BrowserWindow, dialog, ipcMain, session } from 'electron';
+import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import dns from 'node:dns/promises';
 import fs from 'node:fs';
 import net from 'node:net';
@@ -1073,6 +1074,85 @@ export function initBiaoMaiBridge(): void {
       }
 
       return { ok: true, mode: 'local-html' as const, projectDir: baseDir, motionMd, previewUrl: localFileUrl };
+    }
+  );
+
+  // 22. Local Full OpenMotion Studio Lifecycle Control (Start / Stop / Status)
+  let openMotionProcess: ChildProcess | null = null;
+  const openMotionDir = path.join(os.homedir(), '.aionui-dev', 'plugins-runtime', 'openmotion');
+  const checkOpenMotionAlive = async (url: string) => {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(1500) });
+      return res.ok || res.status < 500;
+    } catch {
+      return false;
+    }
+  };
+
+  ipcMain.handle(
+    'biaomai:openmotion-studio-control',
+    async (_evt, payload: { action: 'status' | 'start' | 'stop'; studioUrl?: string }) => {
+      const url = (payload.studioUrl || 'http://localhost:3001').trim().replace(/\/+$/, '');
+      const installed = fs.existsSync(path.join(openMotionDir, 'package.json'));
+
+      if (payload.action === 'status') {
+        const running = await checkOpenMotionAlive(url);
+        return { ok: true, installed, running, url };
+      }
+
+      if (payload.action === 'stop') {
+        if (openMotionProcess && !openMotionProcess.killed) {
+          openMotionProcess.kill('SIGTERM');
+          openMotionProcess = null;
+        }
+        return { ok: true, installed, running: false, url, message: '已停止本地 OpenMotion Studio' };
+      }
+
+      // action === 'start'
+      if (await checkOpenMotionAlive(url)) {
+        return { ok: true, installed: true, running: true, url, message: '本地 OpenMotion Studio 已在运行' };
+      }
+
+      try {
+        if (!installed) {
+          fs.mkdirSync(path.dirname(openMotionDir), { recursive: true });
+          execFileSync('git', ['clone', '--depth', '1', 'https://github.com/nexu-io/openmotion.git', openMotionDir], {
+            stdio: 'pipe',
+            timeout: 120_000,
+          });
+          execFileSync('npm', ['ci'], { cwd: openMotionDir, stdio: 'pipe', timeout: 180_000 });
+          execFileSync('npm', ['run', 'build:studio'], { cwd: openMotionDir, stdio: 'pipe', timeout: 180_000 });
+        }
+
+        openMotionProcess = spawn('npm', ['start'], {
+          cwd: openMotionDir,
+          stdio: 'ignore',
+          detached: true,
+        });
+        openMotionProcess.unref();
+
+        for (let i = 0; i < 16; i += 1) {
+          await new Promise((r) => setTimeout(r, 750));
+          if (await checkOpenMotionAlive(url)) {
+            return { ok: true, installed: true, running: true, url, message: '本地完整版 OpenMotion Studio 启动成功' };
+          }
+        }
+        return {
+          ok: true,
+          installed: true,
+          running: false,
+          url,
+          message: 'OpenMotion Studio 正在后台初始化，请稍候片刻再点击打开',
+        };
+      } catch (err) {
+        return {
+          ok: false,
+          installed: fs.existsSync(path.join(openMotionDir, 'package.json')),
+          running: false,
+          url,
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
     }
   );
 }

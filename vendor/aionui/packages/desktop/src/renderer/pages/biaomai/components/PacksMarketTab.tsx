@@ -16,6 +16,11 @@ interface PacksMarketTabProps {
   onRefresh: () => void;
   onInstallLocalPack: () => void;
   onUninstallPack: (packName: string) => void;
+  openMotionRunning?: boolean;
+  openMotionBusy?: boolean;
+  onStartOpenMotion?: () => void;
+  onOpenOpenMotion?: () => void;
+  onStopOpenMotion?: () => void;
 }
 
 export const PacksMarketTab: React.FC<PacksMarketTabProps> = ({
@@ -25,6 +30,11 @@ export const PacksMarketTab: React.FC<PacksMarketTabProps> = ({
   onRefresh,
   onInstallLocalPack,
   onUninstallPack,
+  openMotionRunning,
+  openMotionBusy,
+  onStartOpenMotion,
+  onOpenOpenMotion,
+  onStopOpenMotion,
 }) => (
   <div className='flex flex-col gap-18px'>
     <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] shadow-[0_1px_3px_rgba(15,23,42,0.05)] flex items-center justify-between flex-wrap gap-12px'>
@@ -87,7 +97,27 @@ export const PacksMarketTab: React.FC<PacksMarketTabProps> = ({
                   ))}
                 </Space>
               </div>
-              <div className='flex justify-end'>
+              <div className='flex justify-between items-center gap-8px flex-wrap'>
+                {pack.name === 'plugin-oss-openmotion' ? (
+                  <Space size='mini'>
+                    {openMotionRunning ? (
+                      <>
+                        <Button size='small' type='primary' onClick={onOpenOpenMotion}>
+                          {isZh ? '打开 OpenMotion Studio' : 'Open Studio'}
+                        </Button>
+                        <Button size='small' type='secondary' loading={openMotionBusy} onClick={onStopOpenMotion}>
+                          {isZh ? '停止' : 'Stop'}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button size='small' type='primary' loading={openMotionBusy} onClick={onStartOpenMotion}>
+                        {isZh ? '启动本地完整版 Studio' : 'Start Local Studio'}
+                      </Button>
+                    )}
+                  </Space>
+                ) : (
+                  <span />
+                )}
                 <Button size='small' status='danger' type='outline' onClick={() => onUninstallPack(pack.name)}>
                   {isZh ? '卸载' : 'Uninstall'}
                 </Button>
