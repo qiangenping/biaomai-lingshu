@@ -11,6 +11,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import tls from 'node:tls';
+import { type BiaoMaiLocalDb, readBiaoMaiDb, saveBiaoMaiCollection } from './biaomaiStorage';
 
 const isolatedWindows = new Map<string, BrowserWindow>();
 
@@ -626,6 +627,190 @@ export function initBiaoMaiBridge(): void {
         });
 
       return await sendViaSmtp();
+    }
+  );
+
+  // 14. Unified Local DB Storage (userData/biaomai-studio-db.json)
+  ipcMain.handle('biaomai:db-get-all', async () => {
+    return { ok: true, db: readBiaoMaiDb() };
+  });
+
+  ipcMain.handle(
+    'biaomai:db-save-collection',
+    async (_evt, payload: { collection: keyof BiaoMaiLocalDb; items: unknown[] }) => {
+      saveBiaoMaiCollection(payload.collection, payload.items || []);
+      return { ok: true };
+    }
+  );
+
+  // 15. Zero-Dependency TLS IMAP Reply Checker (detects prospect replies to auto-stop sequences)
+  ipcMain.handle(
+    'biaomai:check-imap-replies',
+    async (
+      _evt,
+      payload: { host: string; port?: number; user: string; pass: string; prospectEmails: string[] }
+    ) => {
+      const { host, user, pass, prospectEmails } = payload;
+      const port = payload.port || 993;
+      if (!host || !user || !pass || prospectEmails.length === 0) {
+        return { ok: false, error: '请先填写 IMAP 服务器、账号授权码并确保有待检测邮箱', repliedEmails: [] as string[] };
+      }
+
+      return await new Promise<{ ok: boolean; error?: string; repliedEmails: string[] }>((resolve) => {
+        const socket = tls.connect({ host, port, servername: host, rejectUnauthorized: true });
+        let buf = '';
+        let tagIdx = 1;
+        let phase: 'greeting' | 'login' | 'select' | 'search' = 'greeting';
+        let emailIdx = 0;
+        const repliedEmails: string[] = [];
+        let doneFlag = false;
+
+        const finish = (res: { ok: boolean; error?: string; repliedEmails: string[] }) => {
+          if (doneFlag) return;
+          doneFlag = true;
+          try {
+            socket.end();
+          } catch {
+            // ignore
+          }
+          resolve(res);
+        };
+
+        socket.setTimeout(15000, () => finish({ ok: false, error: 'IMAP 连接超时 (15s)', repliedEmails }));
+        socket.on('error', (err) => finish({ ok: false, error: err.message, repliedEmails }));
+
+        const sendCmd = (cmd: string) => {
+          const tag = `A${tagIdx++}`;
+          socket.write(`${tag} ${cmd}\r\n`);
+        };
+
+        socket.on('data', (chunk) => {
+          buf += chunk.toString('utf8');
+          if (!buf.includes('\r\n')) return;
+          const lines = buf.split('\r\n');
+          buf = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (!line) continue;
+            if (phase === 'greeting' && line.startsWith('* OK')) {
+              phase = 'login';
+              sendCmd(`LOGIN "${user.replace(/"/g, '\\"')}" "${pass.replace(/"/g, '\\"')}"`);
+            } else if (phase === 'login' && /^A\d+ OK/i.test(line)) {
+              phase = 'select';
+              sendCmd('SELECT INBOX');
+            } else if (phase === 'login' && /^A\d+ (NO|BAD)/i.test(line)) {
+              finish({ ok: false, error: `IMAP 登录失败: ${line}`, repliedEmails });
+            } else if (phase === 'select' && /^A\d+ OK/i.test(line)) {
+              phase = 'search';
+              sendCmd(`SEARCH FROM "${prospectEmails[emailIdx]}"`);
+            } else if (phase === 'search') {
+              if (line.startsWith('* SEARCH ')) {
+                const ids = line.replace('* SEARCH ', '').trim();
+                if (ids.length > 0) {
+                  repliedEmails.push(prospectEmails[emailIdx]);
+                }
+              } else if (/^A\d+ OK/i.test(line)) {
+                emailIdx += 1;
+                if (emailIdx < prospectEmails.length) {
+                  sendCmd(`SEARCH FROM "${prospectEmails[emailIdx]}"`);
+                } else {
+                  sendCmd('LOGOUT');
+                  finish({ ok: true, repliedEmails });
+                }
+              } else if (/^A\d+ (NO|BAD)/i.test(line)) {
+                emailIdx += 1;
+                if (emailIdx < prospectEmails.length) {
+                  sendCmd(`SEARCH FROM "${prospectEmails[emailIdx]}"`);
+                } else {
+                  finish({ ok: true, repliedEmails });
+                }
+              }
+            }
+          }
+        });
+      });
+    }
+  );
+
+  // 16. WhatsApp / LinkedIn Isolated Browser Prefill (Stops before Send)
+  ipcMain.handle(
+    'biaomai:prefill-social-dm',
+    async (_evt, payload: { partition: string; text: string }) => {
+      const win = isolatedWindows.get(payload.partition);
+      if (!win || win.isDestroyed()) {
+        return { ok: false, error: '请先打开 WhatsApp / LinkedIn 隔离浏览器对话页面' };
+      }
+      const safeText = JSON.stringify(payload.text);
+      const ok = (await win.webContents.executeJavaScript(`
+        (() => {
+          const el = document.querySelector('footer div[contenteditable="true"], div.msg-form__contenteditable[contenteditable="true"], [contenteditable="true"], textarea');
+          if (!el) return false;
+          el.focus();
+          if (el.tagName === 'TEXTAREA') {
+            el.value = ${safeText};
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+          } else {
+            document.execCommand('selectAll', false, null);
+            document.execCommand('insertText', false, ${safeText});
+          }
+          return true;
+        })();
+      `)) as boolean;
+      return { ok, stopBeforeSubmit: true };
+    }
+  );
+
+  // 17. Feishu / WeCom / DingTalk / Telegram Webhook Notifier
+  ipcMain.handle(
+    'biaomai:trigger-im-webhook',
+    async (_evt, payload: { webhookUrl: string; title: string; content: string }) => {
+      const { webhookUrl, title, content } = payload;
+      if (!webhookUrl.trim()) {
+        return { ok: false, error: '请先配置飞书 / 企微 / 钉钉 Webhook URL' };
+      }
+      try {
+        const body = webhookUrl.includes('feishu') || webhookUrl.includes('lark')
+          ? { msg_type: 'text', content: { text: `【标脉灵枢】${title}\n${content}` } }
+          : webhookUrl.includes('dingtalk')
+            ? { msgtype: 'text', text: { content: `【标脉灵枢】${title}\n${content}` } }
+            : { msgtype: 'text', text: { content: `【标脉灵枢】${title}\n${content}` } };
+
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: AbortSignal.timeout(8000),
+        });
+        return { ok: res.ok, status: res.status };
+      } catch (err) {
+        return { ok: false, error: err instanceof Error ? err.message : String(err) };
+      }
+    }
+  );
+
+  // 18. Optional Crawl4AI / Google-Maps-Scraper Local MCP Sidecar Bridge
+  ipcMain.handle(
+    'biaomai:run-crawler-mcp',
+    async (_evt, payload: { endpoint: string; targetUrl: string }) => {
+      const endpoint = (payload.endpoint || 'http://localhost:11235/crawl').trim();
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls: [payload.targetUrl], priority: 5 }),
+          signal: AbortSignal.timeout(12000),
+        });
+        if (!res.ok) {
+          return { ok: false, error: `HTTP ${res.status} from ${endpoint}` };
+        }
+        const data = (await res.json()) as Record<string, unknown>;
+        return { ok: true, data };
+      } catch (err) {
+        return {
+          ok: false,
+          error: `未检测到本地 Crawl4AI / Scraper 服务 (${endpoint}): ${err instanceof Error ? err.message : String(err)}`,
+        };
+      }
     }
   );
 }

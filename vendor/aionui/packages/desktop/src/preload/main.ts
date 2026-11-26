@@ -83,6 +83,17 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
     subject: string;
     text: string;
   }) => ipcRenderer.invoke('biaomai:send-smtp-email', payload),
+  dbGetAll: () => ipcRenderer.invoke('biaomai:db-get-all'),
+  dbSaveCollection: (payload: { collection: string; items: unknown[] }) =>
+    ipcRenderer.invoke('biaomai:db-save-collection', payload),
+  checkImapReplies: (payload: { host: string; port?: number; user: string; pass: string; prospectEmails: string[] }) =>
+    ipcRenderer.invoke('biaomai:check-imap-replies', payload),
+  prefillSocialDm: (payload: { partition: string; text: string }) =>
+    ipcRenderer.invoke('biaomai:prefill-social-dm', payload),
+  triggerImWebhook: (payload: { webhookUrl: string; title: string; content: string }) =>
+    ipcRenderer.invoke('biaomai:trigger-im-webhook', payload),
+  runCrawlerMcp: (payload: { endpoint: string; targetUrl: string }) =>
+    ipcRenderer.invoke('biaomai:run-crawler-mcp', payload),
 });
 
 // Synchronously fetch the aioncore port and expose it to the renderer

@@ -1,0 +1,47 @@
+{
+  "name": "pack-crossborder-ecom",
+  "displayName": {
+    "zh-CN": "跨境电商与海外红人建联套件",
+    "en-US": "Cross-Border E-Commerce & Influencer Pack"
+  },
+  "version": "1.0.0",
+  "description": {
+    "zh-CN": "面向亚马逊/独立站卖家：TikTok & Instagram 红人邮箱批量提取 + 多语种带货寄样邀约序列 + 独立站痛点种草文案",
+    "en-US": "For Amazon/DTC brands: TikTok & IG creator email enrichment, multilingual gifting outreach sequences, and high-converting UGC hooks."
+  },
+  "author": "BiaoMai Lingshu Team",
+  "license": "Apache-2.0",
+  "category": "leadgen",
+  "i18n": {
+    "localesDir": "i18n",
+    "defaultLocale": "en-US"
+  },
+  "permissions": {
+    "fsReadPaths": ["./exports"],
+    "fsWritePaths": ["./exports"],
+    "netDomains": ["*"],
+    "browserCdp": true,
+    "shellExec": false,
+    "imNotify": true,
+    "defaultApproval": "always-ask",
+    "alwaysAskActions": ["send_smtp_email", "send_creator_dm"]
+  },
+  "contributes": {
+    "assistants": [
+      {
+        "id": "influencer-outreach-copilot",
+        "name": { "zh-CN": "海外红人建联专家", "en-US": "Influencer Outreach Copilot" },
+        "description": {
+          "zh-CN": "从 TikTok/YouTube/IG 主页提取红人公开商务邮箱并生成寄样/分佣邀约信",
+          "en-US": "Extracts creator business emails and drafts personalized gifting/affiliate outreach sequences."
+        },
+        "presetAgentType": "opencode",
+        "contextFile": "assistants/influencer-outreach-copilot/SKILL.en.md",
+        "localizedContextFiles": {
+          "zh-CN": "assistants/influencer-outreach-copilot/SKILL.zh.md",
+          "en-US": "assistants/influencer-outreach-copilot/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}
