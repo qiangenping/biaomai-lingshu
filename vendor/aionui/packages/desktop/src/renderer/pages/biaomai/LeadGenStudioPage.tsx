@@ -96,6 +96,26 @@ interface BiaoMaiElectronBridge {
     subject: string;
     text: string;
   }) => Promise<{ ok: boolean; error?: string }>;
+  dbGetAll: () => Promise<{ ok: boolean; db: Record<string, unknown[]> }>;
+  dbSaveCollection: (payload: { collection: string; items: unknown[] }) => Promise<{ ok: boolean }>;
+  checkImapReplies: (payload: {
+    host: string;
+    port?: number;
+    user: string;
+    pass: string;
+    prospectEmails: string[];
+  }) => Promise<{ ok: boolean; error?: string; repliedEmails: string[] }>;
+  prefillSocialDm: (payload: { partition: string; text: string }) => Promise<{ ok: boolean; error?: string; stopBeforeSubmit?: boolean }>;
+  triggerImWebhook: (payload: { webhookUrl: string; title: string; content: string }) => Promise<{ ok: boolean; error?: string }>;
+  runCrawlerMcp: (payload: { endpoint: string; targetUrl: string }) => Promise<{ ok: boolean; data?: unknown; error?: string }>;
+}
+
+interface OutreachStep {
+  dayOffset: number;
+  channel: 'email' | 'whatsapp' | 'linkedin';
+  subject: string;
+  body: string;
+  status: 'pending' | 'sent';
 }
 
 interface GlobalProspect {
@@ -115,6 +135,8 @@ interface GlobalProspect {
   outreachSubject?: string;
   outreachBody?: string;
   outreachSent?: boolean;
+  replied?: boolean;
+  sequence?: OutreachStep[];
 }
 
 interface InstalledPack {
@@ -216,6 +238,10 @@ interface StudioSettings {
   smtpPort?: number;
   smtpUser?: string;
   smtpPass?: string;
+  imapHost?: string;
+  imapPort?: number;
+  imWebhookUrl?: string;
+  crawlerMcpUrl?: string;
 }
 
 interface AnalyzedComment {
@@ -311,8 +337,16 @@ const LeadGenStudioPage: React.FC = () => {
       smtpPort: 465,
       smtpUser: '',
       smtpPass: '',
+      imapHost: 'imap.gmail.com',
+      imapPort: 993,
+      imWebhookUrl: '',
+      crawlerMcpUrl: 'http://localhost:11235/crawl',
     })
   );
+  const [cronModalOpen, setCronModalOpen] = useState(false);
+  const [checkingImap, setCheckingImap] = useState(false);
+  const [crawlingMcp, setCrawlingMcp] = useState(false);
+  const [cronEnabled, setCronEnabled] = useState(false);
   const [mcpTestMsg, setMcpTestMsg] = useState<string>('');
 
   const [regionFilter, setRegionFilter] = useState<'all' | 'cn' | 'global'>('all');
@@ -826,7 +860,32 @@ const LeadGenStudioPage: React.FC = () => {
     Message.success(isZh ? `已卸载行业包：${packName}` : `Uninstalled pack: ${packName}`);
   };
 
-  useEffect(() => localStorage.setItem('biaomai:local:prospects', JSON.stringify(prospects)), [prospects]);
+  useEffect(() => {
+    localStorage.setItem('biaomai:local:prospects', JSON.stringify(prospects));
+    void bridge?.dbSaveCollection?.({ collection: 'prospects', items: prospects });
+  }, [prospects]);
+  useEffect(() => {
+    void bridge?.dbSaveCollection?.({ collection: 'accounts', items: accounts });
+  }, [accounts]);
+  useEffect(() => {
+    void bridge?.dbSaveCollection?.({ collection: 'posts', items: posts });
+  }, [posts]);
+  useEffect(() => {
+    void bridge?.dbSaveCollection?.({ collection: 'leads', items: leads });
+  }, [leads]);
+
+  useEffect(() => {
+    const hydrateFromMainDb = async () => {
+      if (!bridge?.dbGetAll) return;
+      const res = await bridge.dbGetAll();
+      if (!res.ok || !res.db) return;
+      if (Array.isArray(res.db.accounts) && res.db.accounts.length > 0) setAccounts(res.db.accounts as LocalAccount[]);
+      if (Array.isArray(res.db.posts) && res.db.posts.length > 0) setPosts(res.db.posts as LocalPost[]);
+      if (Array.isArray(res.db.leads) && res.db.leads.length > 0) setLeads(res.db.leads as LocalLead[]);
+      if (Array.isArray(res.db.prospects) && res.db.prospects.length > 0) setProspects(res.db.prospects as GlobalProspect[]);
+    };
+    void hydrateFromMainDb();
+  }, []);
 
   const b2bPartition = 'persist:bm-b2b-global-radar';
   const handleOpenB2bDirectory = async (channel: 'gmaps' | 'linkedin' | 'thomasnet' | 'europages' | 'alibaba') => {
@@ -912,7 +971,7 @@ const LeadGenStudioPage: React.FC = () => {
       baseUrl: settings.llmBaseUrl,
       apiKey: settings.llmApiKey,
       model: settings.llmModel,
-      systemPrompt: `You are an elite global B2B foreign-trade sales strategist. Output strict JSON {"subject": string, "body": string} in language ${b2bLang}. Include Day-1 personalized icebreaker + low-friction CTA + brief WhatsApp follow-up line at bottom.`,
+      systemPrompt: `You are an elite global B2B foreign-trade sales strategist. Output strict JSON {"subject": string, "body": string, "sequence": [{"dayOffset": 1, "channel": "email", "subject": string, "body": string}, {"dayOffset": 4, "channel": "email", "subject": string, "body": string}, {"dayOffset": 9, "channel": "whatsapp", "subject": "WhatsApp Follow-up", "body": string}]} in language ${b2bLang}.`,
       userPrompt: `Target company: ${item.companyName}\nCountry: ${item.country}\nIndustry: ${item.industry}\nWebsite: ${item.website}\nContext: ${item.snippet}`,
     });
     setDraftingOutreachId('');
@@ -922,10 +981,24 @@ const LeadGenStudioPage: React.FC = () => {
     }
     try {
       const cleaned = res.content.replace(/```json\s*|```/g, '').trim();
-      const parsed = JSON.parse(cleaned) as { subject?: string; body?: string };
+      const parsed = JSON.parse(cleaned) as {
+        subject?: string;
+        body?: string;
+        sequence?: Array<{ dayOffset: number; channel: 'email' | 'whatsapp' | 'linkedin'; subject: string; body: string }>;
+      };
+      const seq: OutreachStep[] = Array.isArray(parsed.sequence)
+        ? parsed.sequence.map((s) => ({ ...s, status: 'pending' }))
+        : [{ dayOffset: 1, channel: 'email', subject: parsed.subject || `Partnership with ${item.companyName}`, body: parsed.body || res.content, status: 'pending' }];
       setProspects((prev) =>
         prev.map((p) =>
-          p.id === item.id ? { ...p, outreachSubject: parsed.subject || `Partnership with ${item.companyName}`, outreachBody: parsed.body || res.content } : p
+          p.id === item.id
+            ? {
+                ...p,
+                outreachSubject: parsed.subject || seq[0]?.subject || `Partnership with ${item.companyName}`,
+                outreachBody: parsed.body || seq[0]?.body || res.content,
+                sequence: seq,
+              }
+            : p
         )
       );
     } catch {
@@ -933,7 +1006,85 @@ const LeadGenStudioPage: React.FC = () => {
         prev.map((p) => (p.id === item.id ? { ...p, outreachSubject: `Inquiry for ${item.companyName}`, outreachBody: res.content } : p))
       );
     }
-    Message.success(isZh ? '已生成定制开发信与 WhatsApp 跟进话术' : 'Cold email drafted');
+    Message.success(isZh ? '已生成 3 轮多语开发信与 WhatsApp 跟进序列' : '3-step outreach sequence drafted');
+  };
+
+  const handleCheckImapReplies = async () => {
+    const sentEmails = prospects.filter((p) => p.outreachSent && p.email).map((p) => p.email);
+    if (sentEmails.length === 0) {
+      Message.info(isZh ? '暂无已发送开发信的客户邮箱可检测' : 'No sent prospect emails to check yet');
+      return;
+    }
+    if (!settings.imapHost || !settings.smtpUser || !settings.smtpPass) {
+      setSettingsModalOpen(true);
+      Message.info(isZh ? '请先在设置中填写 IMAP 与邮箱授权码' : 'Configure IMAP credentials first');
+      return;
+    }
+    if (!bridge?.checkImapReplies) return;
+    setCheckingImap(true);
+    const res = await bridge.checkImapReplies({
+      host: settings.imapHost,
+      port: Number(settings.imapPort || 993),
+      user: settings.smtpUser,
+      pass: settings.smtpPass,
+      prospectEmails: sentEmails,
+    });
+    setCheckingImap(false);
+    if (!res.ok) {
+      Message.error(res.error || 'IMAP check failed');
+      return;
+    }
+    if (res.repliedEmails.length > 0) {
+      const repliedSet = new Set(res.repliedEmails.map((e) => e.toLowerCase()));
+      setProspects((prev) => prev.map((p) => (repliedSet.has(p.email.toLowerCase()) ? { ...p, replied: true } : p)));
+      Message.success(isZh ? `📬 检测到 ${res.repliedEmails.length} 位客户已回信，已自动暂停后续跟进` : `📬 Detected ${res.repliedEmails.length} replies`);
+    } else {
+      Message.info(isZh ? '收件箱暂无新的客户回信' : 'No new prospect replies found');
+    }
+  };
+
+  const handleRunCrawlerMcp = async () => {
+    if (!bridge?.runCrawlerMcp) return;
+    setCrawlingMcp(true);
+    const target = `https://www.europages.co.uk/companies/${encodeURIComponent(b2bIndustry)}.html`;
+    const res = await bridge.runCrawlerMcp({
+      endpoint: settings.crawlerMcpUrl || 'http://localhost:11235/crawl',
+      targetUrl: target,
+    });
+    setCrawlingMcp(false);
+    if (!res.ok) {
+      Message.warning(res.error || 'Crawl4AI local service not running');
+      return;
+    }
+    Message.success(isZh ? 'Crawl4AI 深度采集任务已返回结果' : 'Crawl4AI crawl completed');
+  };
+
+  const handlePrefillSocialDm = async (url: string, text: string) => {
+    await handleOpenIsolatedWindow(b2bPartition, url, 'Global DM Outreach');
+    setTimeout(async () => {
+      const res = await bridge?.prefillSocialDm?.({ partition: b2bPartition, text });
+      if (res?.ok) {
+        Message.success(isZh ? '已自动填入话术（停在发送键前，请人工确认发送）' : 'Prefilled DM (stopped before Send)');
+      }
+    }, 1500);
+  };
+
+  const handleTriggerCronTest = async () => {
+    if (!settings.imWebhookUrl) {
+      setSettingsModalOpen(true);
+      Message.info(isZh ? '请先填写飞书 / 企微 / 钉钉 Webhook URL' : 'Configure IM Webhook URL first');
+      return;
+    }
+    const res = await bridge?.triggerImWebhook?.({
+      webhookUrl: settings.imWebhookUrl,
+      title: '每日获客与待审批汇总',
+      content: `待发布社媒: ${posts.filter((p) => p.status !== 'published').length} | 外贸客户池: ${prospects.length} | CRM 线索: ${leads.length}`,
+    });
+    if (res?.ok) {
+      Message.success(isZh ? '✅ 已推送定时巡检汇总到您的飞书/企微/钉钉群' : '✅ Webhook alert sent');
+    } else {
+      Message.error(res?.error || 'Webhook push failed');
+    }
   };
 
   const handleSendColdEmail = (item: GlobalProspect) => {
@@ -1023,6 +1174,14 @@ const LeadGenStudioPage: React.FC = () => {
           </div>
 
           <div className='flex items-center gap-8px flex-wrap'>
+            <button
+              type='button'
+              onClick={() => setCronModalOpen(true)}
+              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-2 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
+            >
+              ⏱️ {isZh ? '定时巡检 & IM' : 'Cron & IM'}
+            </button>
+
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
@@ -1512,10 +1671,16 @@ const LeadGenStudioPage: React.FC = () => {
                   <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('thomasnet')}>🏭 Thomasnet (北美)</Button>
                   <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('europages')}>🇪🇺 Europages (欧洲)</Button>
                   <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('alibaba')}>🚢 Alibaba</Button>
+                  <Button size='small' type='outline' loading={crawlingMcp} onClick={handleRunCrawlerMcp}>🕷️ Crawl4AI 批量采</Button>
                 </Space>
-                <Button type='primary' loading={extractingB2b} onClick={handleExtractB2bProspects} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
-                  {isZh ? '🔍 从当前隔离浏览器页面提取企业线索' : '🔍 Extract Prospects from Browser'}
-                </Button>
+                <Space wrap>
+                  <Button type='outline' loading={checkingImap} onClick={handleCheckImapReplies}>
+                    {isZh ? '📬 IMAP 检测客户回信' : '📬 Check IMAP Replies'}
+                  </Button>
+                  <Button type='primary' loading={extractingB2b} onClick={handleExtractB2bProspects} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                    {isZh ? '🔍 从当前隔离浏览器页面提取企业线索' : '🔍 Extract Prospects from Browser'}
+                  </Button>
+                </Space>
               </div>
             </div>
 
@@ -1533,6 +1698,7 @@ const LeadGenStudioPage: React.FC = () => {
                           {item.mxValid === true && <Tag size='small' color='green'>✅ MX Valid ({item.mxHost})</Tag>}
                           {item.mxValid === false && <Tag size='small' color='orange'>⚠️ No MX</Tag>}
                           {item.outreachSent && <Tag size='small' color='purple'>✉️ 已发送开发信</Tag>}
+                          {item.replied && <Tag size='small' color='green'>💬 客户已回信 (序列已暂停)</Tag>}
                         </div>
                         <div className='text-12px text-t-secondary flex items-center gap-12px flex-wrap'>
                           {item.website && <span>🌐 {item.website}</span>}
@@ -1557,16 +1723,49 @@ const LeadGenStudioPage: React.FC = () => {
 
                     {item.outreachBody && (
                       <div className='p-12px rd-10px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-8px'>
+                        {item.sequence && item.sequence.length > 1 && (
+                          <div className='flex items-center gap-6px flex-wrap'>
+                            {item.sequence.map((step, sIdx) => (
+                              <Tag key={sIdx} size='small' color={step.channel === 'whatsapp' ? 'green' : 'arcoblue'}>
+                                Day {step.dayOffset} · {step.channel.toUpperCase()}
+                              </Tag>
+                            ))}
+                          </div>
+                        )}
                         <div className='text-12px font-600 text-t-primary'>Subject: {item.outreachSubject}</div>
                         <div className='text-12px text-t-secondary whitespace-pre-wrap'>{item.outreachBody}</div>
-                        <div className='flex justify-end gap-8px'>
-                          {item.whatsappUrl && (
-                            <Button size='mini' type='outline' onClick={() => handleOpenIsolatedWindow(b2bPartition, item.whatsappUrl || 'https://web.whatsapp.com/', 'WhatsApp')}>
-                              💬 打开 WhatsApp 跟进
+                        <div className='flex justify-end gap-8px flex-wrap'>
+                          {(item.whatsappUrl || item.sequence?.some((s) => s.channel === 'whatsapp')) && (
+                            <Button
+                              size='mini'
+                              type='outline'
+                              onClick={() =>
+                                handlePrefillSocialDm(
+                                  item.whatsappUrl || 'https://web.whatsapp.com/',
+                                  item.sequence?.find((s) => s.channel === 'whatsapp')?.body || item.outreachBody || ''
+                                )
+                              }
+                            >
+                              💬 填入 WhatsApp 跟进话术
                             </Button>
                           )}
-                          <Button size='mini' type='primary' loading={sendingEmailId === item.id} onClick={() => handleSendColdEmail(item)} style={{ background: '#0F172A', borderColor: '#0F172A' }}>
-                            {isZh ? '📤 人工确认并通过本地 SMTP 发送' : '📤 Confirm & Send SMTP'}
+                          {item.linkedinUrl && (
+                            <Button
+                              size='mini'
+                              type='outline'
+                              onClick={() => handlePrefillSocialDm(item.linkedinUrl || 'https://www.linkedin.com/', item.outreachBody || '')}
+                            >
+                              💼 填入 LinkedIn 备注
+                            </Button>
+                          )}
+                          <Button size='mini' type='primary' loading={sendingEmailId === item.id} disabled={Boolean(item.replied)} onClick={() => handleSendColdEmail(item)} style={{ background: '#0F172A', borderColor: '#0F172A' }}>
+                            {item.replied
+                              ? isZh
+                                ? '✅ 已回信（停止外发）'
+                                : '✅ Replied'
+                              : isZh
+                                ? '📤 人工确认并通过本地 SMTP 发送'
+                                : '📤 Confirm & Send SMTP'}
                           </Button>
                         </div>
                       </div>
@@ -1792,13 +1991,45 @@ const LeadGenStudioPage: React.FC = () => {
               {mcpTestMsg && <span>{mcpTestMsg}</span>}
             </Space>
 
-            <div className='font-600 mt-6px'>{isZh ? '4. 外贸开发信本地 SMTP 发件箱（Gmail / 企业邮 / 飞书邮）' : '4. Outbound Cold Email SMTP'}</div>
+            <div className='font-600 mt-6px'>{isZh ? '4. 外贸开发信本地 SMTP / IMAP 收发箱 & IM Webhook' : '4. Outbound SMTP / IMAP & IM Webhook'}</div>
             <div className='grid grid-cols-2 gap-8px'>
               <Input addBefore='SMTP Host' value={settings.smtpHost || ''} onChange={(v) => setSettings({ ...settings, smtpHost: v })} placeholder='smtp.gmail.com' />
               <Input addBefore='Port' value={String(settings.smtpPort || 465)} onChange={(v) => setSettings({ ...settings, smtpPort: Number(v) || 465 })} placeholder='465' />
             </div>
+            <div className='grid grid-cols-2 gap-8px'>
+              <Input addBefore='IMAP Host' value={settings.imapHost || ''} onChange={(v) => setSettings({ ...settings, imapHost: v })} placeholder='imap.gmail.com' />
+              <Input addBefore='IMAP Port' value={String(settings.imapPort || 993)} onChange={(v) => setSettings({ ...settings, imapPort: Number(v) || 993 })} placeholder='993' />
+            </div>
             <Input addBefore='Email' value={settings.smtpUser || ''} onChange={(v) => setSettings({ ...settings, smtpUser: v })} placeholder='sales@yourcompany.com' />
-            <Input.Password addBefore='App Password' value={settings.smtpPass || ''} onChange={(v) => setSettings({ ...settings, smtpPass: v })} placeholder='SMTP 授权码 / App Password' />
+            <Input.Password addBefore='App Password' value={settings.smtpPass || ''} onChange={(v) => setSettings({ ...settings, smtpPass: v })} placeholder='SMTP/IMAP 授权码' />
+            <Input addBefore='IM Webhook' value={settings.imWebhookUrl || ''} onChange={(v) => setSettings({ ...settings, imWebhookUrl: v })} placeholder='飞书 / 企微 / 钉钉机器人 Webhook URL' />
+            <Input addBefore='Crawl4AI URL' value={settings.crawlerMcpUrl || ''} onChange={(v) => setSettings({ ...settings, crawlerMcpUrl: v })} placeholder='http://localhost:11235/crawl' />
+          </div>
+        </Modal>
+
+        {/* CRON & IM APPROVAL MODAL */}
+        <Modal
+          title={isZh ? '⏱️ 24/7 定时巡检与飞书/企微审批中心' : '⏱️ 24/7 Cron & IM Approval Center'}
+          visible={cronModalOpen}
+          onCancel={() => setCronModalOpen(false)}
+          onOk={() => setCronModalOpen(false)}
+          style={{ width: 540 }}
+        >
+          <div className='flex flex-col gap-12px'>
+            <Alert type='info' content={isZh ? '开启后将在本地定时检查 IMAP 客户回信、提醒待审批开发信队列，并通过 Webhook 推送至飞书/企微/钉钉。' : 'Checks IMAP replies and pushes pending approvals to Feishu/WeCom/DingTalk.'} />
+            <div className='p-12px rd-10px bg-2 border border-solid border-[var(--color-border-2)] flex items-center justify-between'>
+              <div>
+                <div className='text-13px font-600'>{isZh ? '每日获客巡检 & 回信自动停发' : 'Daily Digest & Auto-Stop on Reply'}</div>
+                <div className='text-11px text-t-secondary'>{cronEnabled ? (isZh ? '已启用' : 'Enabled') : (isZh ? '未启用' : 'Disabled')}</div>
+              </div>
+              <Button size='small' type={cronEnabled ? 'primary' : 'outline'} onClick={() => setCronEnabled(!cronEnabled)}>
+                {cronEnabled ? (isZh ? '暂停巡检' : 'Pause') : (isZh ? '立即开启' : 'Enable')}
+              </Button>
+            </div>
+            <Space>
+              <Button type='outline' loading={checkingImap} onClick={handleCheckImapReplies}>{isZh ? '📬 立即执行 IMAP 回信检测' : '📬 Check IMAP Now'}</Button>
+              <Button type='primary' onClick={handleTriggerCronTest} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>{isZh ? '📨 推送汇总到飞书/企微' : '📨 Push IM Digest'}</Button>
+            </Space>
           </div>
         </Modal>
       </div>

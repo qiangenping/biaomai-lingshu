@@ -1,0 +1,47 @@
+{
+  "name": "pack-tob-bidding",
+  "displayName": {
+    "zh-CN": "标脉招投标与政企标讯获客套件",
+    "en-US": "BiaoMai ToB Bidding & Tender Intelligence Pack"
+  },
+  "version": "1.0.0",
+  "description": {
+    "zh-CN": "面向政企 ToB 服务商：招投标公开公告监测（Crawl4AI 适配器）+ 甲方采购联系人线索入库 + 废标风险审查辅助",
+    "en-US": "For B2B enterprise vendors: public tender monitoring (Crawl4AI adapter), buyer contact extraction into Lead CRM, and bid compliance review."
+  },
+  "author": "BiaoMai Lingshu Team",
+  "license": "Apache-2.0",
+  "category": "tob-vertical",
+  "i18n": {
+    "localesDir": "i18n",
+    "defaultLocale": "en-US"
+  },
+  "permissions": {
+    "fsReadPaths": ["./tenders"],
+    "fsWritePaths": ["./exports"],
+    "netDomains": ["*"],
+    "browserCdp": true,
+    "shellExec": false,
+    "imNotify": true,
+    "defaultApproval": "always-ask",
+    "alwaysAskActions": ["submit_tender_note", "export_prospects"]
+  },
+  "contributes": {
+    "assistants": [
+      {
+        "id": "tender-radar-analyst",
+        "name": { "zh-CN": "标讯雷达与审标专家", "en-US": "Tender Radar & Compliance Analyst" },
+        "description": {
+          "zh-CN": "抓取公开招标公告、提取甲方采购人与预算并一键入库商机 CRM，辅助排查废标风险条款",
+          "en-US": "Extracts public tender announcements, buyer contacts, and budgets into CRM while flagging disqualification risks."
+        },
+        "presetAgentType": "opencode",
+        "contextFile": "assistants/tender-radar-analyst/SKILL.en.md",
+        "localizedContextFiles": {
+          "zh-CN": "assistants/tender-radar-analyst/SKILL.zh.md",
+          "en-US": "assistants/tender-radar-analyst/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}
