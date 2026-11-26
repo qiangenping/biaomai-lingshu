@@ -2,23 +2,29 @@
 
 ## Prerequisites
 - **Node.js** `>= 22` and **pnpm** `>= 9`
-- **Docker** (optional, required only for `self-hosted` mode)
-- **OpenCode** or **Codex** CLI (optional, AionUi built-in agent works out of the box)
+- **Bun** (`curl -fsSL https://bun.sh/install | bash`) for the `AionUi` Electron shell
+- **Docker** (optional — **not required** for local desktop usage)
 
 ## 1. Install & Verify Workspace
 ```bash
-pnpm bootstrap
+pnpm install
+pnpm verify:all
 ```
-This installs dependencies and runs the i18n symmetry check, Apache-2.0/MIT license audit, TypeScript typecheck, and automated unit tests.
+This runs all 6 quality gates: i18n symmetry check, Apache-2.0/MIT license audit, `.bmpack` manifest integrity check, TypeScript typecheck, Vitest unit tests, and production build.
 
-## 2. Choose Your Region Profile
-Edit or select one of the three built-in profiles in `config/`:
-- `config/global.profile.json` — Global 8 channels (TikTok, YouTube, Instagram, Facebook, Threads, X, Pinterest, LinkedIn)
-- `config/china.profile.json` — China 6 channels (Douyin, RedNote/XHS, Kuaishou, Bilibili, WeChat Channels, WeChat OA)
-- `config/self-hosted.profile.json` — Local Docker stack (`pnpm docker:up`)
+## 2. Launch the Zero-Docker Desktop Workbench
+```bash
+pnpm dev:aionui
+```
+Open **Lead-Gen Studio** from the left sidebar. All local data is stored safely on your machine (`userData/biaomai-studio-db.json`).
 
-## 3. Run Your First Lead-Gen Workflow
-1. Select **Full-Funnel Lead-Gen Director** from the left Experts Hub.
-2. Prompt: *"Create a 3-post LinkedIn + TikTok lead-gen campaign for our B2B SaaS with a tracking short-link."*
-3. Review the generated drafts in the right **Content Preview** canvas and click **Add to Calendar**.
-4. Open the built-in **AI Browser Radar** tab, log into your isolated social account, navigate to a target post, and click **Analyze Visible Comments** to score S/A buyer intent and capture leads into the **Lead CRM**.
+## 3. Configure Your Local Keys (Optional & BYOK)
+Click **⚙️ API Settings** in the top-right corner:
+1. **LLM Provider**: Enter any OpenAI-compatible Base URL, Model, and API Key (e.g., DeepSeek, OpenAI, or local Ollama `http://localhost:11434/v1`).
+2. **Image Provider**: Optional image model key.
+3. **AiToEarn MCP**: Optional CN/Global/Self-Hosted `x-api-key` for cloud publishing and AI video generation.
+4. **Outbound SMTP / IMAP & IM Webhook**: Enter your Gmail App Password / Corporate Mail SMTP & IMAP settings and optional Feishu/WeCom/DingTalk webhook URL.
+
+## 4. Run Your First Inbound + Outbound Workflows
+- **Inbound (`01 → 02 → 03`)**: Generate platform-tailored copy & visuals → schedule across 17 isolated channels → extract live comments in the isolated browser with automatic PII redaction.
+- **Outbound (`04 Global Outbound`)**: Search buyers on Google Maps / LinkedIn / Europages → extract real companies → enrich public emails with DNS MX verification → draft 3-step cold email sequences → confirm and send via local SMTP.
