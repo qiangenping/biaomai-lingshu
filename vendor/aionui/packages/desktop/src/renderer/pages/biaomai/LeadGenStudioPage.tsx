@@ -6,6 +6,7 @@
 
 import { crawlerProspects, mergeProspects } from './prospect-import';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import './flat-buttons.css';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Message, Modal, Select } from '@arco-design/web-react';
@@ -652,7 +653,7 @@ const LeadGenStudioPage: React.FC = () => {
   const currentMeta = sectionMeta[activeTab] || sectionMeta.create;
 
   return (
-    <div className='h-full w-full overflow-y-auto bg-2 text-t-primary'>
+    <div className='biaomai-workbench-root h-full w-full overflow-y-auto bg-2 text-t-primary'>
       <div className='max-w-1160px mx-auto px-28px py-20px flex flex-col gap-18px'>
         {/* Slim Per-Feature Header (Zero Giant Banner, Zero Duplicate Tabs) */}
         <div className='flex items-center justify-between gap-12px flex-wrap pb-12px border-b border-solid border-[var(--color-border-2)]'>
@@ -671,7 +672,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setGuideModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-30px px-12px rd-8px border-none bg-fill-2 hover:bg-fill-3 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors'
             >
               <IconQuestionCircle />
               {isZh ? '使用指南' : 'Guide'}
@@ -679,7 +680,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setCronModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-30px px-12px rd-8px border-none bg-fill-2 hover:bg-fill-3 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors'
             >
               <IconClockCircle />
               {isZh ? '定时巡检' : 'Cron'}
@@ -687,7 +688,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-30px px-12px rd-8px border-none bg-fill-2 hover:bg-fill-3 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors'
             >
               <span className='inline-block size-6px rd-full' style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }} />
               {settings.llmApiKey ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
@@ -695,7 +696,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-30px px-12px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors shadow-sm'
+              className='h-30px px-12px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors'
             >
               <IconSettings />
               {isZh ? '接口配置' : 'Settings'}

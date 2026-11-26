@@ -1,0 +1,61 @@
+/**
+ * Scoped flat-button design system for BiaoMai Lingshu Workbench.
+ * Intentionally targets ONLY .arco-btn* inside .biaomai-workbench-root.
+ */
+
+.biaomai-workbench-root .arco-btn {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease !important;
+}
+
+.biaomai-workbench-root .arco-btn-secondary,
+.biaomai-workbench-root .arco-btn-outline {
+  border-color: transparent !important;
+  background-color: var(--color-fill-2, #f1f5f9) !important;
+  color: var(--color-text-1, #0f172a) !important;
+}
+
+.biaomai-workbench-root .arco-btn-secondary:hover,
+.biaomai-workbench-root .arco-btn-outline:hover {
+  border-color: transparent !important;
+  background-color: var(--color-fill-3, #e2e8f0) !important;
+}
+
+.biaomai-workbench-root .arco-btn-primary {
+  border-color: transparent !important;
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.biaomai-workbench-root .arco-btn-primary:hover {
+  border-color: transparent !important;
+  background-color: #4338ca !important;
+}
+
+.biaomai-workbench-root .arco-btn-outline.arco-btn-status-danger,
+.biaomai-workbench-root .arco-btn-secondary.arco-btn-status-danger {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #dc2626 !important;
+  border-color: transparent !important;
+}
+
+.biaomai-workbench-root .arco-btn-outline.arco-btn-status-danger:hover,
+.biaomai-workbench-root .arco-btn-secondary.arco-btn-status-danger:hover {
+  background-color: rgba(239, 68, 68, 0.18) !important;
+}
+
+.biaomai-workbench-root .arco-btn-text {
+  border-color: transparent !important;
+  background-color: transparent !important;
+}
+
+.biaomai-workbench-root .arco-btn-text:hover {
+  background-color: var(--color-fill-2, #f1f5f9) !important;
+}
+
+.biaomai-workbench-root .arco-btn-disabled,
+.biaomai-workbench-root .arco-btn[disabled] {
+  opacity: 0.48 !important;
+}
