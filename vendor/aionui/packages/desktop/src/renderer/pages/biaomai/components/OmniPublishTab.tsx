@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import { Button, Empty, Input, Select, Space, Tag } from '@arco-design/web-react';
-import { IconLaunch } from '@arco-design/web-react/icon';
+import { Button, Empty, Input, Message, Select, Space, Tag } from '@arco-design/web-react';
+import { IconCopy, IconDelete, IconLaunch } from '@arco-design/web-react/icon';
 import { ALL_PLATFORMS, type LocalAccount, type LocalPost, type MediaPlatform } from '../types';
 
 interface OmniPublishTabProps {
@@ -23,6 +23,7 @@ interface OmniPublishTabProps {
   onOpenIsolatedWindow: (partition: string, url: string, label: string) => void;
   onAddAccount: () => void;
   onConfirmPublish: (post: LocalPost) => void;
+  onDeletePost?: (postId: string) => void;
 }
 
 export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
@@ -39,9 +40,70 @@ export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
   onOpenIsolatedWindow,
   onAddAccount,
   onConfirmPublish,
+  onDeletePost,
 }) => (
   <div className='flex flex-col gap-18px'>
-    <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] shadow-[0_1px_3px_rgba(15,23,42,0.05)] flex flex-col gap-14px'>
+    <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-12px'>
+      <div className='flex items-center justify-between flex-wrap gap-8px'>
+        <div>
+          <div className='text-15px font-600 text-t-primary'>
+            {isZh ? `排期日历与人工确认发布队列 (${posts.length})` : `Schedule Queue & Approval (${posts.length})`}
+          </div>
+          <div className='text-12px text-t-secondary mt-2px'>
+            {isZh ? '在「01 内容创作」保存草稿后会立即出现在这里，支持复制文案或打开对应平台隔离浏览器确认发布' : 'Saved drafts appear here immediately for one-click copy and human-confirmed publishing'}
+          </div>
+        </div>
+      </div>
+      {posts.length === 0 ? (
+        <Empty description={isZh ? '请在「01 内容创作」生成草稿并加入排期' : 'Create content in step 01 first'} />
+      ) : (
+        <div className='flex flex-col gap-8px'>
+          {posts.map((post) => {
+            const plat = ALL_PLATFORMS.find((p) => p.id === post.platformId);
+            return (
+              <div key={post.id} className='flex items-center justify-between gap-12px flex-wrap p-12px rd-10px bg-2 border border-solid border-[var(--color-border-2)]'>
+                <div className='min-w-0 flex-1'>
+                  <div className='text-13px font-600 text-t-primary truncate'>{post.title}</div>
+                  {post.body && (
+                    <div className='text-12px text-t-secondary truncate mt-2px'>{post.body}</div>
+                  )}
+                  <Space size='mini' className='mt-6px'>
+                    <Tag size='small' color='arcoblue'>{plat ? (isZh ? plat.nameZh : plat.nameEn) : post.platformId}</Tag>
+                    <Tag size='small' color={post.status === 'published' ? 'green' : 'orange'}>
+                      {post.status === 'published' ? (isZh ? '已发布' : 'Published') : (isZh ? '待发布' : 'Scheduled')}
+                    </Tag>
+                    <span className='text-11px text-t-secondary'>{post.scheduledAt}</span>
+                  </Space>
+                </div>
+                <Space size='mini'>
+                  <Button
+                    size='small'
+                    type='secondary'
+                    icon={<IconCopy />}
+                    onClick={() => {
+                      void navigator.clipboard?.writeText(`${post.title}\n\n${post.body}`);
+                      Message.success(isZh ? '已复制标题与正文' : 'Copied');
+                    }}
+                  >
+                    {isZh ? '复制' : 'Copy'}
+                  </Button>
+                  {post.status !== 'published' && (
+                    <Button size='small' type='primary' onClick={() => onConfirmPublish(post)}>
+                      {isZh ? '确认发布' : 'Publish'}
+                    </Button>
+                  )}
+                  {onDeletePost && (
+                    <Button size='small' status='danger' type='secondary' icon={<IconDelete />} onClick={() => onDeletePost(post.id)} />
+                  )}
+                </Space>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+
+    <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-14px'>
       <div className='flex items-center justify-between flex-wrap gap-10px'>
         <div>
           <div className='text-15px font-600'>{isZh ? '全球 17 大媒介矩阵（本地隔离浏览器直连）' : '17 Global & Domestic Channels'}</div>
@@ -94,66 +156,37 @@ export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
       </div>
     </div>
 
-    <div className='grid grid-cols-1 md:grid-cols-2 gap-18px'>
-      <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] shadow-[0_1px_3px_rgba(15,23,42,0.05)] flex flex-col gap-12px'>
-        <div className='text-15px font-600'>{isZh ? '多账号隔离容器管理' : 'Isolated Account Containers'}</div>
-        <div className='flex gap-8px'>
-          <Select value={accPlatform} onChange={setAccPlatform} style={{ width: 140 }}>
-            {ALL_PLATFORMS.map((p) => (
-              <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
-            ))}
-          </Select>
-          <Input placeholder={isZh ? '账号备注（如：主号）' : 'Account label'} value={accLabel} onChange={setAccLabel} />
-          <Button type='primary' onClick={onAddAccount} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>{isZh ? '添加' : 'Add'}</Button>
-        </div>
-        {accounts.length === 0 ? (
-          <Empty description={isZh ? '暂无自定义隔离账号' : 'No accounts yet'} />
-        ) : (
-          <div className='flex flex-col gap-8px'>
-            {accounts.map((a) => {
-              const plat = ALL_PLATFORMS.find((p) => p.id === a.platformId);
-              return (
-                <div key={a.id} className='flex items-center justify-between p-10px rd-10px bg-2 border border-solid border-[var(--color-border-2)]'>
-                  <div>
-                    <div className='text-13px font-600'>{a.label} · {plat ? (isZh ? plat.nameZh : plat.nameEn) : a.platformId}</div>
-                    <div className='text-11px text-t-secondary'>{a.partition}</div>
-                  </div>
-                  <Button size='mini' type='secondary' onClick={() => plat && onOpenIsolatedWindow(a.partition, plat.creatorUrl, a.label)}>
-                    {isZh ? '打开窗口' : 'Open'}
-                  </Button>
-                </div>
-              );
-            })}
-          </div>
-        )}
+    <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-12px'>
+      <div className='text-15px font-600'>{isZh ? '多账号隔离容器管理' : 'Isolated Account Containers'}</div>
+      <div className='flex gap-8px'>
+        <Select value={accPlatform} onChange={setAccPlatform} style={{ width: 140 }}>
+          {ALL_PLATFORMS.map((p) => (
+            <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
+          ))}
+        </Select>
+        <Input placeholder={isZh ? '账号备注（如：主号）' : 'Account label'} value={accLabel} onChange={setAccLabel} />
+        <Button type='primary' onClick={onAddAccount}>{isZh ? '添加' : 'Add'}</Button>
       </div>
-
-      <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] shadow-[0_1px_3px_rgba(15,23,42,0.05)] flex flex-col gap-12px'>
-        <div className='text-15px font-600'>{isZh ? '排期日历与人工确认发布队列' : 'Schedule Queue & Approval'}</div>
-        {posts.length === 0 ? (
-          <Empty description={isZh ? '请在「01 内容创作」生成草稿并加入排期' : 'Create content in step 01 first'} />
-        ) : (
-          <div className='flex flex-col gap-8px'>
-            {posts.map((post) => (
-              <div key={post.id} className='flex items-center justify-between p-12px rd-10px bg-2 border border-solid border-[var(--color-border-2)]'>
-                <div className='min-w-0 pr-8px'>
-                  <div className='text-13px font-600 truncate'>{post.title}</div>
-                  <Space size='mini' className='mt-4px'>
-                    <Tag size='small' color='arcoblue'>{post.platformId}</Tag>
-                    <Tag size='small' color={post.status === 'published' ? 'green' : 'orange'}>{post.status}</Tag>
-                    <span className='text-11px text-t-secondary'>{post.scheduledAt}</span>
-                  </Space>
+      {accounts.length === 0 ? (
+        <Empty description={isZh ? '暂无自定义隔离账号' : 'No accounts yet'} />
+      ) : (
+        <div className='flex flex-col gap-8px'>
+          {accounts.map((a) => {
+            const plat = ALL_PLATFORMS.find((p) => p.id === a.platformId);
+            return (
+              <div key={a.id} className='flex items-center justify-between p-10px rd-10px bg-2 border border-solid border-[var(--color-border-2)]'>
+                <div>
+                  <div className='text-13px font-600'>{a.label} · {plat ? (isZh ? plat.nameZh : plat.nameEn) : a.platformId}</div>
+                  <div className='text-11px text-t-secondary'>{a.partition}</div>
                 </div>
-                {post.status !== 'published' && (
-                  <Button size='small' type='primary' onClick={() => onConfirmPublish(post)} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
-                    {isZh ? '确认发布' : 'Publish'}
-                  </Button>
-                )}
+                <Button size='mini' type='secondary' onClick={() => plat && onOpenIsolatedWindow(a.partition, plat.creatorUrl, a.label)}>
+                  {isZh ? '打开窗口' : 'Open'}
+                </Button>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   </div>
 );
