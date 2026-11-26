@@ -337,6 +337,7 @@ export interface StudioSettings {
   llmBaseUrl: string;
   llmModel: string;
   llmApiKey: string;
+  llmManualOverride?: boolean;
   imageBaseUrl: string;
   imageModel: string;
   imageApiKey: string;

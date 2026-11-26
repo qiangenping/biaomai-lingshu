@@ -94,22 +94,41 @@ export const StudioModals: React.FC<StudioModalsProps> = ({
           {settingsTab === 'llm' && (
             <div className='flex flex-col gap-14px'>
               <div className='p-14px rd-10px bg-2 border border-solid border-[var(--color-border-2)] flex flex-col gap-10px'>
-                <div className='text-13px font-700 text-t-primary'>
-                  {isZh ? '对话与文案大模型（OpenAI 兼容接口）' : 'LLM Provider (OpenAI Compatible)'}
+                <div className='flex items-center justify-between gap-8px'>
+                  <div className='text-13px font-700 text-t-primary'>
+                    {isZh ? '对话与文案大模型（OpenAI 兼容接口）' : 'LLM Provider (OpenAI Compatible)'}
+                  </div>
+                  {(settings.llmApiKey || settings.llmModel) && (
+                    <Button
+                      size='mini'
+                      status='danger'
+                      type='secondary'
+                      onClick={() =>
+                        setSettings({
+                          ...settings,
+                          llmApiKey: '',
+                          llmModel: '',
+                          llmManualOverride: false,
+                        })
+                      }
+                    >
+                      {isZh ? '清空密钥' : 'Clear Key'}
+                    </Button>
+                  )}
                 </div>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-10px'>
                   <div>
                     <FieldLabel>Base URL</FieldLabel>
-                    <Input value={settings.llmBaseUrl} onChange={(v) => setSettings({ ...settings, llmBaseUrl: v })} placeholder='https://api.deepseek.com/v1' />
+                    <Input value={settings.llmBaseUrl} onChange={(v) => setSettings({ ...settings, llmBaseUrl: v, llmManualOverride: true })} placeholder='https://api.deepseek.com/v1' />
                   </div>
                   <div>
                     <FieldLabel>Model</FieldLabel>
-                    <Input value={settings.llmModel} onChange={(v) => setSettings({ ...settings, llmModel: v })} placeholder='deepseek-chat' />
+                    <Input value={settings.llmModel} onChange={(v) => setSettings({ ...settings, llmModel: v, llmManualOverride: true })} placeholder='deepseek-chat' />
                   </div>
                 </div>
                 <div>
                   <FieldLabel>API Key</FieldLabel>
-                  <Input.Password value={settings.llmApiKey} onChange={(v) => setSettings({ ...settings, llmApiKey: v })} placeholder='sk-...' />
+                  <Input.Password value={settings.llmApiKey} onChange={(v) => setSettings({ ...settings, llmApiKey: v, llmManualOverride: Boolean(v.trim()) })} placeholder='sk-...' />
                 </div>
               </div>
 
