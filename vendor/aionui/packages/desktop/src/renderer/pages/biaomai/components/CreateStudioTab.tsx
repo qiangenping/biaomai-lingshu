@@ -134,17 +134,17 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
         />
       </div>
 
-      <div className='grid grid-cols-2 sm:grid-cols-4 gap-8px'>
-        <Button type='primary' icon={<IconEdit />} loading={creatingCopy} onClick={onAiGenerateCopy} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+      <div className='grid grid-cols-2 gap-10px'>
+        <Button type='primary' long icon={<IconEdit />} loading={creatingCopy} onClick={onAiGenerateCopy}>
           {isZh ? 'AI 生成文案' : 'Generate Copy'}
         </Button>
-        <Button type='secondary' icon={<IconImage />} loading={creatingImg} onClick={onAiGenerateImage}>
+        <Button type='secondary' long icon={<IconImage />} loading={creatingImg} onClick={onAiGenerateImage}>
           {isZh ? '生成封面配图' : 'Cover Visual'}
         </Button>
-        <Button type='secondary' icon={<IconVideoCamera />} loading={creatingVideo} onClick={onAiGenerateVideo}>
+        <Button type='secondary' long icon={<IconVideoCamera />} loading={creatingVideo} onClick={onAiGenerateVideo}>
           {isZh ? (targetLang !== 'zh-CN' ? 'AI 视频 + 配音' : 'AI 短视频') : 'AI Video'}
         </Button>
-        <Button type='outline' icon={<IconVideoCamera />} loading={creatingVideo} onClick={onGenerateOpenMotion}>
+        <Button type='secondary' long icon={<IconVideoCamera />} loading={creatingVideo} onClick={onGenerateOpenMotion}>
           {isZh ? 'OpenMotion 动效' : 'OpenMotion'}
         </Button>
       </div>
