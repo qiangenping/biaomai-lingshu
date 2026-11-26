@@ -99,19 +99,20 @@ export const StudioModals: React.FC<StudioModalsProps> = ({
         <Input addBefore='Email' value={settings.smtpUser || ''} onChange={(v) => setSettings({ ...settings, smtpUser: v })} placeholder='sales@yourcompany.com' />
         <Input.Password addBefore='App Password' value={settings.smtpPass || ''} onChange={(v) => setSettings({ ...settings, smtpPass: v })} placeholder='SMTP/IMAP 授权码' />
         <Input addBefore='IM Webhook' value={settings.imWebhookUrl || ''} onChange={(v) => setSettings({ ...settings, imWebhookUrl: v })} placeholder='飞书 / 企微 / 钉钉机器人 Webhook URL' />
+        <Input.Password addBefore='Crawl4AI Token' value={settings.crawlerToken || ''} onChange={(v) => setSettings({ ...settings, crawlerToken: v })} />
         <Input addBefore='Crawl4AI URL' value={settings.crawlerMcpUrl || ''} onChange={(v) => setSettings({ ...settings, crawlerMcpUrl: v })} placeholder='http://localhost:11235/crawl' />
       </div>
     </Modal>
 
     <Modal
-      title={isZh ? '24/7 定时巡检与飞书/企微审批中心' : '24/7 Cron & IM Approval Center'}
+      title={isZh ? '定时巡检与飞书/企微审批中心' : 'Daily Checks & IM Approval Center'}
       visible={cronModalOpen}
       onCancel={() => setCronModalOpen(false)}
       onOk={() => setCronModalOpen(false)}
       style={{ width: 540 }}
     >
       <div className='flex flex-col gap-12px'>
-        <Alert type='info' content={isZh ? '开启后将在本地定时检查 IMAP 客户回信、提醒待审批开发信队列，并通过 Webhook 推送至飞书/企微/钉钉。' : 'Checks IMAP replies and pushes pending approvals to Feishu/WeCom/DingTalk.'} />
+        <Alert type='info' content={isZh ? '工作台页面打开期间，每天检查 IMAP 客户回信、提醒待审批开发信队列，并通过 Webhook 推送至飞书/企微/钉钉。' : 'While this workspace is open, checks IMAP replies daily and pushes pending approvals to Feishu/WeCom/DingTalk.'} />
         <div className='p-12px rd-10px bg-2 border border-solid border-[var(--color-border-2)] flex items-center justify-between'>
           <div>
             <div className='text-13px font-600'>{isZh ? '每日获客巡检 & 回信自动停发' : 'Daily Digest & Auto-Stop on Reply'}</div>

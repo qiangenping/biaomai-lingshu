@@ -1,0 +1,59 @@
+{
+  "name": "pack-global-b2b-outbound",
+  "displayName": "全球外贸与 B2B 主动获客套件",
+  "version": "1.0.0",
+  "description": "面向外贸与全行业 B2B 出海：Google Maps/LinkedIn/B2B 黄页商家挖掘 + 官网公开邮箱提取与 DNS MX 验真 + AI 多语种开发信与 WhatsApp 序列触达（人工确认门禁）",
+  "author": "BiaoMai Lingshu Team",
+  "license": "Apache-2.0",
+  "category": "leadgen",
+  "i18n": {
+    "localesDir": "i18n",
+    "defaultLocale": "en-US"
+  },
+  "permissions": {
+    "fsReadPaths": [
+      "./exports"
+    ],
+    "fsWritePaths": [
+      "./exports"
+    ],
+    "netDomains": [
+      "*"
+    ],
+    "browserCdp": true,
+    "shellExec": false,
+    "imNotify": true,
+    "defaultApproval": "always-ask",
+    "alwaysAskActions": [
+      "send_smtp_email",
+      "send_whatsapp_message",
+      "export_prospects"
+    ]
+  },
+  "contributes": {
+    "assistants": [
+      {
+        "id": "global-b2b-prospector",
+        "name": "全球 B2B 寻客雷达专家",
+        "description": "从 Google Maps、LinkedIn、Thomasnet、Europages 及企业官网提取真实 B2B 采购商信息并验证邮箱 MX 记录",
+        "presetAgentType": "opencode",
+        "contextFile": "assistants/global-b2b-prospector/SKILL.en.md",
+        "localizedContextFiles": {
+          "zh-CN": "assistants/global-b2b-prospector/SKILL.zh.md",
+          "en-US": "assistants/global-b2b-prospector/SKILL.en.md"
+        }
+      },
+      {
+        "id": "cold-email-strategist",
+        "name": "多语种开发信与 WhatsApp 专家",
+        "description": "结合客户官网业务与痛点撰写高打开率多语种开发信序列（Day 1/4/9）及 WhatsApp 破冰话术，发前强制人工确认",
+        "presetAgentType": "opencode",
+        "contextFile": "assistants/cold-email-strategist/SKILL.en.md",
+        "localizedContextFiles": {
+          "zh-CN": "assistants/cold-email-strategist/SKILL.zh.md",
+          "en-US": "assistants/cold-email-strategist/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}

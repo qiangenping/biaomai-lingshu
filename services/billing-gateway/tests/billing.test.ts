@@ -16,7 +16,7 @@ describe('Commercial C/S Billing & Relay Gateway', () => {
       req.on('end', () => {
         const body = JSON.parse(raw);
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ jsonrpc: '2.0', id: body.id, result: { proxied: true, method: body.method } }));
+        res.end(JSON.stringify({ jsonrpc: '2.0', id: body.id, result: { proxied: true, method: body.method, isError: body.params?.name === 'fails' } }));
       });
     });
     await new Promise<void>((resolve) => {
@@ -44,11 +44,24 @@ describe('Commercial C/S Billing & Relay Gateway', () => {
     await new Promise<void>((resolve) => upstreamMcp.close(() => resolve()));
   });
 
+  it('requires trusted fulfillment and refunds a failed upstream tool result', async () => {
+    const unsigned = await fetch(`${gatewayUrl}/v1/webhooks/stripe`, { method: 'POST' });
+    expect(unsigned.status).toBe(401);
+    const account = gateway.ledger.issueApiKey({ userId: 'refund-test', email: '', region: 'global-official', tier: 'pro' });
+    const before = account.creditsBalance;
+    const response = await fetch(`${gatewayUrl}/api/unified/mcp`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': account.apiKey },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 7, method: 'tools/call', params: { name: 'fails' } }),
+    });
+    expect((await response.json()).result.isError).toBe(true);
+    expect(account.creditsBalance).toBe(before);
+  });
+
   it('provisions Global key via Stripe webhook, enforces credits & 401/402, and proxies MCP calls', async () => {
     // 1. Stripe webhook issues gl_ key with Pro tier + 1000 credits
     const stripeRes = await fetch(`${gatewayUrl}/v1/webhooks/stripe`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': 'test-admin' },
       body: JSON.stringify({ customerId: 'cus_1', customerEmail: 'founder@global.io', tier: 'pro' }),
     }).then((r) => r.json());
     expect(stripeRes.received).toBe(true);
@@ -74,7 +87,7 @@ describe('Commercial C/S Billing & Relay Gateway', () => {
     // 4. WeChat webhook issues cn_ key -> rejected with 401 on Global gateway
     const wxRes = await fetch(`${gatewayUrl}/v1/webhooks/wechat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': 'test-admin' },
       body: JSON.stringify({ openId: 'wx_open_1', tier: 'team' }),
     }).then((r) => r.json());
     expect(wxRes.issuedApiKey.startsWith('cn_')).toBe(true);

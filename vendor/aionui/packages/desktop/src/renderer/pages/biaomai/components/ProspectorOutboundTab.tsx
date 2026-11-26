@@ -7,7 +7,7 @@
 import React from 'react';
 import { Button, Empty, Input, Select, Space, Tag } from '@arco-design/web-react';
 import { IconEmail, IconPlus, IconSearch, IconSend } from '@arco-design/web-react/icon';
-import { type GlobalProspect } from '../types';
+import { nextEmailDraft, type GlobalProspect } from '../types';
 
 const { TextArea } = Input;
 
@@ -22,8 +22,8 @@ interface ProspectorOutboundTabProps {
   setB2bIndustry: (v: string) => void;
   b2bCountry: string;
   setB2bCountry: (v: string) => void;
-  b2bLang: 'en-US' | 'de-DE' | 'es-ES' | 'ja-JP' | 'ar-SA';
-  setB2bLang: (v: 'en-US' | 'de-DE' | 'es-ES' | 'ja-JP' | 'ar-SA') => void;
+  b2bLang: string;
+  setB2bLang: (v: string) => void;
   prospects: GlobalProspect[];
   extractingB2b: boolean;
   enrichingId: string;
@@ -39,6 +39,8 @@ interface ProspectorOutboundTabProps {
   onSendColdEmail: (item: GlobalProspect) => void;
   onAddProspectToCrm: (item: GlobalProspect) => void;
   onCheckImapReplies: () => void;
+  crawlTarget: string;
+  setCrawlTarget: (v: string) => void;
   onRunCrawlerMcp: () => void;
   onPrefillSocialDm: (url: string, text: string) => void;
 }
@@ -71,7 +73,7 @@ export const ProspectorOutboundTab: React.FC<ProspectorOutboundTabProps> = ({
   onSendColdEmail,
   onAddProspectToCrm,
   onCheckImapReplies,
-  onRunCrawlerMcp,
+  crawlTarget, setCrawlTarget, onRunCrawlerMcp,
   onPrefillSocialDm,
 }) => (
   <div className='flex flex-col gap-18px'>
@@ -139,7 +141,7 @@ export const ProspectorOutboundTab: React.FC<ProspectorOutboundTabProps> = ({
         </div>
         <div className='flex flex-col gap-4px'>
           <label className='text-12px font-500 text-t-secondary'>{isZh ? '开发信目标语种' : 'Outreach Language'}</label>
-          <Select value={b2bLang} onChange={setB2bLang}>
+          <Select allowCreate showSearch value={b2bLang} onChange={setB2bLang}>
             <Select.Option value='en-US'>English (Global B2B)</Select.Option>
             <Select.Option value='de-DE'>Deutsch (DACH)</Select.Option>
             <Select.Option value='es-ES'>Español (LATAM / Spain)</Select.Option>
@@ -156,6 +158,7 @@ export const ProspectorOutboundTab: React.FC<ProspectorOutboundTabProps> = ({
           <Button size='small' type='outline' onClick={() => onOpenDirectory('thomasnet')}>Thomasnet</Button>
           <Button size='small' type='outline' onClick={() => onOpenDirectory('europages')}>Europages</Button>
           <Button size='small' type='outline' onClick={() => onOpenDirectory('alibaba')}>Alibaba</Button>
+          <Input value={crawlTarget} onChange={setCrawlTarget} placeholder={isZh ? '企业或目录网址（默认 Europages）' : 'Company or directory URL (default Europages)'} />
           <Button size='small' type='outline' loading={crawlingMcp} onClick={onRunCrawlerMcp}>Crawl4AI</Button>
         </Space>
         <Space wrap>
@@ -212,7 +215,7 @@ export const ProspectorOutboundTab: React.FC<ProspectorOutboundTabProps> = ({
                   <div className='flex items-center gap-6px flex-wrap'>
                     {item.sequence.map((step, sIdx) => (
                       <Tag key={sIdx} size='small' color={step.channel === 'whatsapp' ? 'green' : 'arcoblue'}>
-                        Day {step.dayOffset} · {step.channel.toUpperCase()}
+                        Day {step.dayOffset} · {step.channel.toUpperCase()} {step.status === 'sent' ? '✓' : ''}
                       </Tag>
                     ))}
                   </div>
@@ -248,13 +251,13 @@ export const ProspectorOutboundTab: React.FC<ProspectorOutboundTabProps> = ({
                     type='primary'
                     icon={<IconSend />}
                     loading={sendingEmailId === item.id}
-                    disabled={Boolean(item.replied)}
+                    disabled={!nextEmailDraft(item)}
                     onClick={() => onSendColdEmail(item)}
                     style={{ background: '#0F172A', borderColor: '#0F172A' }}
                   >
                     {item.replied
                       ? isZh ? '已回信（停止外发）' : 'Replied'
-                      : isZh ? '人工确认并通过 SMTP 发送' : 'Confirm & Send SMTP'}
+                      : !nextEmailDraft(item) ? (isZh ? '邮件已发完' : 'Emails sent') : (isZh ? '确认下一封邮件' : 'Review next email')}
                   </Button>
                 </div>
               </div>

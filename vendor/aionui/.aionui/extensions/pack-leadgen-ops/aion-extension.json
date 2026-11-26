@@ -1,14 +1,8 @@
 {
   "name": "pack-leadgen-ops",
-  "displayName": {
-    "zh-CN": "全球全自动运营获客套件",
-    "en-US": "Global Autonomous Lead-Gen Pack"
-  },
+  "displayName": "全球全自动运营获客套件",
   "version": "1.0.0",
-  "description": {
-    "zh-CN": "V1.0 官方尖刀行业包：Create 获客内容 + Publish 全球 14+ 平台矩阵 + AI 原生内置浏览器意向雷达 + Convert 线索 CRM 与 ROI 归因（已剥离原商单板块）",
-    "en-US": "V1.0 Flagship Industry Pack: Create lead-gen content, Publish across 14+ global channels, Engage via AI embedded browser intent radar, and Convert with Lead CRM & ROI attribution."
-  },
+  "description": "V1.0 官方尖刀行业包：Create 获客内容 + Publish 全球 14+ 平台矩阵 + AI 原生内置浏览器意向雷达 + Convert 线索 CRM 与 ROI 归因（已剥离原商单板块）",
   "author": "BiaoMai Lingshu Team",
   "license": "Apache-2.0",
   "category": "leadgen",
@@ -17,14 +11,30 @@
     "defaultLocale": "en-US"
   },
   "permissions": {
-    "fsReadPaths": ["./assets", "./drafts"],
-    "fsWritePaths": ["./drafts", "./exports"],
-    "netDomains": ["aitoearn.cn", "aitoearn.ai", "localhost", "127.0.0.1"],
+    "fsReadPaths": [
+      "./assets",
+      "./drafts"
+    ],
+    "fsWritePaths": [
+      "./drafts",
+      "./exports"
+    ],
+    "netDomains": [
+      "aitoearn.cn",
+      "aitoearn.ai",
+      "localhost",
+      "127.0.0.1"
+    ],
     "browserCdp": true,
     "shellExec": false,
     "imNotify": true,
     "defaultApproval": "ask-once",
-    "alwaysAskActions": ["publish_now", "schedule_post", "send_comment_reply", "delete_lead"]
+    "alwaysAskActions": [
+      "publish_now",
+      "schedule_post",
+      "send_comment_reply",
+      "delete_lead"
+    ]
   },
   "contributes": {
     "acpAdapters": [
@@ -34,7 +44,9 @@
         "description": "Open-source Claude Code runtime via ACP",
         "connectionType": "cli",
         "cliCommand": "opencode",
-        "acpArgs": ["acp"],
+        "acpArgs": [
+          "acp"
+        ],
         "supportsStreaming": true
       },
       {
@@ -43,7 +55,9 @@
         "description": "Official OpenAI open-source agent runtime via ACP",
         "connectionType": "cli",
         "cliCommand": "codex",
-        "acpArgs": ["app-server"],
+        "acpArgs": [
+          "app-server"
+        ],
         "supportsStreaming": true
       }
     ],
@@ -90,102 +104,150 @@
     "assistants": [
       {
         "id": "growth-leadgen-director",
-        "name": { "zh-CN": "全链路获客增长总监", "en-US": "Full-Funnel Lead-Gen Director" },
-        "description": { "zh-CN": "统筹选题创作、14+ 平台矩阵分发、意向捕获与 ROI 复盘", "en-US": "Orchestrates end-to-end content, 14+ channel distribution, intent radar, and ROI." },
+        "name": "全链路获客增长总监",
+        "description": "统筹选题创作、14+ 平台矩阵分发、意向捕获与 ROI 复盘",
         "presetAgentType": "opencode",
         "contextFile": "assistants/growth-leadgen-director/SKILL.en.md",
         "localizedContextFiles": {
           "zh-CN": "assistants/growth-leadgen-director/SKILL.zh.md",
           "en-US": "assistants/growth-leadgen-director/SKILL.en.md"
         },
-        "enabledSkills": ["aitoearn-core", "channel-publish", "image-creation", "video-generation", "browser-operations"],
+        "enabledSkills": [
+          "aitoearn-core",
+          "channel-publish",
+          "image-creation",
+          "video-generation",
+          "browser-operations"
+        ],
         "defaultCanvasId": "lead-crm-canvas"
       },
       {
         "id": "leadgen-content-studio",
-        "name": { "zh-CN": "获客爆款内容工坊", "en-US": "Lead-Gen Content Studio" },
-        "description": { "zh-CN": "批量生成带 CTA 钩子与归因短链的图文与出海多语短视频", "en-US": "Generates high-converting posts and multilingual videos with CTA hooks & UTM links." },
+        "name": "获客爆款内容工坊",
+        "description": "批量生成带 CTA 钩子与归因短链的图文与出海多语短视频",
         "presetAgentType": "opencode",
         "contextFile": "assistants/leadgen-content-studio/SKILL.en.md",
         "localizedContextFiles": {
           "zh-CN": "assistants/leadgen-content-studio/SKILL.zh.md",
           "en-US": "assistants/leadgen-content-studio/SKILL.en.md"
         },
-        "enabledSkills": ["aitoearn-core", "image-creation", "video-generation"],
+        "enabledSkills": [
+          "aitoearn-core",
+          "image-creation",
+          "video-generation"
+        ],
         "defaultCanvasId": "preview-canvas"
       },
       {
         "id": "omni-matrix-publisher",
-        "name": { "zh-CN": "全球矩阵分发排期官", "en-US": "Omni-Matrix Publisher" },
-        "description": { "zh-CN": "管理国内 6 大 + 国际 8 大平台 OAuth 账号矩阵与内容排期日历", "en-US": "Manages OAuth accounts and content calendars across 14+ global & CN channels." },
+        "name": "全球矩阵分发排期官",
+        "description": "管理国内 6 大 + 国际 8 大平台 OAuth 账号矩阵与内容排期日历",
         "presetAgentType": "opencode",
         "contextFile": "assistants/omni-matrix-publisher/SKILL.en.md",
         "localizedContextFiles": {
           "zh-CN": "assistants/omni-matrix-publisher/SKILL.zh.md",
           "en-US": "assistants/omni-matrix-publisher/SKILL.en.md"
         },
-        "enabledSkills": ["aitoearn-core", "channel-publish"],
+        "enabledSkills": [
+          "aitoearn-core",
+          "channel-publish"
+        ],
         "defaultCanvasId": "calendar-canvas"
       },
       {
         "id": "intent-radar-copilot",
-        "name": { "zh-CN": "评论区意向雷达副驾驶", "en-US": "Intent Radar Copilot" },
-        "description": { "zh-CN": "在内置隔离浏览器中识别 S/A 级强询价评论并生成人工确认回复", "en-US": "Scores S/A-tier buyer intent inside the isolated AI browser with human-in-the-loop replies." },
+        "name": "评论区意向雷达副驾驶",
+        "description": "在内置隔离浏览器中识别 S/A 级强询价评论并生成人工确认回复",
         "presetAgentType": "opencode",
         "contextFile": "assistants/intent-radar-copilot/SKILL.en.md",
         "localizedContextFiles": {
           "zh-CN": "assistants/intent-radar-copilot/SKILL.zh.md",
           "en-US": "assistants/intent-radar-copilot/SKILL.en.md"
         },
-        "enabledSkills": ["browser-operations"],
+        "enabledSkills": [
+          "browser-operations"
+        ],
         "defaultCanvasId": "browser-radar-canvas"
       },
       {
         "id": "crm-conversion-analyst",
-        "name": { "zh-CN": "线索转化与 ROI 分析师", "en-US": "CRM & ROI Analyst" },
-        "description": { "zh-CN": "管理 5 阶段线索漏斗并结合短链追踪各渠道真实获客 ROI", "en-US": "Manages the 5-stage lead pipeline and computes channel/content ROI via short-links." },
+        "name": "线索转化与 ROI 分析师",
+        "description": "管理 5 阶段线索漏斗并结合短链追踪各渠道真实获客 ROI",
         "presetAgentType": "opencode",
         "contextFile": "assistants/crm-conversion-analyst/SKILL.en.md",
         "localizedContextFiles": {
           "zh-CN": "assistants/crm-conversion-analyst/SKILL.zh.md",
           "en-US": "assistants/crm-conversion-analyst/SKILL.en.md"
         },
-        "enabledSkills": ["aitoearn-core"],
+        "enabledSkills": [
+          "aitoearn-core"
+        ],
         "defaultCanvasId": "lead-crm-canvas"
       }
     ],
     "themes": [
-      { "id": "lingshu-dark", "name": "Lingshu Dark", "mode": "dark", "file": "themes/lingshu-dark.css" },
-      { "id": "lingshu-light", "name": "Lingshu Light", "mode": "light", "file": "themes/lingshu-light.css" }
+      {
+        "id": "lingshu-dark",
+        "name": "Lingshu Dark",
+        "mode": "dark",
+        "file": "themes/lingshu-dark.css"
+      },
+      {
+        "id": "lingshu-light",
+        "name": "Lingshu Light",
+        "mode": "light",
+        "file": "themes/lingshu-light.css"
+      }
     ],
     "canvases": [
       {
         "id": "preview-canvas",
-        "title": { "zh-CN": "获客预览", "en-US": "Content Preview" },
+        "title": {
+          "zh-CN": "获客预览",
+          "en-US": "Content Preview"
+        },
         "icon": "smartphone",
         "componentPath": "canvases/PreviewCanvas.tsx",
-        "defaultForAssistants": ["leadgen-content-studio"]
+        "defaultForAssistants": [
+          "leadgen-content-studio"
+        ]
       },
       {
         "id": "calendar-canvas",
-        "title": { "zh-CN": "排期日历", "en-US": "Calendar" },
+        "title": {
+          "zh-CN": "排期日历",
+          "en-US": "Calendar"
+        },
         "icon": "calendar",
         "componentPath": "canvases/CalendarCanvas.tsx",
-        "defaultForAssistants": ["omni-matrix-publisher"]
+        "defaultForAssistants": [
+          "omni-matrix-publisher"
+        ]
       },
       {
         "id": "browser-radar-canvas",
-        "title": { "zh-CN": "AI 浏览器雷达", "en-US": "AI Browser Radar" },
+        "title": {
+          "zh-CN": "AI 浏览器雷达",
+          "en-US": "AI Browser Radar"
+        },
         "icon": "globe",
         "componentPath": "canvases/BrowserRadarCanvas.tsx",
-        "defaultForAssistants": ["intent-radar-copilot"]
+        "defaultForAssistants": [
+          "intent-radar-copilot"
+        ]
       },
       {
         "id": "lead-crm-canvas",
-        "title": { "zh-CN": "线索 CRM & ROI", "en-US": "Lead CRM & ROI" },
+        "title": {
+          "zh-CN": "线索 CRM & ROI",
+          "en-US": "Lead CRM & ROI"
+        },
         "icon": "funnel",
         "componentPath": "canvases/LeadCRMCanvas.tsx",
-        "defaultForAssistants": ["growth-leadgen-director", "crm-conversion-analyst"]
+        "defaultForAssistants": [
+          "growth-leadgen-director",
+          "crm-conversion-analyst"
+        ]
       }
     ],
     "settingsTabs": "contributes/settings-tabs.json"

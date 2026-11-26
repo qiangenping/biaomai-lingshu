@@ -1,14 +1,8 @@
 {
   "name": "pack-template",
-  "displayName": {
-    "zh-CN": "自定义行业插件模板包",
-    "en-US": "Custom Industry Pack Template"
-  },
+  "displayName": "自定义行业插件模板包",
   "version": "1.0.0",
-  "description": {
-    "zh-CN": "5 分钟快速构建本地办公或 ToB 垂直行业应用包（如文档批处理、招投标审标、ERP/CRM 对接）的最小可运行模板",
-    "en-US": "Minimal starter template to build Local Office or ToB vertical packs in 5 minutes."
-  },
+  "description": "5 分钟快速构建本地办公或 ToB 垂直行业应用包（如文档批处理、招投标审标、ERP/CRM 对接）的最小可运行模板",
   "author": "Community Contributor",
   "license": "Apache-2.0",
   "category": "local-office",
@@ -17,8 +11,12 @@
     "defaultLocale": "en-US"
   },
   "permissions": {
-    "fsReadPaths": ["./workspace"],
-    "fsWritePaths": ["./workspace/output"],
+    "fsReadPaths": [
+      "./workspace"
+    ],
+    "fsWritePaths": [
+      "./workspace/output"
+    ],
     "netDomains": [],
     "browserCdp": false,
     "shellExec": false,
@@ -44,21 +42,28 @@
     "assistants": [
       {
         "id": "sample-office-assistant",
-        "name": { "zh-CN": "本地办公示例助手", "en-US": "Local Office Sample Assistant" },
-        "description": { "zh-CN": "演示如何扩展本地文档处理与自定义画布", "en-US": "Demonstrates extending local document workflows and custom canvases." },
+        "name": "本地办公示例助手",
+        "description": "演示如何扩展本地文档处理与自定义画布",
         "presetAgentType": "opencode",
         "contextFile": "skills/SKILL.en.md",
-        "enabledSkills": ["sample-office-skill"],
+        "enabledSkills": [
+          "sample-office-skill"
+        ],
         "defaultCanvasId": "sample-canvas"
       }
     ],
     "canvases": [
       {
         "id": "sample-canvas",
-        "title": { "zh-CN": "示例画布", "en-US": "Sample Canvas" },
+        "title": {
+          "zh-CN": "示例画布",
+          "en-US": "Sample Canvas"
+        },
         "icon": "file-text",
         "componentPath": "canvases/SampleCanvas.tsx",
-        "defaultForAssistants": ["sample-office-assistant"]
+        "defaultForAssistants": [
+          "sample-office-assistant"
+        ]
       }
     ]
   }

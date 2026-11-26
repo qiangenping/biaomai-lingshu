@@ -95,7 +95,7 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
     ipcRenderer.invoke('biaomai:prefill-social-dm', payload),
   triggerImWebhook: (payload: { webhookUrl: string; title: string; content: string }) =>
     ipcRenderer.invoke('biaomai:trigger-im-webhook', payload),
-  runCrawlerMcp: (payload: { endpoint: string; targetUrl: string }) =>
+  runCrawlerMcp: (payload: { endpoint: string; targetUrl: string; token?: string }) =>
     ipcRenderer.invoke('biaomai:run-crawler-mcp', payload),
 });
 

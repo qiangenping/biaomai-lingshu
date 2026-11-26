@@ -1,0 +1,47 @@
+{
+  "name": "pack-tob-bidding",
+  "displayName": "标脉招投标与政企标讯获客套件",
+  "version": "1.0.0",
+  "description": "面向政企 ToB 服务商：招投标公开公告监测（Crawl4AI 适配器）+ 甲方采购联系人线索入库 + 废标风险审查辅助",
+  "author": "BiaoMai Lingshu Team",
+  "license": "Apache-2.0",
+  "category": "tob-vertical",
+  "i18n": {
+    "localesDir": "i18n",
+    "defaultLocale": "en-US"
+  },
+  "permissions": {
+    "fsReadPaths": [
+      "./tenders"
+    ],
+    "fsWritePaths": [
+      "./exports"
+    ],
+    "netDomains": [
+      "*"
+    ],
+    "browserCdp": true,
+    "shellExec": false,
+    "imNotify": true,
+    "defaultApproval": "always-ask",
+    "alwaysAskActions": [
+      "submit_tender_note",
+      "export_prospects"
+    ]
+  },
+  "contributes": {
+    "assistants": [
+      {
+        "id": "tender-radar-analyst",
+        "name": "标讯雷达与审标专家",
+        "description": "抓取公开招标公告、提取甲方采购人与预算并一键入库商机 CRM，辅助排查废标风险条款",
+        "presetAgentType": "opencode",
+        "contextFile": "assistants/tender-radar-analyst/SKILL.en.md",
+        "localizedContextFiles": {
+          "zh-CN": "assistants/tender-radar-analyst/SKILL.zh.md",
+          "en-US": "assistants/tender-radar-analyst/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}

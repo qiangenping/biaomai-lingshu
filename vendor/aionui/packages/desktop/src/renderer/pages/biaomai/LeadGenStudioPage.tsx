@@ -5,7 +5,8 @@
  */
 
 import './studio.css';
-import React, { useEffect, useMemo, useState } from 'react';
+import { crawlerProspects, mergeProspects } from './prospect-import';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Message, Modal, Select } from '@arco-design/web-react';
@@ -22,6 +23,7 @@ import {
   INDUSTRY_PRESETS,
   type InstalledPack,
   KEYS,
+  nextEmailDraft,
   type LeadStage,
   type LocalAccount,
   type LocalLead,
@@ -89,7 +91,8 @@ const LeadGenStudioPage: React.FC = () => {
     })
   );
   const [mcpTestMsg, setMcpTestMsg] = useState('');
-  const [cronEnabled, setCronEnabled] = useState(false);
+  const [cronEnabled, setCronEnabled] = useState(() => readJson('biaomai.daily.enabled', false));
+  const [dbReady, setDbReady] = useState(false);
 
   const [regionFilter, setRegionFilter] = useState<'all' | 'cn' | 'global'>('all');
   const [accounts, setAccounts] = useState<LocalAccount[]>(() => readJson<LocalAccount[]>(KEYS.accounts, []));
@@ -128,9 +131,10 @@ const LeadGenStudioPage: React.FC = () => {
   const [b2bMode, setB2bMode] = useState<'global' | 'cn'>('cn');
   const [cnCompanyInput, setCnCompanyInput] = useState('');
   const [lookingUpCn, setLookingUpCn] = useState(false);
+  const [crawlTarget, setCrawlTarget] = useState('');
   const [b2bIndustry, setB2bIndustry] = useState('CNC Machining & Industrial Parts');
   const [b2bCountry, setB2bCountry] = useState('Germany');
-  const [b2bLang, setB2bLang] = useState<'en-US' | 'de-DE' | 'es-ES' | 'ja-JP' | 'ar-SA'>('en-US');
+  const [b2bLang, setB2bLang] = useState('en-US');
   const [extractingB2b, setExtractingB2b] = useState(false);
   const [enrichingId, setEnrichingId] = useState('');
   const [draftingOutreachId, setDraftingOutreachId] = useState('');
@@ -155,31 +159,35 @@ const LeadGenStudioPage: React.FC = () => {
     const hydrateFromMainDb = async () => {
       if (!bridge?.dbGetAll) return;
       const res = await bridge.dbGetAll();
-      if (!res.ok || !res.db) return;
+      if (!res.ok || !res.db) throw new Error('Local database unavailable');
       if (Array.isArray(res.db.accounts) && res.db.accounts.length > 0) setAccounts(res.db.accounts as LocalAccount[]);
       if (Array.isArray(res.db.posts) && res.db.posts.length > 0) setPosts(res.db.posts as LocalPost[]);
       if (Array.isArray(res.db.leads) && res.db.leads.length > 0) setLeads(res.db.leads as LocalLead[]);
       if (Array.isArray(res.db.prospects) && res.db.prospects.length > 0) setProspects(res.db.prospects as GlobalProspect[]);
     };
-    void hydrateFromMainDb();
+    void hydrateFromMainDb().then(() => setDbReady(true)).catch(() => Message.error(isZh ? '本地数据库读取失败' : 'Local database read failed'));
   }, []);
 
   useEffect(() => {
+    if (!dbReady) return;
     localStorage.setItem(KEYS.accounts, JSON.stringify(accounts));
     void bridge?.dbSaveCollection?.({ collection: 'accounts', items: accounts });
-  }, [accounts]);
+  }, [accounts, dbReady]);
   useEffect(() => {
+    if (!dbReady) return;
     localStorage.setItem(KEYS.posts, JSON.stringify(posts));
     void bridge?.dbSaveCollection?.({ collection: 'posts', items: posts });
-  }, [posts]);
+  }, [posts, dbReady]);
   useEffect(() => {
+    if (!dbReady) return;
     localStorage.setItem(KEYS.leads, JSON.stringify(leads));
     void bridge?.dbSaveCollection?.({ collection: 'leads', items: leads });
-  }, [leads]);
+  }, [leads, dbReady]);
   useEffect(() => {
+    if (!dbReady) return;
     localStorage.setItem(KEYS.prospects, JSON.stringify(prospects));
     void bridge?.dbSaveCollection?.({ collection: 'prospects', items: prospects });
-  }, [prospects]);
+  }, [prospects, dbReady]);
   useEffect(() => localStorage.setItem(KEYS.settings, JSON.stringify(settings)), [settings]);
 
   const activeMcpEndpoint =
@@ -389,7 +397,7 @@ const LeadGenStudioPage: React.FC = () => {
 
   const handleEnrichCommentsWithLlm = async () => {
     if (analyzedList.length === 0 || !bridge?.runLlm) return;
-    if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost')) return setSettingsModalOpen(true);
+    if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost') && !settings.llmBaseUrl.includes('127.0.0.1')) return setSettingsModalOpen(true);
     setScoringWithLlm(true);
     const res = await bridge.runLlm({
       baseUrl: settings.llmBaseUrl,
@@ -457,7 +465,7 @@ const LeadGenStudioPage: React.FC = () => {
           snippet: `${res.source}${res.phones.length > 1 ? ` · 备用电话: ${res.phones.slice(1).join(', ')}` : ''}`,
           sourceUrl: res.website || '360/百度公开探测',
         };
-        setProspects((prev) => [item, ...prev.filter((p) => p.companyName !== item.companyName)]);
+        setProspects((prev) => mergeProspects(prev, [item]));
       }
     }
     setLookingUpCn(false);
@@ -471,10 +479,7 @@ const LeadGenStudioPage: React.FC = () => {
     setExtractingB2b(false);
     if (!res.ok || res.prospects.length === 0) return Message.warning(res.error || (isZh ? '未提取到企业列表' : 'No prospects extracted'));
     const mapped: GlobalProspect[] = res.prospects.map((p) => ({ ...p, industry: b2bIndustry, country: b2bCountry }));
-    setProspects((prev) => {
-      const existing = new Set(prev.map((x) => x.companyName.toLowerCase()));
-      return [...mapped.filter((x) => !existing.has(x.companyName.toLowerCase())), ...prev];
-    });
+    setProspects(prev => mergeProspects(prev, mapped));
     Message.success(isZh ? `已提取 ${mapped.length} 家企业线索` : `Extracted ${mapped.length} prospects`);
   };
 
@@ -490,15 +495,15 @@ const LeadGenStudioPage: React.FC = () => {
   };
 
   const handleGenerateColdEmail = async (item: GlobalProspect) => {
-    if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost')) return setSettingsModalOpen(true);
+    if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost') && !settings.llmBaseUrl.includes('127.0.0.1')) return setSettingsModalOpen(true);
     if (!bridge?.runLlm) return;
     setDraftingOutreachId(item.id);
     const res = await bridge.runLlm({
       baseUrl: settings.llmBaseUrl,
       apiKey: settings.llmApiKey,
       model: settings.llmModel,
-      systemPrompt: `You are a global B2B sales strategist. Output strict JSON {"subject": string, "body": string, "sequence": [{"dayOffset": 1, "channel": "email", "subject": string, "body": string}, {"dayOffset": 4, "channel": "email", "subject": string, "body": string}, {"dayOffset": 9, "channel": "whatsapp", "subject": "WhatsApp Follow-up", "body": string}]} in language ${b2bLang}.`,
-      userPrompt: `Target company: ${item.companyName}\nCountry: ${item.country}\nIndustry: ${item.industry}\nWebsite: ${item.website}\nContext: ${item.snippet}`,
+      systemPrompt: `You are a global B2B sales strategist. Output strict JSON {"subject": string, "body": string, "sequence": [{"dayOffset": 1, "channel": "email", "subject": string, "body": string}, {"dayOffset": 4, "channel": "email", "subject": string, "body": string}, {"dayOffset": 9, "channel": "whatsapp", "subject": "WhatsApp Follow-up", "body": string}]} in the language specified by the user.`,
+      userPrompt: `Language: ${b2bLang}\nTarget company: ${item.companyName}\nCountry: ${item.country}\nIndustry: ${item.industry}\nWebsite: ${item.website}\nContext: ${item.snippet}`,
     });
     setDraftingOutreachId('');
     if (!res.ok || !res.content) return Message.error(res.error || 'Failed');
@@ -513,11 +518,12 @@ const LeadGenStudioPage: React.FC = () => {
   };
 
   const handleSendColdEmail = (item: GlobalProspect) => {
-    if (!item.email || !item.outreachBody) return Message.warning(isZh ? '请先补全邮箱并生成草稿' : 'Enrich email and draft first');
+    const draft = nextEmailDraft(item);
+    if (!draft || !item.email) return Message.warning(isZh ? '请先补全邮箱并生成草稿' : 'Enrich email and draft first');
     if (!settings.smtpUser || !settings.smtpPass || !settings.smtpHost) return setSettingsModalOpen(true);
     Modal.confirm({
       title: isZh ? '人工确认发送开发信' : 'Confirm Cold Email',
-      content: `${item.companyName} (${item.email})\nSubject: ${item.outreachSubject}`,
+      content: `${item.companyName} (${item.email})\nSubject: ${draft.subject || item.companyName}\n\n${draft.body}`,
       onOk: async () => {
         if (!bridge?.sendSmtpEmail) return;
         setSendingEmailId(item.id);
@@ -528,12 +534,12 @@ const LeadGenStudioPage: React.FC = () => {
           pass: settings.smtpPass || '',
           fromName: isZh ? '标脉灵枢商务中心' : 'BiaoMai Lingshu',
           to: item.email,
-          subject: item.outreachSubject || `Collaboration with ${item.companyName}`,
-          text: item.outreachBody || '',
+          subject: draft.subject || `Collaboration with ${item.companyName}`,
+          text: draft.body,
         });
         setSendingEmailId('');
         if (res.ok) {
-          setProspects((prev) => prev.map((p) => (p.id === item.id ? { ...p, outreachSent: true } : p)));
+          setProspects((prev) => prev.map((p) => (p.id === item.id ? { ...p, outreachSent: true, sequence: p.sequence?.map(step => step === draft ? { ...step, status: 'sent' } : step) } : p)));
           Message.success(isZh ? `已发送至 ${item.email}` : `Sent to ${item.email}`);
         } else {
           Message.error(res.error || 'SMTP failed');
@@ -542,38 +548,88 @@ const LeadGenStudioPage: React.FC = () => {
     });
   };
 
-  const handleCheckImapReplies = async () => {
+  const handleCheckImapReplies = async (scheduled = false) => {
     const sentEmails = prospects.filter((p) => p.outreachSent && p.email).map((p) => p.email);
     if (sentEmails.length === 0) return Message.info(isZh ? '暂无已发信客户邮箱' : 'No sent emails');
     if (!settings.imapHost || !settings.smtpUser || !settings.smtpPass) return setSettingsModalOpen(true);
     if (!bridge?.checkImapReplies) return;
     setCheckingImap(true);
-    const res = await bridge.checkImapReplies({ host: settings.imapHost, port: Number(settings.imapPort || 993), user: settings.smtpUser, pass: settings.smtpPass, prospectEmails: sentEmails });
-    setCheckingImap(false);
-    if (!res.ok) return Message.error(res.error || 'IMAP failed');
+    const res = await bridge.checkImapReplies({ host: settings.imapHost, port: Number(settings.imapPort || 993), user: settings.smtpUser, pass: settings.smtpPass, prospectEmails: sentEmails })
+      .catch((error: unknown) => ({ ok: false, error: String(error), repliedEmails: [] as string[] }))
+      .finally(() => setCheckingImap(false));
+    if (!res.ok) {
+      if (scheduled) throw new Error(res.error || 'IMAP failed');
+      return Message.error(res.error || 'IMAP failed');
+    }
     if (res.repliedEmails.length > 0) {
       const set = new Set(res.repliedEmails.map((e) => e.toLowerCase()));
       setProspects((prev) => prev.map((p) => (set.has(p.email.toLowerCase()) ? { ...p, replied: true } : p)));
+      const repliedIds = new Set(prospects.filter(p => set.has(p.email.toLowerCase())).map(p => `b2b_${p.id}`));
+      setLeads(prev => prev.map(l => repliedIds.has(l.id) && l.stage === 'new' ? { ...l, stage: 'engaged' } : l));
       Message.success(isZh ? `检测到 ${res.repliedEmails.length} 位客户回信` : `Detected ${res.repliedEmails.length} replies`);
     } else {
       Message.info(isZh ? '暂无新回信' : 'No new replies');
     }
   };
 
+  const dailyCheck = useRef(async () => {});
+  dailyCheck.current = async () => {
+    if (settings.imapHost && settings.smtpUser && settings.smtpPass && prospects.some(p => p.outreachSent && !p.replied)) {
+      await handleCheckImapReplies(true);
+    }
+    if (settings.imWebhookUrl && bridge?.triggerImWebhook) {
+      const pending = prospects.filter(p => p.outreachBody && !p.outreachSent && !p.replied).length;
+      const result = await bridge.triggerImWebhook({ webhookUrl: settings.imWebhookUrl,
+        title: isZh ? '每日获客巡检' : 'Daily lead digest',
+        content: isZh ? `企业 ${prospects.length} · 待确认开发信 ${pending} · CRM ${leads.length}` : `Companies ${prospects.length} · Pending emails ${pending} · CRM ${leads.length}` });
+      if (!result.ok) throw new Error(result.error || 'Webhook failed');
+    }
+  };
+  useEffect(() => {
+    localStorage.setItem('biaomai.daily.enabled', JSON.stringify(cronEnabled));
+    if (!cronEnabled || !dbReady) return;
+    let running = false;
+    const tick = async () => {
+      const day = new Date().toDateString();
+      if (running || localStorage.getItem('biaomai.daily.completed') === day) return;
+      running = true;
+      try {
+        await dailyCheck.current();
+        localStorage.setItem('biaomai.daily.completed', day);
+      } catch (error) {
+        Message.error(String(error));
+      } finally { running = false; }
+    };
+    void tick();
+    const timer = window.setInterval(() => void tick(), 15 * 60_000);
+    return () => window.clearInterval(timer);
+  }, [cronEnabled, dbReady]);
+
   const stageOrder: LeadStage[] = ['new', 'engaged', 'qualified', 'opportunity', 'won'];
   const stageLabel: Record<LeadStage, string> = isZh
     ? { new: '新意向', engaged: '已回复', qualified: '已留资', opportunity: '商机', won: '已成交' }
     : { new: 'New', engaged: 'Engaged', qualified: 'Qualified', opportunity: 'Opportunity', won: 'Won' };
 
+  const sectionMeta: Record<'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs', { zh: string; en: string }> = {
+    create: { zh: '内容创作', en: 'Create Studio' },
+    publish: { zh: '渠道分发', en: 'Omni-Publish' },
+    engage: { zh: '社媒雷达', en: 'Intent Radar' },
+    outbound: { zh: '企业寻客', en: 'Global & CN Outbound' },
+    crm: { zh: '线索 CRM', en: 'Lead CRM' },
+    packs: { zh: '行业插件', en: 'Packs Market' },
+  };
+  const currentMeta = sectionMeta[activeTab] || sectionMeta.create;
+
   return (
     <div className='h-full w-full overflow-y-auto bg-2 text-t-primary'>
-      <div className='bm-studio-shell'>
-        <div className='bm-studio-header'>
+      <div className='max-w-1160px mx-auto px-28px py-20px flex flex-col gap-18px'>
+        {/* Slim Per-Feature Header (Zero Giant Banner, Zero Duplicate Tabs) */}
+        <div className='flex items-center justify-between gap-12px flex-wrap pb-12px border-b border-solid border-[var(--color-border-2)]'>
           <div className='flex items-center gap-10px flex-wrap'>
-            <h1 className='bm-studio-title'>
-              {isZh ? '标脉灵枢 · 全球获客工作台' : 'BiaoMai · Global Lead Studio'}
+            <h1 className='m-0 text-17px font-700 tracking-tight text-t-primary'>
+              {isZh ? currentMeta.zh : currentMeta.en}
             </h1>
-            <Select size='small' value={industryId} onChange={handleIndustryChange} style={{ width: 200 }}>
+            <Select size='small' value={industryId} onChange={handleIndustryChange} style={{ width: 195 }}>
               {INDUSTRY_PRESETS.map((p) => (
                 <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
               ))}
@@ -584,7 +640,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setGuideModalOpen(true)}
-              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
             >
               <IconQuestionCircle />
               {isZh ? '使用指南' : 'Guide'}
@@ -592,7 +648,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setCronModalOpen(true)}
-              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
             >
               <IconClockCircle />
               {isZh ? '定时巡检' : 'Cron'}
@@ -600,7 +656,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
             >
               <span className='inline-block size-6px rd-full' style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }} />
               {settings.llmApiKey ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
@@ -608,31 +664,13 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-32px px-14px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors shadow-sm'
+              className='h-30px px-12px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors shadow-sm'
             >
               <IconSettings />
               {isZh ? '接口配置' : 'Settings'}
             </button>
           </div>
         </div>
-
-        <div className='bm-studio-metrics'>
-          {([
-            ['publish', isZh ? '渠道账号' : 'Channel accounts', accounts.length],
-            ['outbound', isZh ? '企业名录' : 'Companies', prospects.length],
-            ['crm', isZh ? 'CRM 线索' : 'CRM leads', leads.length],
-          ] as const).map(([tab, label, count]) => (
-            <button type='button' key={tab} onClick={() => setActiveTab(tab)}>
-              <span>{label}</span><strong>{count.toLocaleString(i18n.language)}</strong>
-            </button>
-          ))}
-        </div>
-        <nav className='bm-studio-nav' aria-label={isZh ? '获客流程' : 'Lead generation workflow'}>
-          {studioSections.map(([id, zh, en]) => (
-            <button type='button' key={id} aria-current={activeTab === id ? 'page' : undefined}
-              onClick={() => setActiveTab(id)}>{isZh ? zh : en}</button>
-          ))}
-        </nav>
 
         {activeTab === 'create' && (
           <CreateStudioTab
@@ -726,6 +764,8 @@ const LeadGenStudioPage: React.FC = () => {
             setB2bCountry={setB2bCountry}
             b2bLang={b2bLang}
             setB2bLang={setB2bLang}
+            crawlTarget={crawlTarget}
+            setCrawlTarget={setCrawlTarget}
             prospects={prospects}
             extractingB2b={extractingB2b}
             enrichingId={enrichingId}
@@ -740,16 +780,27 @@ const LeadGenStudioPage: React.FC = () => {
             onGenerateColdEmail={handleGenerateColdEmail}
             onSendColdEmail={handleSendColdEmail}
             onAddProspectToCrm={(item) => {
-              setLeads((prev) => [{ id: `lead_${Date.now()}`, platformId: 'global-b2b', nickname: item.companyName, sanitizedComment: `${item.country} · ${item.industry}${item.email ? ` · ${item.email}` : ''}`, tier: item.mxValid ? 'S' : 'A', score: item.mxValid ? 92 : 78, stage: item.outreachSent ? 'engaged' : 'new', dealValue: 0, createdAt: new Date().toISOString() }, ...prev]);
+              setLeads((prev) => prev.some(l => l.id === `b2b_${item.id}`) ? prev : [{ id: `b2b_${item.id}`, platformId: 'global-b2b', nickname: item.companyName, sanitizedComment: `${item.country} · ${item.industry}${item.email ? ` · ${item.email}` : ''}`, tier: item.mxValid ? 'S' : 'A', score: item.mxValid ? 92 : 78, stage: item.replied ? 'engaged' : 'new', dealValue: 0, createdAt: new Date().toISOString() }, ...prev]);
               Message.success(isZh ? `已入库「${item.companyName}」` : 'Added to CRM');
             }}
-            onCheckImapReplies={handleCheckImapReplies}
+            onCheckImapReplies={() => void handleCheckImapReplies()}
             onRunCrawlerMcp={async () => {
-              if (!bridge?.runCrawlerMcp) return;
+              if (!bridge?.runCrawlerMcp) return Message.warning(isZh ? '请打开桌面工作台' : 'Open the desktop workbench');
+              const target = crawlTarget.trim() || `https://www.europages.co.uk/companies/${encodeURIComponent(b2bIndustry)}.html`;
+              if (!URL.canParse(target) || !/^https?:\/\//i.test(target)) return Message.warning(isZh ? '请输入完整网页地址' : 'Enter an HTTP(S) page URL');
               setCrawlingMcp(true);
-              const res = await bridge.runCrawlerMcp({ endpoint: settings.crawlerMcpUrl || 'http://localhost:11235/crawl', targetUrl: `https://www.europages.co.uk/companies/${encodeURIComponent(b2bIndustry)}.html` });
-              setCrawlingMcp(false);
-              Message[res.ok ? 'success' : 'warning'](res.ok ? (isZh ? 'Crawl4AI 抓取完成' : 'Crawl4AI done') : res.error || 'Failed');
+              try {
+                const res = await bridge.runCrawlerMcp({ endpoint: settings.crawlerMcpUrl || 'http://localhost:11235/crawl', targetUrl: target, token: settings.crawlerToken });
+                if (!res.ok) return Message.error(res.error || 'Crawl4AI failed');
+                const rows = crawlerProspects(res.data, target, b2bIndustry, b2bCountry);
+                if (!rows.length) return Message.warning(isZh ? '未发现结构化企业记录，可打开目录后手动提取' : 'No structured company records. Try directory extraction.');
+                setProspects(prev => mergeProspects(prev, rows));
+                Message.success(isZh ? `已合并 ${rows.length} 条企业记录` : `Merged ${rows.length} company records`);
+              } catch (error) {
+                Message.error(String(error));
+              } finally {
+                setCrawlingMcp(false);
+              }
             }}
             onPrefillSocialDm={async (url, text) => {
               await handleOpenIsolatedWindow(b2bPartition, url, 'Global DM Outreach');
@@ -783,8 +834,7 @@ const LeadGenStudioPage: React.FC = () => {
             }
             onSyncPostClicks={async (post) => {
               if (!activeMcpKey || !bridge?.callAiToEarnMcp) {
-                setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, clicks: (p.clicks ?? 0) + 1 } : p)));
-                return Message.info(isZh ? '已记录 +1 归因点击' : 'Recorded +1 click');
+                return Message.info(isZh ? '请配置渠道统计接口后同步' : 'Configure channel analytics to sync clicks');
               }
               const res = await bridge.callAiToEarnMcp({ endpoint: activeMcpEndpoint, apiKey: activeMcpKey, method: 'tools/call', params: { name: 'short_link_stats', arguments: { shortLinkUrl: post.shortLinkUrl || '', postId: post.id } } });
               const data = (res.data ?? {}) as Record<string, unknown>;
@@ -840,7 +890,7 @@ const LeadGenStudioPage: React.FC = () => {
           cronEnabled={cronEnabled}
           setCronEnabled={setCronEnabled}
           checkingImap={checkingImap}
-          onCheckImapReplies={handleCheckImapReplies}
+          onCheckImapReplies={() => void handleCheckImapReplies()}
           onTriggerCronTest={async () => {
             if (!settings.imWebhookUrl) return setSettingsModalOpen(true);
             const res = await bridge?.triggerImWebhook?.({ webhookUrl: settings.imWebhookUrl, title: '每日获客汇总', content: `待发布: ${posts.length} | 企业池: ${prospects.length} | 线索: ${leads.length}` });
