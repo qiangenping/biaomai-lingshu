@@ -400,21 +400,21 @@ const Layout: React.FC<{
                 )}
               >
                 <div
-                  className={classNames('shrink-0 size-32px relative rd-8px overflow-hidden bg-[#0A0A0C] flex items-center justify-center shadow-sm', {
+                  className={classNames('shrink-0 size-32px relative rd-8px overflow-hidden bg-[#0F172A] flex items-center justify-center shadow-sm border border-solid border-[#1E293B]', {
                     '!size-24px !rd-6px': collapsed,
                   })}
                   onClick={onClick}
                 >
                   <svg className='size-full' viewBox='0 0 80 80' fill='none'>
-                    <rect width='80' height='80' rx='18' fill='#0A0A0C' />
+                    <rect width='80' height='80' rx='18' fill='#0F172A' />
                     <path
-                      d='M26 18 H47 L58 29 V58 C58 60.2 56.2 62 54 62 H26 C23.8 62 22 60.2 22 58 V22 C22 19.8 23.8 18 26 18 Z'
-                      stroke='#6B7280'
-                      strokeWidth='4.2'
+                      d='M25 18 H46 L57 29 V58 C57 60.2 55.2 62 53 62 H25 C22.8 62 21 60.2 21 58 V22 C21 19.8 22.8 18 25 18 Z'
+                      stroke='#F8FAFC'
+                      strokeWidth='4.5'
                       strokeLinejoin='round'
                     />
-                    <path d='M46 18 V27 C46 28.6 47.4 30 49 30 H58' stroke='#6B7280' strokeWidth='4.2' strokeLinejoin='round' />
-                    <circle cx='66' cy='43' r='4.2' fill='#3FE0D0' />
+                    <path d='M45 18 V27 C45 28.6 46.4 30 48 30 H57' stroke='#CBD5E1' strokeWidth='4.5' strokeLinejoin='round' />
+                    <circle cx='66' cy='43' r='4.8' fill='#3FE0D0' />
                   </svg>
                 </div>
                 {isSettingsRoute ? (

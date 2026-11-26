@@ -132,14 +132,14 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
         />
       </div>
 
-      <div className='flex items-center gap-8px flex-wrap'>
+      <div className='grid grid-cols-3 gap-8px'>
         <Button type='primary' icon={<IconEdit />} loading={creatingCopy} onClick={onAiGenerateCopy} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
           {isZh ? 'AI 生成文案' : 'Generate Copy'}
         </Button>
-        <Button type='outline' icon={<IconImage />} loading={creatingImg} onClick={onAiGenerateImage}>
+        <Button type='secondary' icon={<IconImage />} loading={creatingImg} onClick={onAiGenerateImage}>
           {isZh ? '生成封面配图' : 'Cover Visual'}
         </Button>
-        <Button type='outline' icon={<IconVideoCamera />} loading={creatingVideo} onClick={onAiGenerateVideo}>
+        <Button type='secondary' icon={<IconVideoCamera />} loading={creatingVideo} onClick={onAiGenerateVideo}>
           {isZh ? (targetLang !== 'zh-CN' ? 'AI 视频 + 配音' : 'AI 短视频') : 'AI Video'}
         </Button>
       </div>
@@ -168,7 +168,7 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
       </div>
 
       <div className='flex justify-end pt-2px'>
-        <Button type='primary' onClick={onSaveToSchedule} style={{ background: '#0F172A', borderColor: '#0F172A' }}>
+        <Button type='primary' onClick={onSaveToSchedule} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
           <span className='flex items-center gap-6px'>
             {isZh ? '保存草稿并进入排期分发' : 'Save & Continue to Publish'}
             <IconArrowRight />
