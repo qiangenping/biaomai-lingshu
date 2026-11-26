@@ -1,0 +1,42 @@
+{
+  "name": "plugin-oss-openmotion",
+  "displayName": {
+    "zh-CN": "OpenMotion 动效视频工坊插件 (nexu-io/openmotion)",
+    "en-US": "OpenMotion Agentic Video Studio Plugin"
+  },
+  "version": "1.0.0",
+  "description": {
+    "zh-CN": "封装 Apache-2.0 开源项目 nexu-io/openmotion：将产品卖点与参考链接转化为可编辑 Motion.md 分镜脚本、HTML5 动效预览及 MP4 视频工程。",
+    "en-US": "Wraps Apache-2.0 nexu-io/openmotion to turn product pitches into editable Motion.md storyboards, HTML5 motion graphics, and MP4 exports."
+  },
+  "author": "BiaoMai Lingshu & Nexu (Apache-2.0)",
+  "license": "Apache-2.0",
+  "category": "leadgen",
+  "i18n": { "localesDir": "i18n", "defaultLocale": "en-US" },
+  "permissions": {
+    "fsReadPaths": ["./exports", "./openmotion-projects"],
+    "fsWritePaths": ["./exports", "./openmotion-projects"],
+    "netDomains": ["*"],
+    "browserCdp": true,
+    "shellExec": false,
+    "imNotify": false,
+    "defaultApproval": "ask-once",
+    "alwaysAskActions": ["generate_openmotion_video"]
+  },
+  "contributes": {
+    "skills": [
+      {
+        "name": "openmotion-video",
+        "description": {
+          "zh-CN": "OpenMotion 动效视频工坊：生成可编辑 Motion.md 分镜与 HTML5/MP4 短视频",
+          "en-US": "Generate editable Motion.md storyboards & HTML5/MP4 motion videos"
+        },
+        "file": "skills/openmotion-video/SKILL.en.md",
+        "localizedFiles": {
+          "zh-CN": "skills/openmotion-video/SKILL.zh.md",
+          "en-US": "skills/openmotion-video/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}

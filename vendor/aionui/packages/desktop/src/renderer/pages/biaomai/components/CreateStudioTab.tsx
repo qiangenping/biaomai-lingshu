@@ -46,6 +46,7 @@ interface CreateStudioTabProps {
   onAiGenerateCopy: () => void;
   onAiGenerateImage: () => void;
   onAiGenerateVideo: () => void;
+  onGenerateOpenMotion: () => void;
   onSaveToSchedule: () => void;
 }
 
@@ -76,6 +77,7 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
   onAiGenerateCopy,
   onAiGenerateImage,
   onAiGenerateVideo,
+  onGenerateOpenMotion,
   onSaveToSchedule,
 }) => (
   <div className='grid grid-cols-1 lg:grid-cols-12 gap-18px items-start'>
@@ -132,7 +134,7 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
         />
       </div>
 
-      <div className='grid grid-cols-3 gap-8px'>
+      <div className='grid grid-cols-2 sm:grid-cols-4 gap-8px'>
         <Button type='primary' icon={<IconEdit />} loading={creatingCopy} onClick={onAiGenerateCopy} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
           {isZh ? 'AI 生成文案' : 'Generate Copy'}
         </Button>
@@ -141,6 +143,9 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
         </Button>
         <Button type='secondary' icon={<IconVideoCamera />} loading={creatingVideo} onClick={onAiGenerateVideo}>
           {isZh ? (targetLang !== 'zh-CN' ? 'AI 视频 + 配音' : 'AI 短视频') : 'AI Video'}
+        </Button>
+        <Button type='outline' icon={<IconVideoCamera />} loading={creatingVideo} onClick={onGenerateOpenMotion}>
+          {isZh ? 'OpenMotion 动效' : 'OpenMotion'}
         </Button>
       </div>
 
