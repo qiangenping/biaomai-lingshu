@@ -92,3 +92,17 @@
   font-size: 13px !important;
   font-weight: 500 !important;
 }
+
+.biaomai-workbench-root .biaomai-launch-btn {
+  height: 30px !important;
+  background-color: rgba(79, 70, 229, 0.08) !important;
+  color: #4f46e5 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+}
+
+.biaomai-workbench-root .biaomai-launch-btn:hover {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
