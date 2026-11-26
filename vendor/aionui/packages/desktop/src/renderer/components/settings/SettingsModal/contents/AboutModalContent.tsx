@@ -111,30 +111,32 @@ const AboutModalContent: React.FC = () => {
     }
   };
 
+  const repoUrl = 'https://github.com/qiangenping/biaomai-lingshu';
+
   const linkItems: LinkItem[] = [
     {
       title: t('settings.helpDocumentation'),
-      url: 'https://github.com/iOfficeAI/AionUi/wiki',
+      url: 'https://biao5fen.com',
       icon: <Right theme='outline' size='16' className='rtl-mirror' />,
     },
     {
       title: t('settings.updateLog'),
-      url: 'https://github.com/iOfficeAI/AionUi/releases',
+      url: `${repoUrl}/releases`,
       icon: <Right theme='outline' size='16' className='rtl-mirror' />,
     },
     {
       title: t('settings.bugReport'),
-      onClick: () => setShowFeedbackModal(true),
+      url: `${repoUrl}/issues`,
       icon: <Right theme='outline' size='16' className='rtl-mirror' />,
     },
     {
-      title: t('settings.contactMe'),
-      url: 'https://x.com/WailiVery',
+      title: `${t('settings.contactMe')} (genpingqian@gmail.com)`,
+      url: 'mailto:genpingqian@gmail.com',
       icon: <Right theme='outline' size='16' className='rtl-mirror' />,
     },
     {
-      title: t('settings.officialWebsite'),
-      url: 'https://www.aionui.com',
+      title: `${t('settings.officialWebsite')} (biao5fen.com)`,
+      url: 'https://biao5fen.com',
       icon: <Right theme='outline' size='16' className='rtl-mirror' />,
     },
   ];
@@ -169,7 +171,7 @@ const AboutModalContent: React.FC = () => {
               <div
                 className='text-t-primary cursor-pointer hover:text-[#4F46E5] transition-colors p-6px rd-8px hover:bg-fill-2 flex items-center'
                 onClick={() =>
-                  openLink('https://github.com/iOfficeAI/AionUi').catch((error) =>
+                  openLink(repoUrl).catch((error) =>
                     console.error('Failed to open link:', error)
                   )
                 }
