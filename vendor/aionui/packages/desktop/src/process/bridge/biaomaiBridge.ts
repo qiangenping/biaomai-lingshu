@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserWindow, dialog, ipcMain, session } from 'electron';
+import { BrowserWindow, clipboard, dialog, ipcMain, session } from 'electron';
 import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import dns from 'node:dns/promises';
 import fs from 'node:fs';
@@ -80,7 +80,22 @@ export function initBiaoMaiBridge(): void {
     }
   );
 
-  // 2. Real Live Visible-DOM Comment Extractor (Zero Hidden Scraping + Mandatory PII Sanitizer)
+  // 1b. List currently open isolated browser sessions
+  ipcMain.handle('biaomai:list-open-browsers', async () => {
+    const items: Array<{ partition: string; title: string; url: string }> = [];
+    for (const [partition, win] of isolatedWindows.entries()) {
+      if (!win.isDestroyed()) {
+        items.push({
+          partition,
+          title: win.getTitle() || partition,
+          url: win.webContents.getURL() || '',
+        });
+      }
+    }
+    return { ok: true, windows: items };
+  });
+
+  // 2. Real Live Visible-DOM Comment Extractor (Multi-Platform + Author + Mandatory PII Sanitizer)
   ipcMain.handle('biaomai:extract-browser-comments', async (_evt, payload: { partition: string }) => {
     const win = isolatedWindows.get(payload.partition);
     if (!win || win.isDestroyed()) {
@@ -88,34 +103,99 @@ export function initBiaoMaiBridge(): void {
     }
 
     try {
-      const rawList = (await win.webContents.executeJavaScript(`
+      const extracted = (await win.webContents.executeJavaScript(`
         (() => {
-          const selectors = '[class*="comment"], [data-e2e*="comment"], [class*="reply"], article p, li p';
-          const nodes = Array.from(document.querySelectorAll(selectors));
-          const seen = new Set();
           const out = [];
-          for (let i = 0; i < nodes.length && out.length < 30; i++) {
-            const el = nodes[i];
-            const rect = el.getBoundingClientRect();
-            if (rect.width === 0 || rect.height === 0) continue;
-            const text = (el.innerText || '').trim();
-            if (text.length < 4 || text.length > 260 || seen.has(text)) continue;
-            seen.add(text);
-            out.push({ id: 'dom_' + i, text });
-          }
-          return out;
-        })();
-      `)) as Array<{ id: string; text: string }>;
+          const seen = new Set();
+          const pushItem = (author, text, idx) => {
+            const clean = (text || '').replace(/\\s+/g, ' ').trim();
+            if (clean.length < 3 || clean.length > 280 || seen.has(clean)) return;
+            seen.add(clean);
+            out.push({ id: 'dom_' + idx + '_' + Date.now(), author: (author || '').trim().slice(0, 40), text: clean });
+          };
 
-      const sanitized = rawList.map((item) => {
+          // Platform-specific structured comment containers (XHS, Douyin, Zhihu, YouTube, LinkedIn, Bilibili)
+          const itemContainers = Array.from(document.querySelectorAll(
+            '.comment-item, [data-e2e="comment-item"], .CommentItemV2, ytd-comment-thread-renderer, .comments-comment-item, .reply-item'
+          ));
+          for (let i = 0; i < itemContainers.length && out.length < 30; i++) {
+            const c = itemContainers[i];
+            const rect = c.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) continue;
+            const authorEl = c.querySelector('.author-wrapper .name, .user-name, [data-e2e="comment-username"], #author-text, .UserLink-link, .comments-post-meta__name-text, a[href*="user"]');
+            const textEl = c.querySelector('.content, .note-text, [data-e2e="comment-text"], .CommentContent, #content-text, .comments-comment-item__main-content, p');
+            pushItem(authorEl?.innerText || '', textEl?.innerText || c.innerText || '', i);
+          }
+
+          // Generic visible DOM fallback
+          if (out.length === 0) {
+            const selectors = '[class*="comment"], [data-e2e*="comment"], [class*="reply"], article p, li p';
+            const nodes = Array.from(document.querySelectorAll(selectors));
+            for (let i = 0; i < nodes.length && out.length < 30; i++) {
+              const el = nodes[i];
+              const rect = el.getBoundingClientRect();
+              if (rect.width === 0 || rect.height === 0) continue;
+              pushItem('', el.innerText || '', i);
+            }
+          }
+          return { pageTitle: document.title || '', comments: out };
+        })();
+      `)) as { pageTitle: string; comments: Array<{ id: string; author?: string; text: string }> };
+
+      const sanitized = (extracted.comments || []).map((item) => {
         const clean = sanitizePiiText(item.text);
-        return { id: item.id, text: clean.text, redacted: clean.redacted };
+        return { id: item.id, author: item.author || '', text: clean.text, redacted: clean.redacted };
       });
-      return { ok: true, url: win.webContents.getURL(), comments: sanitized };
+      return { ok: true, url: win.webContents.getURL(), pageTitle: extracted.pageTitle, comments: sanitized };
     } catch (err) {
       return { ok: false, error: err instanceof Error ? err.message : String(err), comments: [] };
     }
   });
+
+  // 2b. Copy & Prefill Creator Post Draft in Isolated Browser (Human-in-the-Loop)
+  ipcMain.handle(
+    'biaomai:prefill-creator-post',
+    async (_evt, payload: { partition: string; title: string; body: string }) => {
+      const fullText = `${payload.title}\n\n${payload.body}`.trim();
+      clipboard.writeText(fullText);
+      const win = isolatedWindows.get(payload.partition);
+      if (!win || win.isDestroyed()) {
+        return { ok: true, copied: true, filled: false };
+      }
+      try {
+        const safeTitle = JSON.stringify(payload.title || '');
+        const safeBody = JSON.stringify(payload.body || '');
+        const filled = await win.webContents.executeJavaScript(`
+          (() => {
+            let ok = false;
+            const titleInput = document.querySelector('input[placeholder*="标题"], input[placeholder*="title" i], textarea[placeholder*="标题"]');
+            if (titleInput) {
+              titleInput.focus();
+              titleInput.value = ${safeTitle};
+              titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+              ok = true;
+            }
+            const bodyInput = document.querySelector('[contenteditable="true"], textarea[placeholder*="正文"], textarea[placeholder*="内容"], textarea[placeholder*="描述"], textarea');
+            if (bodyInput && bodyInput !== titleInput) {
+              bodyInput.focus();
+              if (bodyInput.isContentEditable) {
+                bodyInput.textContent = ${safeBody};
+              } else {
+                bodyInput.value = ${safeBody};
+              }
+              bodyInput.dispatchEvent(new Event('input', { bubbles: true }));
+              ok = true;
+            }
+            return ok;
+          })();
+        `);
+        win.focus();
+        return { ok: true, copied: true, filled: Boolean(filled) };
+      } catch {
+        return { ok: true, copied: true, filled: false };
+      }
+    }
+  );
 
   // 3. Semantic Competitor Post Extractor from Visible Browser Tab (Stagehand-style structured DOM summary)
   ipcMain.handle('biaomai:extract-browser-page-formula', async (_evt, payload: { partition: string }) => {

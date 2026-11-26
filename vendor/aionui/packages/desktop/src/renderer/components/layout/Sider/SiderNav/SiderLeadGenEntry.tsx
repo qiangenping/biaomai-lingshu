@@ -11,6 +11,7 @@ import { Tooltip } from '@arco-design/web-react';
 import {
   IconApps,
   IconCompass,
+  IconDesktop,
   IconDown,
   IconEdit,
   IconRight,
@@ -49,6 +50,7 @@ const SiderLeadGenEntry: React.FC<SiderLeadGenEntryProps> = ({
   const subItems = [
     { id: 'create', label: isZh ? '内容创作' : 'Create Studio', icon: <IconEdit /> },
     { id: 'publish', label: isZh ? '渠道分发' : 'Omni-Publish', icon: <IconSend /> },
+    { id: 'browser', label: isZh ? 'AI 浏览器' : 'AI Browser', icon: <IconDesktop /> },
     { id: 'engage', label: isZh ? '社媒雷达' : 'Intent Radar', icon: <IconSearch /> },
     { id: 'outbound', label: isZh ? '企业寻客' : 'Global & CN B2B', icon: <IconCompass /> },
     { id: 'crm', label: isZh ? '线索 CRM' : 'Lead CRM', icon: <IconUserGroup /> },

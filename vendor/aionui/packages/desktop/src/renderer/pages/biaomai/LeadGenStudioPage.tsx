@@ -37,6 +37,7 @@ import {
 } from './types';
 import { CreateStudioTab } from './components/CreateStudioTab';
 import { OmniPublishTab } from './components/OmniPublishTab';
+import { AiBrowserTab } from './components/AiBrowserTab';
 import { IntentRadarTab } from './components/IntentRadarTab';
 import { ProspectorOutboundTab } from './components/ProspectorOutboundTab';
 import { LeadCrmTab } from './components/LeadCrmTab';
@@ -46,6 +47,7 @@ import { StudioModals } from './components/StudioModals';
 const studioSections = [
   ['create', '内容创作', 'Content'],
   ['publish', '渠道发布', 'Publishing'],
+  ['browser', 'AI 浏览器', 'AI Browser'],
   ['engage', '意向雷达', 'Intent radar'],
   ['outbound', '企业寻客', 'Prospecting'],
   ['crm', '线索管理', 'Lead CRM'],
@@ -148,6 +150,18 @@ const LeadGenStudioPage: React.FC = () => {
   const [openMotionRunning, setOpenMotionRunning] = useState(false);
   const [openMotionBusy, setOpenMotionBusy] = useState(false);
   const [systemModelReady, setSystemModelReady] = useState(false);
+  const [creatingAll, setCreatingAll] = useState(false);
+  const [browserUrl, setBrowserUrl] = useState('https://creator.xiaohongshu.com/');
+  const [browserPartition, setBrowserPartition] = useState('persist:bm-acc-xiaohongshu-default');
+
+  const openInBuiltInBrowser = (url: string, partition?: string) => {
+    if (partition) {
+      setBrowserPartition(partition);
+      setSelectedPartition(partition);
+    }
+    setBrowserUrl(url);
+    setActiveTab('browser');
+  };
 
   useEffect(() => {
     void ipcBridge.mode.listProviders
@@ -397,15 +411,29 @@ const LeadGenStudioPage: React.FC = () => {
     }
   };
 
+  const handleGenerateAll = async () => {
+    setCreatingAll(true);
+    try {
+      await handleAiGenerateCopy();
+      await handleAiGenerateImage();
+      await handleGenerateOpenMotion();
+    } finally {
+      setCreatingAll(false);
+    }
+  };
+
   const handleSaveToSchedule = () => {
-    if (!draftTitle.trim()) return Message.warning(isZh ? '请先输入或生成标题' : 'Enter a title first');
+    const title = (draftTitle || topicInput).trim();
+    if (!title) return Message.warning(isZh ? '请先输入或生成标题' : 'Enter a title first');
     const newPost: LocalPost = {
       id: `post_${Date.now()}`,
       platformId: createPlatform,
-      title: draftTitle.trim(),
+      title,
       body: draftBody.trim(),
       imageUrl: draftImageUrl || undefined,
       videoUrl: draftVideoUrl || undefined,
+      motionUrl: draftMotionUrl || undefined,
+      motionHtml: draftMotionHtml || undefined,
       shortLinkUrl: draftShortLink.trim() || undefined,
       clicks: 0,
       scheduledAt: scheduledTime,
@@ -416,6 +444,32 @@ const LeadGenStudioPage: React.FC = () => {
     setActiveTab('publish');
     navigate('/leadgen?tab=publish');
     Message.success(isZh ? '已加入排期日历' : 'Added to Calendar');
+  };
+
+  const handlePublishNowInBrowser = () => {
+    const title = (draftTitle || topicInput).trim();
+    if (!title) return Message.warning(isZh ? '请先一键生成或输入标题' : 'Generate or enter a title first');
+    const newPost: LocalPost = {
+      id: `post_${Date.now()}`,
+      platformId: createPlatform,
+      title,
+      body: draftBody.trim(),
+      imageUrl: draftImageUrl || undefined,
+      videoUrl: draftVideoUrl || undefined,
+      motionUrl: draftMotionUrl || undefined,
+      motionHtml: draftMotionHtml || undefined,
+      shortLinkUrl: draftShortLink.trim() || undefined,
+      clicks: 0,
+      scheduledAt: scheduledTime,
+      status: 'scheduled',
+      createdAt: new Date().toISOString(),
+    };
+    setPosts((prev) => [newPost, ...prev]);
+    void navigator.clipboard?.writeText(`${newPost.title}\n\n${newPost.body}`.trim());
+    const acc = accounts.find((a) => a.platformId === createPlatform);
+    const partition = acc?.partition || `persist:bm-acc-${createPlatform}-default`;
+    openInBuiltInBrowser(selectedCreatePlatform.creatorUrl, partition);
+    Message.success(isZh ? '已保存草稿并打开内置 AI 浏览器（点击右侧「一键回填」即可填入）' : 'Saved & opened in AI Browser');
   };
 
   const handleOpenIsolatedWindow = async (partition: string, url: string, label: string) => {
@@ -439,30 +493,20 @@ const LeadGenStudioPage: React.FC = () => {
 
   const handleConfirmPublish = (post: LocalPost) => {
     const plat = ALL_PLATFORMS.find((p) => p.id === post.platformId);
-    Modal.confirm({
-      title: isZh ? '人工确认发布（合规门禁）' : 'Human-in-the-Loop Publish Confirmation',
-      content: isZh ? `即将发布到「${plat?.nameZh ?? post.platformId}」：${post.title}` : `Publish to "${plat?.nameEn ?? post.platformId}": ${post.title}`,
-      okText: isZh ? '确认发布' : 'Confirm Publish',
-      cancelText: isZh ? '取消' : 'Cancel',
-      onOk: async () => {
-        if (activeMcpKey && bridge?.callAiToEarnMcp) {
-          const mcpRes = await bridge.callAiToEarnMcp({
-            endpoint: activeMcpEndpoint,
-            apiKey: activeMcpKey,
-            method: 'tools/call',
-            params: { name: 'publish_now', arguments: { platform: post.platformId, title: post.title, content: post.body, mediaUrl: post.imageUrl } },
-          });
-          if (mcpRes.ok) {
-            setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, status: 'published' } : p)));
-            return Message.success(isZh ? '已通过 AiToEarn MCP 发布成功' : 'Published via AiToEarn MCP');
-          }
-        }
-        const acc = accounts.find((a) => a.platformId === post.platformId);
-        const partition = acc?.partition || `persist:bm-acc-${post.platformId}-default`;
-        if (plat) await handleOpenIsolatedWindow(partition, plat.creatorUrl, acc?.label || plat.nameZh);
-        setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, status: 'published' } : p)));
-      },
-    });
+    const acc = accounts.find((a) => a.platformId === post.platformId);
+    const partition = acc?.partition || `persist:bm-acc-${post.platformId}-default`;
+    void navigator.clipboard?.writeText(`${post.title}\n\n${post.body}`.trim());
+    openInBuiltInBrowser(plat?.creatorUrl || 'https://creator.xiaohongshu.com/', partition);
+    Message.success(
+      isZh
+        ? `已打开「${plat?.nameZh ?? post.platformId}」并复制草稿，请在右侧点「一键回填」，发出后点击「标记已发布」`
+        : `Opened ${plat?.nameEn ?? post.platformId} in AI Browser & copied draft`
+    );
+  };
+
+  const handleMarkPublished = (postId: string) => {
+    setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, status: 'published' } : p)));
+    Message.success(isZh ? '已标记为已发布并计入 ROI 归因' : 'Marked as published');
   };
 
   const handleExtractLiveBrowserComments = async () => {
@@ -525,8 +569,22 @@ const LeadGenStudioPage: React.FC = () => {
   };
 
   const handleAddToCrm = (item: AnalyzedComment) => {
-    setLeads((prev) => [{ id: `lead_${Date.now()}`, platformId: radarPlatform, nickname: `Prospect_${leads.length + 1}`, sanitizedComment: item.text, tier: item.tier, score: item.score, stage: 'new', dealValue: 0, createdAt: new Date().toISOString() }, ...prev]);
-    Message.success(isZh ? '已入库本地线索 CRM' : 'Added to CRM');
+    setLeads((prev) => [
+      {
+        id: `lead_${Date.now()}`,
+        platformId: radarPlatform,
+        nickname: item.author || `Prospect_${leads.length + 1}`,
+        sanitizedComment: item.text,
+        notes: item.sourceUrl ? `来源: ${item.sourceUrl}` : undefined,
+        tier: item.tier,
+        score: item.score,
+        stage: 'new',
+        dealValue: 0,
+        createdAt: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
+    Message.success(isZh ? `已入库线索「${item.author || '新意向客户'}」` : 'Added to CRM');
   };
 
   const b2bPartition = 'persist:bm-b2b-global-radar';
@@ -710,9 +768,10 @@ const LeadGenStudioPage: React.FC = () => {
     ? { new: '新意向', engaged: '已回复', qualified: '已留资', opportunity: '商机', won: '已成交' }
     : { new: 'New', engaged: 'Engaged', qualified: 'Qualified', opportunity: 'Opportunity', won: 'Won' };
 
-  const sectionMeta: Record<'create' | 'publish' | 'engage' | 'outbound' | 'crm' | 'packs', { zh: string; en: string }> = {
+  const sectionMeta: Record<'create' | 'publish' | 'browser' | 'engage' | 'outbound' | 'crm' | 'packs', { zh: string; en: string }> = {
     create: { zh: '内容创作', en: 'Create Studio' },
     publish: { zh: '渠道分发', en: 'Omni-Publish' },
+    browser: { zh: '内置 AI 浏览器', en: 'AI Browser' },
     engage: { zh: '社媒雷达', en: 'Intent Radar' },
     outbound: { zh: '企业寻客', en: 'Global & CN Outbound' },
     crm: { zh: '线索 CRM', en: 'Lead CRM' },
@@ -781,6 +840,7 @@ const LeadGenStudioPage: React.FC = () => {
             setTargetLang={setTargetLang}
             topicInput={topicInput}
             setTopicInput={setTopicInput}
+            creatingAll={creatingAll}
             creatingCopy={creatingCopy}
             creatingImg={creatingImg}
             creatingVideo={creatingVideo}
@@ -800,11 +860,25 @@ const LeadGenStudioPage: React.FC = () => {
             scheduledTime={scheduledTime}
             setScheduledTime={setScheduledTime}
             selectedCreatePlatform={selectedCreatePlatform}
+            recentPosts={posts}
+            onLoadHistoryPost={(post) => {
+              setCreatePlatform(post.platformId);
+              setDraftTitle(post.title);
+              setDraftBody(post.body);
+              setDraftImageUrl(post.imageUrl || '');
+              setDraftVideoUrl(post.videoUrl || '');
+              setDraftMotionUrl(post.motionUrl || '');
+              setDraftMotionHtml(post.motionHtml || '');
+              setDraftShortLink(post.shortLinkUrl || '');
+              setScheduledTime(post.scheduledAt);
+              Message.info(isZh ? `已回填草稿「${post.title}」` : 'Loaded draft');
+            }}
+            onGenerateAll={() => void handleGenerateAll()}
             onAiGenerateCopy={handleAiGenerateCopy}
             onAiGenerateImage={handleAiGenerateImage}
-            onAiGenerateVideo={handleAiGenerateVideo}
             onGenerateOpenMotion={handleGenerateOpenMotion}
             onSaveToSchedule={handleSaveToSchedule}
+            onPublishNowInBrowser={handlePublishNowInBrowser}
           />
         )}
 
@@ -820,13 +894,45 @@ const LeadGenStudioPage: React.FC = () => {
             setAccPlatform={setAccPlatform}
             accLabel={accLabel}
             setAccLabel={setAccLabel}
-            onOpenIsolatedWindow={handleOpenIsolatedWindow}
+            onOpenIsolatedWindow={(partition, url) => openInBuiltInBrowser(url, partition)}
             onAddAccount={handleAddAccount}
             onConfirmPublish={handleConfirmPublish}
+            onMarkPublished={handleMarkPublished}
             onDeletePost={(id) => {
               setPosts((prev) => prev.filter((p) => p.id !== id));
               Message.success(isZh ? '已删除排期记录' : 'Deleted post');
             }}
+          />
+        )}
+
+        {activeTab === 'browser' && (
+          <AiBrowserTab
+            isZh={isZh}
+            browserUrl={browserUrl}
+            setBrowserUrl={setBrowserUrl}
+            browserPartition={browserPartition}
+            setBrowserPartition={setBrowserPartition}
+            accounts={accounts}
+            latestDraft={draftTitle ? { title: draftTitle, body: draftBody } : null}
+            latestPost={posts[0] || null}
+            onOpenExternalWindow={handleOpenIsolatedWindow}
+            onExtractedComments={(comments) => {
+              setAnalyzedList(comments);
+              setActiveTab('engage');
+              Message.success(isZh ? `已抓取 ${comments.length} 条评论并送入社媒雷达` : `Extracted ${comments.length} comments`);
+            }}
+            onExtractedFormula={(formula) => {
+              setExtractedFormula(formula);
+              setTopicInput(`${isZh ? '参考竞品爆款原创改写' : 'Rewrite competitor formula'}：\n标题：${formula.title}\n要点：${formula.excerpt}`);
+              setActiveTab('create');
+              Message.success(isZh ? '已提取爆款结构并送入内容创作' : 'Sent formula to Create Studio');
+            }}
+            onExtractedProspects={(rows) => {
+              setProspects((prev) => mergeProspects(prev, rows));
+              setActiveTab('outbound');
+              Message.success(isZh ? `已提取 ${rows.length} 家企业并送入企业寻客` : `Extracted ${rows.length} companies`);
+            }}
+            onMarkPostPublished={handleMarkPublished}
           />
         )}
 
@@ -844,6 +950,11 @@ const LeadGenStudioPage: React.FC = () => {
             extractingFormula={extractingFormula}
             scoringWithLlm={scoringWithLlm}
             extractedFormula={extractedFormula}
+            onOpenInAiBrowser={(platId) => {
+              const p = ALL_PLATFORMS.find((x) => x.id === platId);
+              const exploreUrl = platId === 'xiaohongshu' ? 'https://www.xiaohongshu.com/explore' : p?.creatorUrl || 'https://www.zhihu.com/';
+              openInBuiltInBrowser(exploreUrl, `persist:bm-acc-${platId}-default`);
+            }}
             onExtractLiveComments={handleExtractLiveBrowserComments}
             onExtractCompetitorFormula={handleExtractCompetitorFormula}
             onSendToCreate={(text, plat) => {
@@ -852,6 +963,28 @@ const LeadGenStudioPage: React.FC = () => {
               setActiveTab('create');
             }}
             onAnalyzePasted={handleAnalyzePastedComments}
+            onLoadSampleComments={() => {
+              const sample = isZh
+                ? '这个标书查重怎么收费？求链接，加我微信 wx_bidding2026\n我们做工程投标的，支持私有化部署吗？多少钱一年？\n刚收藏了，请问支持暗标格式排查吗？联系电话 13800138000'
+                : 'How much is the pricing for team license? Please send link\nDoes it support self-hosted deployment?\nGreat breakdown, is there a tutorial?';
+              setRawCommentInput(sample);
+              const lines = sample.split('\n').map((l) => l.trim()).filter(Boolean);
+              setAnalyzedList(
+                lines
+                  .map((line, idx) => {
+                    const clean = sanitizePii(line);
+                    return {
+                      id: `sample_${Date.now()}_${idx}`,
+                      author: isZh ? `高意向用户_${idx + 1}` : `Buyer_${idx + 1}`,
+                      text: clean.text,
+                      redacted: clean.redacted,
+                      ...scoreComment(clean.text),
+                    };
+                  })
+                  .sort((a, b) => b.score - a.score)
+              );
+              Message.success(isZh ? '已载入示例评论并完成脱敏与 S/A 评分' : 'Loaded & scored sample comments');
+            }}
             onEnrichWithLlm={handleEnrichCommentsWithLlm}
             onPrefillReply={handlePrefillReplyToBrowser}
             onAddToCrm={handleAddToCrm}
@@ -888,8 +1021,29 @@ const LeadGenStudioPage: React.FC = () => {
             onGenerateColdEmail={handleGenerateColdEmail}
             onSendColdEmail={handleSendColdEmail}
             onAddProspectToCrm={(item) => {
-              setLeads((prev) => prev.some(l => l.id === `b2b_${item.id}`) ? prev : [{ id: `b2b_${item.id}`, platformId: 'global-b2b', nickname: item.companyName, sanitizedComment: `${item.country} · ${item.industry}${item.email ? ` · ${item.email}` : ''}`, tier: item.mxValid ? 'S' : 'A', score: item.mxValid ? 92 : 78, stage: item.replied ? 'engaged' : 'new', dealValue: 0, createdAt: new Date().toISOString() }, ...prev]);
-              Message.success(isZh ? `已入库「${item.companyName}」` : 'Added to CRM');
+              setLeads((prev) =>
+                prev.some((l) => l.id === `b2b_${item.id}`)
+                  ? prev
+                  : [
+                      {
+                        id: `b2b_${item.id}`,
+                        platformId: 'global-b2b',
+                        nickname: item.companyName,
+                        company: item.companyName,
+                        email: item.email || undefined,
+                        phone: item.phone || undefined,
+                        notes: item.website ? `官网: ${item.website}` : undefined,
+                        sanitizedComment: `${item.country} · ${item.industry}${item.snippet ? ` · ${item.snippet}` : ''}`,
+                        tier: item.mxValid ? 'S' : 'A',
+                        score: item.mxValid ? 92 : 78,
+                        stage: item.replied ? 'engaged' : 'new',
+                        dealValue: 0,
+                        createdAt: new Date().toISOString(),
+                      },
+                      ...prev,
+                    ]
+              );
+              Message.success(isZh ? `已入库「${item.companyName}」（含公司/邮箱/电话）` : 'Added to CRM');
             }}
             onCheckImapReplies={() => void handleCheckImapReplies()}
             onRunCrawlerMcp={async () => {
