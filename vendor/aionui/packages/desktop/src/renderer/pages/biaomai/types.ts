@@ -98,6 +98,12 @@ export interface BiaoMaiElectronBridge {
   prefillSocialDm: (payload: { partition: string; text: string }) => Promise<{ ok: boolean; error?: string; stopBeforeSubmit?: boolean }>;
   triggerImWebhook: (payload: { webhookUrl: string; title: string; content: string }) => Promise<{ ok: boolean; error?: string }>;
   runCrawlerMcp: (payload: { endpoint: string; targetUrl: string; token?: string }) => Promise<{ ok: boolean; data?: unknown; error?: string }>;
+  syncExternalCrm: (payload: {
+    provider: 'twenty' | 'atomic' | 'webhook';
+    baseUrl: string;
+    apiKey?: string;
+    leads: LocalLead[];
+  }) => Promise<{ ok: boolean; syncedCount: number; failedCount: number; error?: string }>;
 }
 
 export interface OutreachStep {
@@ -281,6 +287,10 @@ export interface LocalLead {
   id: string;
   platformId: string;
   nickname: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  notes?: string;
   sanitizedComment: string;
   tier: 'S' | 'A' | 'B' | 'C';
   score: number;
@@ -309,6 +319,9 @@ export interface StudioSettings {
   imWebhookUrl?: string;
   crawlerMcpUrl?: string;
   crawlerToken?: string;
+  crmProvider?: 'twenty' | 'atomic' | 'webhook';
+  crmBaseUrl?: string;
+  crmApiKey?: string;
 }
 
 export interface AnalyzedComment {

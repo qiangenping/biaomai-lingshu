@@ -97,6 +97,12 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
     ipcRenderer.invoke('biaomai:trigger-im-webhook', payload),
   runCrawlerMcp: (payload: { endpoint: string; targetUrl: string; token?: string }) =>
     ipcRenderer.invoke('biaomai:run-crawler-mcp', payload),
+  syncExternalCrm: (payload: {
+    provider: 'twenty' | 'atomic' | 'webhook';
+    baseUrl: string;
+    apiKey?: string;
+    leads: unknown[];
+  }) => ipcRenderer.invoke('biaomai:sync-external-crm', payload),
 });
 
 // Synchronously fetch the aioncore port and expose it to the renderer
