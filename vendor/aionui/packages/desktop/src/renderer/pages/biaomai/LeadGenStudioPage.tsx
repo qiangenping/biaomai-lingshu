@@ -679,7 +679,7 @@ const LeadGenStudioPage: React.FC = () => {
 
   return (
     <div className='biaomai-workbench-root h-full w-full overflow-y-auto overflow-x-hidden bg-2 text-t-primary box-border'>
-      <div className='w-full px-20px py-16px flex flex-col gap-16px box-border'>
+      <div className='w-full min-h-full px-20px py-16px flex flex-col gap-16px box-border'>
         {/* Slim Per-Feature Header */}
         <div className='flex items-center justify-between gap-12px flex-wrap pb-12px border-b border-solid border-[var(--color-border-2)]'>
           <div className='flex items-center gap-12px flex-wrap min-w-0'>

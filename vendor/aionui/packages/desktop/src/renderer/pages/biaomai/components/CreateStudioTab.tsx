@@ -80,8 +80,9 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
   onGenerateOpenMotion,
   onSaveToSchedule,
 }) => (
-  <div className='flex flex-col lg:flex-row gap-24px items-start w-full'>
-    <div className='flex-1 min-w-0 w-full p-24px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-16px'>
+  <div className='flex-1 flex flex-col lg:flex-row gap-20px items-stretch w-full min-h-[calc(100vh-136px)]'>
+    <div className='flex-1 min-w-0 w-full p-24px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col justify-between gap-16px'>
+      <div className='flex flex-col gap-16px flex-1'>
       <div className='flex items-center justify-between'>
         <div>
           <div className='text-15px font-600 text-t-primary'>
@@ -118,12 +119,12 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
         </div>
       </div>
 
-      <div className='flex flex-col gap-4px'>
+      <div className='flex flex-col gap-6px flex-1'>
         <label className='text-12px font-500 text-t-secondary'>
           {isZh ? '产品卖点与目标客户痛点' : 'Product Pitch & Target ICP Pain Points'}
         </label>
         <TextArea
-          rows={3}
+          rows={6}
           value={topicInput}
           onChange={setTopicInput}
           placeholder={
@@ -131,6 +132,7 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
               ? '输入产品卖点、目标客户痛点或要推广的主题，AI 将按所选平台生成高转化文案...'
               : 'Describe your product pitch & buyer pain points...'
           }
+          style={{ flex: 1, minHeight: 150 }}
         />
       </div>
 
@@ -158,9 +160,9 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
           <Progress percent={videoTaskProgress} size='small' showText={false} color='#4F46E5' />
         </div>
       )}
+      </div>
 
-      <div className='h-1px bg-[var(--color-border-2)]' />
-
+      <div className='flex flex-col gap-14px pt-8px border-t border-solid border-[var(--color-border-2)]'>
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-12px'>
         <div className='flex flex-col gap-4px'>
           <label className='text-12px font-500 text-t-secondary'>{isZh ? '归因短链 / UTM（可选）' : 'UTM / Short-Link'}</label>
@@ -180,17 +182,18 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
           </span>
         </Button>
       </div>
+      </div>
     </div>
 
-    <div className='w-full lg:w-340px shrink-0 flex justify-center'>
-      <div className='w-full p-10px rd-30px bg-[#0F172A] shadow-2xl border-2 border-solid border-[#334155]'>
+    <div className='w-full lg:w-360px shrink-0 flex'>
+      <div className='w-full h-full p-10px rd-30px bg-[#0F172A] shadow-xl border-2 border-solid border-[#334155] flex flex-col'>
         <div className='flex items-center justify-between px-14px pb-8px pt-2px text-white/75 text-10px font-600'>
           <span>9:41</span>
           <div className='w-76px h-16px rd-full bg-black' />
           <span>5G</span>
         </div>
 
-        <div className='rd-22px bg-1 overflow-hidden flex flex-col'>
+        <div className='rd-22px bg-1 overflow-hidden flex flex-col flex-1'>
           <div className='px-12px py-8px border-b border-solid border-[var(--color-border-2)] flex items-center justify-between text-12px'>
             <span className='font-600 flex items-center gap-6px'>
               <span
@@ -205,17 +208,17 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
           </div>
 
           {draftVideoUrl ? (
-            <video src={draftVideoUrl} controls className='w-full h-170px object-cover bg-black' />
+            <video src={draftVideoUrl} controls className='w-full h-220px object-cover bg-black' />
           ) : draftImageUrl ? (
-            <img src={draftImageUrl} alt='AI Cover' className='w-full h-170px object-cover' />
+            <img src={draftImageUrl} alt='AI Cover' className='w-full h-220px object-cover' />
           ) : (
-            <div className='h-148px bg-2 flex flex-col items-center justify-center gap-4px text-12px text-t-secondary border-b border-solid border-[var(--color-border-2)]'>
-              <IconImage style={{ fontSize: 22, opacity: 0.45 }} />
+            <div className='h-220px bg-2 flex flex-col items-center justify-center gap-6px text-12px text-t-secondary border-b border-solid border-[var(--color-border-2)]'>
+              <IconImage style={{ fontSize: 26, opacity: 0.45 }} />
               <span className='font-500'>{isZh ? '封面视觉预览' : 'Cover Preview'}</span>
             </div>
           )}
 
-          <div className='p-12px flex flex-col gap-6px'>
+          <div className='p-14px flex flex-col gap-8px flex-1'>
             <input
               value={draftTitle}
               onChange={(e) => setDraftTitle(e.target.value)}
@@ -223,11 +226,11 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
               className='w-full border-none outline-none bg-transparent text-14px font-700 text-t-primary'
             />
             <textarea
-              rows={4}
+              rows={6}
               value={draftBody}
               onChange={(e) => setDraftBody(e.target.value)}
               placeholder={isZh ? '正文与 CTA 钩子（生成后可直接在此编辑）...' : 'Body copy & CTA...'}
-              className='w-full resize-none border-none outline-none bg-transparent text-12px leading-relaxed text-t-secondary'
+              className='w-full flex-1 resize-none border-none outline-none bg-transparent text-12px leading-relaxed text-t-secondary'
             />
             {draftShortLink && (
               <div className='px-8px py-3px rd-6px bg-[rgba(79,70,229,0.08)] text-[#4F46E5] text-11px truncate'>
