@@ -566,14 +566,14 @@ const LeadGenStudioPage: React.FC = () => {
     : { new: 'New', engaged: 'Engaged', qualified: 'Qualified', opportunity: 'Opportunity', won: 'Won' };
 
   return (
-    <div className='h-full w-full overflow-y-auto bg-[var(--color-fill-1)] text-t-primary'>
-      <div className='max-w-1160px mx-auto px-24px py-18px flex flex-col gap-16px'>
-        <div className='flex items-center justify-between gap-12px flex-wrap pb-12px border-b border-solid border-[var(--color-border-2)]'>
+    <div className='h-full w-full overflow-y-auto bg-2 text-t-primary'>
+      <div className='max-w-1160px mx-auto px-28px py-22px flex flex-col gap-18px'>
+        <div className='flex items-center justify-between gap-12px flex-wrap pb-14px border-b border-solid border-[var(--color-border-2)]'>
           <div className='flex items-center gap-10px flex-wrap'>
             <h1 className='m-0 text-18px font-700 tracking-tight text-t-primary'>
               {isZh ? '全球获客工作台' : 'Global Lead-Gen Studio'}
             </h1>
-            <Select size='small' value={industryId} onChange={handleIndustryChange} style={{ width: 205 }}>
+            <Select size='small' value={industryId} onChange={handleIndustryChange} style={{ width: 200 }}>
               {INDUSTRY_PRESETS.map((p) => (
                 <Select.Option key={p.id} value={p.id}>{isZh ? p.nameZh : p.nameEn}</Select.Option>
               ))}
@@ -584,7 +584,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setGuideModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
             >
               <IconQuestionCircle />
               {isZh ? '使用指南' : 'Guide'}
@@ -592,7 +592,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setCronModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-5px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
             >
               <IconClockCircle />
               {isZh ? '定时巡检' : 'Cron'}
@@ -600,7 +600,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-30px px-10px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+              className='h-32px px-12px rd-8px border border-solid border-[var(--color-border-2)] bg-1 hover:bg-fill-2 text-12px font-500 text-t-primary cursor-pointer flex items-center gap-6px transition-colors shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
             >
               <span className='inline-block size-6px rd-full' style={{ background: settings.llmApiKey ? '#10B981' : '#F59E0B' }} />
               {settings.llmApiKey ? settings.llmModel : (isZh ? '模型未配置' : 'No LLM Key')}
@@ -608,7 +608,7 @@ const LeadGenStudioPage: React.FC = () => {
             <button
               type='button'
               onClick={() => setSettingsModalOpen(true)}
-              className='h-30px px-12px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors shadow-sm'
+              className='h-32px px-14px rd-8px border-none bg-[#4F46E5] hover:bg-[#4338CA] text-12px font-600 text-white cursor-pointer flex items-center gap-5px transition-colors shadow-sm'
             >
               <IconSettings />
               {isZh ? '接口配置' : 'Settings'}

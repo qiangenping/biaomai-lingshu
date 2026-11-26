@@ -38,6 +38,7 @@ import { useConversationShortcuts } from '@renderer/hooks/ui/useConversationShor
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { IS_DISCONTINUED_BUILD } from '@/renderer/utils/discontinuedBuild';
 import UpdateMigrationDialog from '@/renderer/components/settings/UpdateMigrationDialog';
+import biaoMaiBrandLogo from '@renderer/assets/logos/brand/app.png';
 import '@renderer/styles/layout.css';
 
 const SidebarIcon: React.FC<{ size?: number; strokeWidth?: number }> = ({ size = 18, strokeWidth = 4 }) => (
@@ -400,22 +401,12 @@ const Layout: React.FC<{
                 )}
               >
                 <div
-                  className={classNames('shrink-0 size-32px relative rd-8px overflow-hidden bg-[#0F172A] flex items-center justify-center shadow-sm border border-solid border-[#1E293B]', {
+                  className={classNames('shrink-0 size-32px relative rd-8px overflow-hidden shadow-sm', {
                     '!size-24px !rd-6px': collapsed,
                   })}
                   onClick={onClick}
                 >
-                  <svg className='size-full' viewBox='0 0 80 80' fill='none'>
-                    <rect width='80' height='80' rx='18' fill='#0F172A' />
-                    <path
-                      d='M25 18 H46 L57 29 V58 C57 60.2 55.2 62 53 62 H25 C22.8 62 21 60.2 21 58 V22 C21 19.8 22.8 18 25 18 Z'
-                      stroke='#F8FAFC'
-                      strokeWidth='4.5'
-                      strokeLinejoin='round'
-                    />
-                    <path d='M45 18 V27 C45 28.6 46.4 30 48 30 H57' stroke='#CBD5E1' strokeWidth='4.5' strokeLinejoin='round' />
-                    <circle cx='66' cy='43' r='4.8' fill='#3FE0D0' />
-                  </svg>
+                  <img src={biaoMaiBrandLogo} alt='标脉灵枢' className='size-full object-cover block' />
                 </div>
                 {isSettingsRoute ? (
                   <Tooltip content={t('common.back', { defaultValue: 'Back to Chat' })} position='bottom'>
