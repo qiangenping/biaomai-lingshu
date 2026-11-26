@@ -23,8 +23,8 @@ const ExtensionSettingsPage = React.lazy(() => import('@renderer/pages/settings/
 const LoginPage = React.lazy(() => import('@renderer/pages/login'));
 const ComponentsShowcase = React.lazy(() => import('@renderer/pages/TestShowcase'));
 const ScheduledTasksPage = React.lazy(() => import('@renderer/pages/cron/ScheduledTasksPage'));
+import LeadGenStudioPage from '@renderer/pages/biaomai/LeadGenStudioPage';
 const TaskDetailPage = React.lazy(() => import('@renderer/pages/cron/ScheduledTasksPage/TaskDetailPage'));
-const LeadGenStudioPage = React.lazy(() => import('@renderer/pages/biaomai/LeadGenStudioPage'));
 const TeamIndex = React.lazy(() => import('@renderer/pages/team'));
 
 const withRouteFallback = (Component: React.LazyExoticComponent<React.ComponentType>) => (
@@ -111,7 +111,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
           <Route path='/test/components' element={withRouteFallback(ComponentsShowcase)} />
           <Route path='/scheduled' element={withRouteFallback(ScheduledTasksPage)} />
           <Route path='/scheduled/:job_id' element={withRouteFallback(TaskDetailPage)} />
-          <Route path='/leadgen' element={withRouteFallback(LeadGenStudioPage)} />
+          <Route path='/leadgen' element={<LeadGenStudioPage />} />
         </Route>
         <Route path='*' element={<Navigate to={status === 'authenticated' ? '/leadgen' : '/login'} replace />} />
       </Routes>

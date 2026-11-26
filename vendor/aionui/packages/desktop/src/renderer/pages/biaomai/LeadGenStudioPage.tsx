@@ -221,42 +221,55 @@ const LeadGenStudioPage: React.FC = () => {
   };
 
   const handleAiGenerateCopy = async () => {
-    if (!topicInput.trim()) return Message.warning(isZh ? '请输入产品卖点或获客主题' : 'Enter a topic first');
+    const seedTopic = topicInput.trim() || b2bIndustry || (isZh ? '标脉灵枢全球 AI 获客工作台' : 'BiaoMai Lingshu AI Lead-Gen Workbench');
+    const platName = isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn;
     if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost') && !settings.llmBaseUrl.includes('127.0.0.1')) {
-      setSettingsModalOpen(true);
-      return Message.info(isZh ? '请先配置大模型 API Key' : 'Configure LLM API Key first');
+      const isEn = targetLang !== 'zh-CN';
+      setDraftTitle(
+        isEn
+          ? `${seedTopic} · ${platName} High-Converting Playbook`
+          : `🔥 ${seedTopic}｜${platName}高转化获客实战方案`
+      );
+      setDraftBody(
+        isEn
+          ? `1. Core Pain Point: Traditional outreach wastes 80% of time on low-intent leads.\n2. Solution: ${seedTopic} automates multi-channel publishing + intent capture.\n\n👉 Comment "DEMO" or click the link to get our pricing & setup guide.`
+          : `1. 行业痛点：传统获客获客成本高、线索转化慢、多平台运营耗人力。\n2. 解决方案：${seedTopic}，支持 17 大平台矩阵发布 + 评论区高意向秒级捕获。\n\n👉 评论区回复「方案」或点击私信，免费领取同款落地配置与报价！`
+      );
+      Message.success(isZh ? '已生成高转化获客文案（配置大模型 Key 后可启用深度 AI 改写）' : 'Generated template copy (add LLM Key for AI rewrite)');
+      return;
     }
     if (!bridge?.runLlm) return;
     setCreatingCopy(true);
-    const platName = isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn;
     const res = await bridge.runLlm({
       baseUrl: settings.llmBaseUrl,
       apiKey: settings.llmApiKey,
       model: settings.llmModel,
       systemPrompt: `You are an expert social media lead-generation copywriter. Output strict JSON with keys "title", "body", "cta". Target platform: ${platName} (aspect ${selectedCreatePlatform.aspect}). Output language: ${targetLang}.`,
-      userPrompt: topicInput.trim(),
+      userPrompt: seedTopic,
     });
     setCreatingCopy(false);
     if (!res.ok || !res.content) return Message.error(res.error || 'LLM request failed');
     try {
       const parsed = JSON.parse(res.content.replace(/```json\s*|```/g, '').trim()) as { title?: string; body?: string; cta?: string };
-      setDraftTitle(parsed.title || topicInput.trim());
+      setDraftTitle(parsed.title || seedTopic);
       setDraftBody(`${parsed.body || res.content}${parsed.cta ? `\n\n${parsed.cta}` : ''}`.trim());
     } catch {
       const lines = res.content.split('\n').filter(Boolean);
-      setDraftTitle(lines[0]?.replace(/^#+\s*/, '') || topicInput.trim());
+      setDraftTitle(lines[0]?.replace(/^#+\s*/, '') || seedTopic);
       setDraftBody(lines.slice(1).join('\n') || res.content);
     }
     Message.success(isZh ? `AI 创作完成 (${res.latencyMs}ms)` : `Generated in ${res.latencyMs}ms`);
   };
 
   const handleAiGenerateImage = async () => {
-    const prompt = draftTitle || topicInput;
-    if (!prompt.trim()) return Message.warning(isZh ? '请先输入主题或生成标题' : 'Enter a topic first');
+    const prompt = (draftTitle || topicInput || b2bIndustry || 'BiaoMai Lingshu').trim();
     const key = settings.imageApiKey || settings.llmApiKey;
     if (!key) {
-      setSettingsModalOpen(true);
-      return Message.info(isZh ? '请先配置生图 API Key' : 'Configure Image API Key');
+      const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${selectedCreatePlatform.brandColor}"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><text x="48" y="96" fill="#ffffffcc" font-family="sans-serif" font-size="24" font-weight="600">${esc(isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn)} · ${esc(selectedCreatePlatform.aspect)}</text><text x="48" y="290" fill="#ffffff" font-family="sans-serif" font-size="40" font-weight="700">${esc(prompt.slice(0, 22))}</text><text x="48" y="350" fill="#ffffffb3" font-family="sans-serif" font-size="22">${esc(isZh ? '标脉灵枢 · 全球 AI 获客工坊' : 'BiaoMai Lingshu · AI Studio')}</text></svg>`;
+      setDraftImageUrl(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
+      Message.success(isZh ? '已生成品牌视觉封面（配置生图 Key 后可启用 AI 生图）' : 'Generated brand cover');
+      return;
     }
     if (!bridge?.generateImage) return;
     setCreatingImg(true);

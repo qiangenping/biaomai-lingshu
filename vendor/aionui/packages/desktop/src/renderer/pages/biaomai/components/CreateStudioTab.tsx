@@ -80,8 +80,8 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
   onGenerateOpenMotion,
   onSaveToSchedule,
 }) => (
-  <div className='grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-20px items-start w-full'>
-    <div className='p-20px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-14px w-full min-w-0'>
+  <div className='flex flex-col lg:flex-row gap-24px items-start w-full'>
+    <div className='flex-1 min-w-0 w-full p-24px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-16px'>
       <div className='flex items-center justify-between'>
         <div>
           <div className='text-15px font-600 text-t-primary'>
@@ -182,8 +182,8 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
       </div>
     </div>
 
-    <div className='flex justify-center lg:justify-end w-full'>
-      <div className='w-full max-w-330px p-10px rd-30px bg-[#0F172A] shadow-2xl border-2 border-solid border-[#334155]'>
+    <div className='w-full lg:w-340px shrink-0 flex justify-center'>
+      <div className='w-full p-10px rd-30px bg-[#0F172A] shadow-2xl border-2 border-solid border-[#334155]'>
         <div className='flex items-center justify-between px-14px pb-8px pt-2px text-white/75 text-10px font-600'>
           <span>9:41</span>
           <div className='w-76px h-16px rd-full bg-black' />
