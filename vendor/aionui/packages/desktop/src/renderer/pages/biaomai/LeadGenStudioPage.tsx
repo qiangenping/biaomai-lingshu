@@ -5,7 +5,7 @@
  */
 
 import { crawlerProspects, mergeProspects } from './prospect-import';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './flat-buttons.css';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
