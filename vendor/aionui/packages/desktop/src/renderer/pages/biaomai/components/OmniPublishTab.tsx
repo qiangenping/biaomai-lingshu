@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { Button, Empty, Input, Select, Space, Tag } from '@arco-design/web-react';
+import { IconLaunch } from '@arco-design/web-react/icon';
 import { ALL_PLATFORMS, type LocalAccount, type LocalPost, type MediaPlatform } from '../types';
 
 interface OmniPublishTabProps {
@@ -77,7 +78,14 @@ export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
                 <div className='text-13px font-600 text-t-primary'>{isZh ? p.nameZh : p.nameEn}</div>
                 <div className='text-11px text-t-secondary truncate mt-3px'>{acc ? acc.label : p.aspect}</div>
               </div>
-              <Button size='small' type='secondary' long onClick={() => onOpenIsolatedWindow(partition, p.creatorUrl, acc?.label || p.nameZh)}>
+              <Button
+                size='small'
+                type='secondary'
+                long
+                icon={<IconLaunch />}
+                className='biaomai-launch-btn'
+                onClick={() => onOpenIsolatedWindow(partition, p.creatorUrl, acc?.label || p.nameZh)}
+              >
                 {isZh ? '打开后台' : 'Launch'}
               </Button>
             </div>
