@@ -20,14 +20,22 @@
 .biaomai-workbench-root .arco-btn-secondary,
 .biaomai-workbench-root .arco-btn-outline {
   border-color: transparent !important;
-  background-color: var(--color-fill-2, #f1f5f9) !important;
+  background-color: rgba(15, 23, 42, 0.06) !important;
   color: var(--color-text-1, #0f172a) !important;
 }
 
 .biaomai-workbench-root .arco-btn-secondary:hover,
 .biaomai-workbench-root .arco-btn-outline:hover {
   border-color: transparent !important;
-  background-color: var(--color-fill-3, #e2e8f0) !important;
+  background-color: rgba(15, 23, 42, 0.11) !important;
+}
+
+.biaomai-workbench-root .arco-select-view {
+  border-radius: 8px !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
 .biaomai-workbench-root .arco-btn-primary {
