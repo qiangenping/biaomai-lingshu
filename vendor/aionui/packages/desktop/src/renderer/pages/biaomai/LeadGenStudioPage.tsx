@@ -140,6 +140,7 @@ const LeadGenStudioPage: React.FC = () => {
   const [sendingEmailId, setSendingEmailId] = useState('');
   const [checkingImap, setCheckingImap] = useState(false);
   const [crawlingMcp, setCrawlingMcp] = useState(false);
+  const [syncingCrm, setSyncingCrm] = useState(false);
 
   // Packs State
   const [installedPacks, setInstalledPacks] = useState<InstalledPack[]>([]);
@@ -817,9 +818,12 @@ const LeadGenStudioPage: React.FC = () => {
             leads={leads}
             posts={posts}
             stageLabel={stageLabel}
+            settings={settings}
+            setSettings={setSettings}
+            syncingCrm={syncingCrm}
             onExportCsv={() => {
-              const header = 'id,platform,nickname,sanitizedComment,tier,score,stage,dealValue,createdAt';
-              const rows = leads.map((l) => [l.id, l.platformId, l.nickname, l.sanitizedComment, l.tier, l.score, l.stage, l.dealValue, l.createdAt].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','));
+              const header = 'id,platform,nickname,company,email,phone,sanitizedComment,tier,score,stage,dealValue,createdAt';
+              const rows = leads.map((l) => [l.id, l.platformId, l.nickname, l.company || '', l.email || '', l.phone || '', l.sanitizedComment, l.tier, l.score, l.stage, l.dealValue, l.createdAt].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','));
               const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' });
               const url = URL.createObjectURL(blob);
               const a = document.createElement('a');
@@ -828,9 +832,43 @@ const LeadGenStudioPage: React.FC = () => {
               a.click();
               URL.revokeObjectURL(url);
             }}
-            onAdvanceLead={(id) =>
-              setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, stage: stageOrder[Math.min(stageOrder.indexOf(l.stage) + 1, stageOrder.length - 1)] } : l)))
+            onAddLead={(draft) => {
+              setLeads((prev) => [{ ...draft, id: `lead_${Date.now()}`, createdAt: new Date().toISOString() }, ...prev]);
+              Message.success(isZh ? `已新增线索「${draft.nickname}」` : 'Lead created');
+            }}
+            onUpdateLead={(id, patch) =>
+              setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)))
             }
+            onDeleteLead={(id) => {
+              setLeads((prev) => prev.filter((l) => l.id !== id));
+              Message.success(isZh ? '已删除线索' : 'Lead deleted');
+            }}
+            onSyncExternalCrm={async () => {
+              if (!settings.crmBaseUrl?.trim()) {
+                return Message.warning(isZh ? '请先点击「配置开源 CRM」填写 Twenty / Atomic CRM 地址' : 'Configure external CRM URL first');
+              }
+              if (!bridge?.syncExternalCrm) return;
+              setSyncingCrm(true);
+              try {
+                const res = await bridge.syncExternalCrm({
+                  provider: settings.crmProvider || 'twenty',
+                  baseUrl: settings.crmBaseUrl,
+                  apiKey: settings.crmApiKey,
+                  leads,
+                });
+                if (res.ok) {
+                  Message.success(isZh ? `已成功推送 ${res.syncedCount} 条线索至开源 CRM` : `Synced ${res.syncedCount} leads`);
+                } else {
+                  Message.warning(res.error || (isZh ? `成功 ${res.syncedCount} 条，失败 ${res.failedCount} 条` : `Synced ${res.syncedCount}, failed ${res.failedCount}`));
+                }
+              } finally {
+                setSyncingCrm(false);
+              }
+            }}
+            onOpenExternalCrm={() => {
+              if (!settings.crmBaseUrl?.trim()) return;
+              void handleOpenIsolatedWindow('biaomai-oss-crm', settings.crmBaseUrl, 'Open-Source CRM');
+            }}
             onSyncPostClicks={async (post) => {
               if (!activeMcpKey || !bridge?.callAiToEarnMcp) {
                 return Message.info(isZh ? '请配置渠道统计接口后同步' : 'Configure channel analytics to sync clicks');

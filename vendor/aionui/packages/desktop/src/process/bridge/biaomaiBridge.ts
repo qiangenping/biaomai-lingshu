@@ -864,4 +864,109 @@ export function initBiaoMaiBridge(): void {
       }
     }
   );
+
+  // 20. Open-Source CRM Sync (Twenty CRM REST API / Atomic CRM / Generic REST Webhook)
+  ipcMain.handle(
+    'biaomai:sync-external-crm',
+    async (
+      _evt,
+      payload: {
+        provider: 'twenty' | 'atomic' | 'webhook';
+        baseUrl: string;
+        apiKey?: string;
+        leads: Array<{
+          id: string;
+          platformId: string;
+          nickname: string;
+          company?: string;
+          email?: string;
+          phone?: string;
+          notes?: string;
+          sanitizedComment: string;
+          tier: string;
+          stage: string;
+          dealValue: number;
+        }>;
+      }
+    ) => {
+      const base = (payload.baseUrl || '').trim().replace(/\/+$/, '');
+      if (!base || !/^https?:\/\//i.test(base)) {
+        return { ok: false, syncedCount: 0, failedCount: payload.leads.length, error: '请输入有效的 HTTP(S) CRM 地址' };
+      }
+
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (payload.apiKey?.trim()) {
+        headers.Authorization = `Bearer ${payload.apiKey.trim()}`;
+      }
+
+      if (payload.provider === 'webhook') {
+        try {
+          const res = await fetch(base, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ source: 'biaomai-lingshu', leads: payload.leads }),
+            signal: AbortSignal.timeout(12000),
+          });
+          return res.ok
+            ? { ok: true, syncedCount: payload.leads.length, failedCount: 0 }
+            : { ok: false, syncedCount: 0, failedCount: payload.leads.length, error: `HTTP ${res.status}` };
+        } catch (err) {
+          return { ok: false, syncedCount: 0, failedCount: payload.leads.length, error: err instanceof Error ? err.message : String(err) };
+        }
+      }
+
+      // Twenty CRM (/rest/people) or Atomic CRM (/rest/v1/contacts)
+      const endpoint = payload.provider === 'twenty' ? `${base}/rest/people` : `${base}/rest/v1/contacts`;
+      let syncedCount = 0;
+      let failedCount = 0;
+      let lastError = '';
+
+      for (const lead of payload.leads) {
+        const nameParts = (lead.nickname || 'Lead').trim().split(/\s+/);
+        const firstName = nameParts[0] || 'Lead';
+        const lastName = nameParts.slice(1).join(' ') || lead.company || lead.platformId;
+        const body =
+          payload.provider === 'twenty'
+            ? {
+                name: { firstName, lastName },
+                emails: lead.email ? { primaryEmail: lead.email } : undefined,
+                phones: lead.phone ? { primaryPhoneNumber: lead.phone } : undefined,
+                jobTitle: `${lead.tier}-Tier · ${lead.stage}`,
+                city: lead.platformId,
+              }
+            : {
+                first_name: firstName,
+                last_name: lastName,
+                email_jsonb: lead.email ? [{ email: lead.email, type: 'Work' }] : [],
+                phone_jsonb: lead.phone ? [{ number: lead.phone, type: 'Work' }] : [],
+                background: `[${lead.tier}-Tier | ${lead.stage}] ${lead.sanitizedComment}${lead.notes ? `\n${lead.notes}` : ''}`,
+              };
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(8000),
+          });
+          if (res.ok) {
+            syncedCount += 1;
+          } else {
+            failedCount += 1;
+            lastError = `HTTP ${res.status} (${endpoint})`;
+          }
+        } catch (err) {
+          failedCount += 1;
+          lastError = err instanceof Error ? err.message : String(err);
+        }
+      }
+
+      return {
+        ok: syncedCount > 0 && failedCount === 0,
+        syncedCount,
+        failedCount,
+        ...(lastError ? { error: lastError } : {}),
+      };
+    }
+  );
 }
