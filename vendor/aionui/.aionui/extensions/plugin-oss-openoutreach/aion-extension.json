@@ -28,7 +28,10 @@
     "skills": [
       {
         "name": "openoutreach-icp",
-        "description": "AI ICP fit scoring & cold outreach drafting skill",
+        "description": {
+          "zh-CN": "OpenOutreach AI 寻客：客户画像匹配评分与多语种开发信破冰",
+          "en-US": "AI ICP fit scoring & cold outreach drafting skill"
+        },
         "file": "skills/openoutreach-icp/SKILL.en.md",
         "localizedFiles": {
           "zh-CN": "skills/openoutreach-icp/SKILL.zh.md",

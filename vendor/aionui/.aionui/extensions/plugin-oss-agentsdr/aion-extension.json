@@ -30,7 +30,10 @@
     "skills": [
       {
         "name": "agentsdr-omnichannel",
-        "description": "Email + LinkedIn + WhatsApp coordinated outreach skill",
+        "description": {
+          "zh-CN": "AgentSDR 全渠道触达：Email + LinkedIn + WhatsApp 协同开发",
+          "en-US": "Email + LinkedIn + WhatsApp coordinated outreach skill"
+        },
         "file": "skills/agentsdr-omnichannel/SKILL.en.md",
         "localizedFiles": {
           "zh-CN": "skills/agentsdr-omnichannel/SKILL.zh.md",

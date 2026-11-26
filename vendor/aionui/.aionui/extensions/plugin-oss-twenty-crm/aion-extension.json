@@ -32,7 +32,10 @@
     "skills": [
       {
         "name": "twenty-crm-sync",
-        "description": "Sync qualified leads and opportunities to Twenty CRM or Atomic CRM",
+        "description": {
+          "zh-CN": "Twenty / Atomic 开源 CRM：一键同步高意向线索与商机管道",
+          "en-US": "Sync qualified leads and opportunities to Twenty CRM or Atomic CRM"
+        },
         "file": "skills/twenty-crm-sync/SKILL.en.md",
         "localizedFiles": {
           "zh-CN": "skills/twenty-crm-sync/SKILL.zh.md",

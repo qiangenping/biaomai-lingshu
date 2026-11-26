@@ -27,7 +27,10 @@
     "skills": [
       {
         "name": "crawl4ai-extractor",
-        "description": "Universal AI web directory extraction skill",
+        "description": {
+          "zh-CN": "Crawl4AI 全行业名录抓取：将黄页、展会与招投标网页转为结构化线索",
+          "en-US": "Universal AI web directory extraction skill"
+        },
         "file": "skills/crawl4ai-extractor/SKILL.en.md",
         "localizedFiles": {
           "zh-CN": "skills/crawl4ai-extractor/SKILL.zh.md",

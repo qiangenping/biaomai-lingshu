@@ -27,7 +27,10 @@
     "skills": [
       {
         "name": "quickly-sequence",
-        "description": "Multi-inbox rotation & 3-step cold email sequence skill",
+        "description": {
+          "zh-CN": "Quickly 多邮箱轮询：3 轮冷邮件序列触达与每日发送限额保护",
+          "en-US": "Multi-inbox rotation & 3-step cold email sequence skill"
+        },
         "file": "skills/quickly-sequence/SKILL.en.md",
         "localizedFiles": {
           "zh-CN": "skills/quickly-sequence/SKILL.zh.md",
