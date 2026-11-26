@@ -17,6 +17,7 @@ import { getIncludePrerelease, runUpdateCheck } from '@/renderer/components/sett
 import { UPDATE_AVAILABLE_EVENT } from '@/renderer/components/settings/useUpdateNotificationController';
 import { IS_DISCONTINUED_BUILD } from '@/renderer/utils/discontinuedBuild';
 import { OPEN_MIGRATION_DIALOG_EVENT } from '@/renderer/components/settings/UpdateMigrationDialog';
+import biaoMaiBrandLogo from '@renderer/assets/logos/brand/app.png';
 import {
   getUpdateReadyState,
   setUpdateReadyState,
@@ -35,7 +36,8 @@ type LinkItem =
   | { title: string; onClick: () => void; icon: React.ReactNode; url?: never };
 
 const AboutModalContent: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isZh = i18n.language?.toLowerCase().startsWith('zh');
   const viewMode = useSettingsViewMode();
   const isPageMode = viewMode === 'page';
   const isElectron = isElectronDesktop();
@@ -146,40 +148,54 @@ const AboutModalContent: React.FC = () => {
           isPageMode && 'px-0 overflow-visible'
         )}
       >
-        <div className='flex flex-col max-w-500px mx-auto'>
+        <div className='flex flex-col max-w-520px mx-auto py-12px'>
           {/* App Info Section */}
-          <div className='flex flex-col items-center pb-24px'>
-            <Typography.Title heading={3} className='text-24px font-bold text-t-primary mb-8px'>
-              AionUi
+          <div className='flex flex-col items-center pb-20px'>
+            <div className='size-56px rd-14px overflow-hidden mb-12px border border-solid border-[var(--color-border-2)] bg-1'>
+              <img src={biaoMaiBrandLogo} alt='标脉灵枢' className='size-full object-cover block' />
+            </div>
+            <Typography.Title heading={3} className='text-22px font-700 text-t-primary m-0 mb-6px'>
+              {isZh ? '标脉灵枢' : 'BiaoMai Lingshu'}
             </Typography.Title>
-            <Typography.Text className='text-14px text-t-secondary mb-12px text-center'>
-              {t('settings.appDescription')}
+            <Typography.Text className='text-13px text-t-secondary mb-14px text-center leading-relaxed'>
+              {isZh
+                ? '全球全行业 AI 获客工作台 · 基于开源 AionUi 微内核深度构建'
+                : 'Global AI Lead-Gen Workbench · Powered by AionUi Micro-Kernel'}
             </Typography.Text>
-            <div className='flex items-center justify-center gap-8px mb-16px'>
-              <span className='px-10px py-4px rd-6px text-13px bg-fill-2 text-t-primary font-500'>
-                v{__APP_VERSION__}
+            <div className='flex items-center justify-center gap-8px mb-18px'>
+              <span className='px-10px py-4px rd-8px text-12px bg-fill-2 text-t-primary font-600'>
+                v{__APP_VERSION__} · Apache-2.0
               </span>
               <div
-                className='text-t-primary cursor-pointer hover:text-t-secondary transition-colors p-4px'
+                className='text-t-primary cursor-pointer hover:text-[#4F46E5] transition-colors p-6px rd-8px hover:bg-fill-2 flex items-center'
                 onClick={() =>
                   openLink('https://github.com/iOfficeAI/AionUi').catch((error) =>
                     console.error('Failed to open link:', error)
                   )
                 }
               >
-                <Github theme='outline' size='20' />
+                <Github theme='outline' size='18' />
               </div>
             </div>
 
             {/* Check Update Section */}
             {isElectron && (
-              <div className='flex flex-col items-center gap-12px w-full max-w-300px bg-fill-2 p-16px rounded-lg'>
+              <div className='flex flex-col items-center gap-12px w-full max-w-320px bg-fill-2 p-16px rd-12px'>
                 <Button
                   type='primary'
                   long
                   loading={checking || updateReadyState.preparing}
                   disabled={updateReadyState.preparing}
                   onClick={() => void checkUpdate()}
+                  style={{
+                    height: 36,
+                    borderRadius: 8,
+                    border: 'none',
+                    backgroundColor: '#4F46E5',
+                    boxShadow: 'none',
+                    fontWeight: 500,
+                    fontSize: 13,
+                  }}
                 >
                   {updateReadyState.preparing
                     ? t('update.preparingInstall')
