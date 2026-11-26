@@ -1,0 +1,39 @@
+{
+  "name": "plugin-oss-openoutreach",
+  "displayName": {
+    "zh-CN": "OpenOutreach AI 寻客插件 (eracle/OpenOutreach)",
+    "en-US": "OpenOutreach AI Prospector Plugin"
+  },
+  "version": "1.0.0",
+  "description": {
+    "zh-CN": "封装 Apache-2.0 开源项目 eracle/OpenOutreach：根据我方产品卖点自动评估目标企业 ICP 匹配度并生成个性化开发信破冰理由。",
+    "en-US": "Wraps Apache-2.0 eracle/OpenOutreach for AI ICP fit scoring and personalized cold outreach icebreaker generation."
+  },
+  "author": "BiaoMai Lingshu & OpenOutreach (Apache-2.0)",
+  "license": "Apache-2.0",
+  "category": "leadgen",
+  "i18n": { "localesDir": "i18n", "defaultLocale": "en-US" },
+  "permissions": {
+    "fsReadPaths": [],
+    "fsWritePaths": [],
+    "netDomains": ["*"],
+    "browserCdp": false,
+    "shellExec": false,
+    "imNotify": false,
+    "defaultApproval": "always-ask",
+    "alwaysAskActions": ["send_smtp_email"]
+  },
+  "contributes": {
+    "skills": [
+      {
+        "name": "openoutreach-icp",
+        "description": "AI ICP fit scoring & cold outreach drafting skill",
+        "file": "skills/openoutreach-icp/SKILL.en.md",
+        "localizedFiles": {
+          "zh-CN": "skills/openoutreach-icp/SKILL.zh.md",
+          "en-US": "skills/openoutreach-icp/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}

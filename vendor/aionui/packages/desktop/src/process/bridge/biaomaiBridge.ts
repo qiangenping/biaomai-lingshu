@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import tls from 'node:tls';
 import { type BiaoMaiLocalDb, readBiaoMaiDb, saveBiaoMaiCollection } from './biaomaiStorage';
+import { lookupCnCompany } from './cnCompanyScraper';
 
 const isolatedWindows = new Map<string, BrowserWindow>();
 
@@ -309,26 +310,36 @@ export function initBiaoMaiBridge(): void {
       canvasesCount: number;
     }> = [];
 
-    for (const entry of fs.readdirSync(extDir, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue;
-      const manifestPath = path.join(extDir, entry.name, 'aion-extension.json');
-      if (!fs.existsSync(manifestPath)) continue;
-      try {
-        const m = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-        list.push({
-          name: m.name || entry.name,
-          displayName: m.displayName || m.name || entry.name,
-          description: m.description || '',
-          version: m.version || '1.0.0',
-          license: m.license || 'Apache-2.0',
-          category: m.category || 'utility',
-          permissions: m.permissions || {},
-          assistantsCount: (m.contributes?.assistants || []).length,
-          skillsCount: (m.contributes?.skills || []).length,
-          canvasesCount: (m.contributes?.canvases || []).length,
-        });
-      } catch {
-        // skip invalid manifest
+    const scanDirs = [extDir];
+    const repoPacksDir = path.resolve(process.cwd(), '../../packs');
+    if (fs.existsSync(repoPacksDir)) scanDirs.push(repoPacksDir);
+    const seenNames = new Set<string>();
+
+    for (const dir of scanDirs) {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (!entry.isDirectory()) continue;
+        const manifestPath = path.join(dir, entry.name, 'aion-extension.json');
+        if (!fs.existsSync(manifestPath)) continue;
+        try {
+          const m = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+          const packName = m.name || entry.name;
+          if (seenNames.has(packName)) continue;
+          seenNames.add(packName);
+          list.push({
+            name: packName,
+            displayName: m.displayName || packName,
+            description: m.description || '',
+            version: m.version || '1.0.0',
+            license: m.license || 'Apache-2.0',
+            category: m.category || 'utility',
+            permissions: m.permissions || {},
+            assistantsCount: (m.contributes?.assistants || []).length,
+            skillsCount: (m.contributes?.skills || []).length,
+            canvasesCount: (m.contributes?.canvases || []).length,
+          });
+        } catch {
+          // skip invalid manifest
+        }
       }
     }
     return { ok: true, packs: list };
@@ -382,8 +393,8 @@ export function initBiaoMaiBridge(): void {
           const emailRe = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/;
           const phoneRe = /\\+?\\d[\\d\\s\\-().]{6,18}\\d/;
 
-          // 1) Google Maps cards or generic directory cards
-          const cards = Array.from(document.querySelectorAll('[role="article"], li.reusable-search__result-container, .entity-result__item, article, .result, .company-card'));
+          // 1) Google Maps / Amap (高德地图) / Baidu Map (百度地图) / LinkedIn / generic directory cards
+          const cards = Array.from(document.querySelectorAll('[role="article"], li.poibox, .poibox, #cardslist li, .search-item, .poi-item, li.reusable-search__result-container, .entity-result__item, article, .result, .company-card'));
           for (let i = 0; i < cards.length && out.length < 25; i++) {
             const card = cards[i];
             const text = (card.innerText || '').trim();
@@ -514,6 +525,7 @@ export function initBiaoMaiBridge(): void {
         user: string;
         pass: string;
         from?: string;
+        fromName?: string;
         to: string;
         subject: string;
         text: string;
@@ -521,6 +533,7 @@ export function initBiaoMaiBridge(): void {
     ) => {
       const { host, port, user, pass, to, subject, text } = payload;
       const fromAddr = payload.from || user;
+      const fromName = (payload.fromName || '').trim();
       if (!host || !user || !pass || !to) {
         return { ok: false, error: '请先完整填写 SMTP 服务器、发件账号、授权码及收件邮箱' };
       }
@@ -593,14 +606,34 @@ export function initBiaoMaiBridge(): void {
             } else if (step === 8 && code === 354) {
               step = 9;
               const encodedSubj = `=?UTF-8?B?${Buffer.from(subject, 'utf8').toString('base64')}?=`;
+              const fromHeader = fromName
+                ? `=?UTF-8?B?${Buffer.from(fromName, 'utf8').toString('base64')}?= <${fromAddr}>`
+                : `<${fromAddr}>`;
+              const boundary = `----=_BiaoMai_${Date.now()}`;
+              const escapedHtml = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br/>');
+              const htmlBody = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.65;color:#1e293b;max-width:640px;margin:0 auto;padding:24px;border:1px solid #e2e8f0;border-radius:12px;background:#ffffff;"><div style="font-size:15px;font-weight:700;color:#4F46E5;margin-bottom:12px;">${subject.replace(/</g, '&lt;')}</div><div style="font-size:14px;">${escapedHtml}</div></div>`;
               const mime = [
-                `From: <${fromAddr}>`,
+                `From: ${fromHeader}`,
                 `To: <${to}>`,
                 `Subject: ${encodedSubj}`,
                 'MIME-Version: 1.0',
+                `Content-Type: multipart/alternative; boundary="${boundary}"`,
+                '',
+                `--${boundary}`,
                 'Content-Type: text/plain; charset=UTF-8',
                 '',
                 text.replace(/^\./gm, '..'),
+                '',
+                `--${boundary}`,
+                'Content-Type: text/html; charset=UTF-8',
+                '',
+                htmlBody,
+                '',
+                `--${boundary}--`,
                 '.',
               ].join('\r\n');
               sendLine(mime);
@@ -660,7 +693,8 @@ export function initBiaoMaiBridge(): void {
         const socket = tls.connect({ host, port, servername: host, rejectUnauthorized: true });
         let buf = '';
         let tagIdx = 1;
-        let phase: 'greeting' | 'login' | 'select' | 'search' = 'greeting';
+        let phase: 'greeting' | 'login' | 'id' | 'select' | 'search' = 'greeting';
+        const needsNeteaseId = /163\.com|126\.com|yeah\.net/i.test(host);
         let emailIdx = 0;
         const repliedEmails: string[] = [];
         let doneFlag = false;
@@ -696,6 +730,14 @@ export function initBiaoMaiBridge(): void {
               phase = 'login';
               sendCmd(`LOGIN "${user.replace(/"/g, '\\"')}" "${pass.replace(/"/g, '\\"')}"`);
             } else if (phase === 'login' && /^A\d+ OK/i.test(line)) {
+              if (needsNeteaseId) {
+                phase = 'id';
+                sendCmd(`ID ("name" "BiaoMaiLingshu" "version" "1.0" "vendor" "BiaoMai" "support-email" "${user.replace(/"/g, '')}")`);
+              } else {
+                phase = 'select';
+                sendCmd('SELECT INBOX');
+              }
+            } else if (phase === 'id' && /^A\d+ (OK|NO|BAD)/i.test(line)) {
               phase = 'select';
               sendCmd('SELECT INBOX');
             } else if (phase === 'login' && /^A\d+ (NO|BAD)/i.test(line)) {
@@ -785,6 +827,14 @@ export function initBiaoMaiBridge(): void {
       } catch (err) {
         return { ok: false, error: err instanceof Error ? err.message : String(err) };
       }
+    }
+  );
+
+  // 19. Domestic Chinese Company Name -> Official Website / Phone / Email Lookup (ported from biaomai-operation)
+  ipcMain.handle(
+    'biaomai:lookup-cn-company',
+    async (_evt, payload: { companyName: string; excludeEmails?: string[]; excludePhones?: string[] }) => {
+      return await lookupCnCompany(payload.companyName, payload.excludeEmails, payload.excludePhones);
     }
   );
 

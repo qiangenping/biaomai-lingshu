@@ -92,10 +92,20 @@ interface BiaoMaiElectronBridge {
     user: string;
     pass: string;
     from?: string;
+    fromName?: string;
     to: string;
     subject: string;
     text: string;
   }) => Promise<{ ok: boolean; error?: string }>;
+  lookupCnCompany: (payload: { companyName: string; excludeEmails?: string[]; excludePhones?: string[] }) => Promise<{
+    ok: boolean;
+    companyName: string;
+    website: string;
+    phones: string[];
+    emails: string[];
+    source: string;
+    error?: string;
+  }>;
   dbGetAll: () => Promise<{ ok: boolean; db: Record<string, unknown[]> }>;
   dbSaveCollection: (payload: { collection: string; items: unknown[] }) => Promise<{ ok: boolean }>;
   checkImapReplies: (payload: {
@@ -354,6 +364,9 @@ const LeadGenStudioPage: React.FC = () => {
   const [posts, setPosts] = useState<LocalPost[]>(() => readJson<LocalPost[]>(KEYS.posts, []));
   const [leads, setLeads] = useState<LocalLead[]>(() => readJson<LocalLead[]>(KEYS.leads, []));
   const [prospects, setProspects] = useState<GlobalProspect[]>(() => readJson<GlobalProspect[]>('biaomai:local:prospects', []));
+  const [b2bMode, setB2bMode] = useState<'global' | 'cn'>('cn');
+  const [cnCompanyInput, setCnCompanyInput] = useState('');
+  const [lookingUpCn, setLookingUpCn] = useState(false);
   const [b2bIndustry, setB2bIndustry] = useState('CNC Machining & Industrial Parts');
   const [b2bCountry, setB2bCountry] = useState('Germany');
   const [b2bLang, setB2bLang] = useState<'en-US' | 'de-DE' | 'es-ES' | 'ja-JP' | 'ar-SA'>('en-US');
@@ -888,7 +901,9 @@ const LeadGenStudioPage: React.FC = () => {
   }, []);
 
   const b2bPartition = 'persist:bm-b2b-global-radar';
-  const handleOpenB2bDirectory = async (channel: 'gmaps' | 'linkedin' | 'thomasnet' | 'europages' | 'alibaba') => {
+  const handleOpenB2bDirectory = async (
+    channel: 'gmaps' | 'linkedin' | 'thomasnet' | 'europages' | 'alibaba' | 'amap' | 'baidu_map'
+  ) => {
     const q = encodeURIComponent(`${b2bIndustry} ${b2bCountry}`.trim());
     const urls: Record<typeof channel, string> = {
       gmaps: `https://www.google.com/maps/search/${q}`,
@@ -896,8 +911,47 @@ const LeadGenStudioPage: React.FC = () => {
       thomasnet: `https://www.thomasnet.com/nsearch.html?cov=NA&heading=&searchterm=${encodeURIComponent(b2bIndustry)}`,
       europages: `https://www.europages.co.uk/companies/${encodeURIComponent(b2bIndustry)}.html`,
       alibaba: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(b2bIndustry)}`,
+      amap: `https://ditu.amap.com/search?query=${q}`,
+      baidu_map: `https://map.baidu.com/search/${q}`,
     };
-    await handleOpenIsolatedWindow(b2bPartition, urls[channel], `Global B2B · ${channel}`);
+    await handleOpenIsolatedWindow(b2bPartition, urls[channel], `Prospector · ${channel}`);
+  };
+
+  const handleLookupCnCompanies = async () => {
+    const lines = cnCompanyInput
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    if (lines.length === 0) {
+      Message.warning(isZh ? '请输入至少一家国内公司名称（每行一个）' : 'Enter at least one CN company name');
+      return;
+    }
+    if (!bridge?.lookupCnCompany) return;
+    setLookingUpCn(true);
+    let added = 0;
+    for (const companyName of lines.slice(0, 10)) {
+      const res = await bridge.lookupCnCompany({
+        companyName,
+        excludeEmails: settings.smtpUser ? [settings.smtpUser] : [],
+      });
+      if (res.ok) {
+        added += 1;
+        const item: GlobalProspect = {
+          id: `cn_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          companyName: res.companyName,
+          industry: b2bIndustry || '国内企业',
+          country: 'CN',
+          website: res.website,
+          email: res.emails[0] || '',
+          phone: res.phones[0] || '',
+          snippet: `${res.source}${res.phones.length > 1 ? ` · 备用电话: ${res.phones.slice(1).join(', ')}` : ''}`,
+          sourceUrl: res.website || '360/百度公开工商官网探测',
+        };
+        setProspects((prev) => [item, ...prev.filter((p) => p.companyName !== item.companyName)]);
+      }
+    }
+    setLookingUpCn(false);
+    Message.success(isZh ? `已完成 ${added} 家国内企业官网与联系方式挖掘` : `Enriched ${added} CN companies`);
   };
 
   const handleExtractB2bProspects = async () => {
@@ -1112,6 +1166,7 @@ const LeadGenStudioPage: React.FC = () => {
           port: Number(settings.smtpPort || 465),
           user: settings.smtpUser || '',
           pass: settings.smtpPass || '',
+          fromName: isZh ? '标脉灵枢商务中心' : 'BiaoMai Lingshu',
           to: item.email,
           subject: item.outreachSubject || `Collaboration with ${item.companyName}`,
           text: item.outreachBody || '',
@@ -1147,7 +1202,7 @@ const LeadGenStudioPage: React.FC = () => {
     { id: 'create', step: '01', title: isZh ? 'AI 内容创作' : 'Create Studio' },
     { id: 'publish', step: '02', title: isZh ? '全渠道分发' : 'Omni-Publish', count: posts.length },
     { id: 'engage', step: '03', title: isZh ? '社媒意向雷达' : 'Intent Radar', count: analyzedList.length },
-    { id: 'outbound', step: '04', title: isZh ? '全球 B2B 寻客' : 'Global Outbound', count: prospects.length },
+    { id: 'outbound', step: '04', title: isZh ? '全球与国内寻客' : 'Global & CN Outbound', count: prospects.length },
     { id: 'crm', step: '05', title: isZh ? '线索 CRM' : 'Lead CRM', count: leads.length },
     { id: 'packs', step: '06', title: isZh ? '插件与行业包' : 'Packs Market', count: installedPacks.length },
   ];
@@ -1632,16 +1687,54 @@ const LeadGenStudioPage: React.FC = () => {
               <div className='flex items-center justify-between flex-wrap gap-10px'>
                 <div>
                   <div className='text-15px font-600 text-t-primary'>
-                    {isZh ? '🌍 全球外贸与全行业 B2B 主动寻客雷达' : '🌍 Global B2B & Foreign-Trade Prospector'}
+                    {isZh ? '🌍 全球与国内企业寻客雷达（支持公司名 / 地图 / 黄页）' : '🌍 Global & CN Enterprise Prospector'}
                   </div>
                   <div className='text-12px text-t-secondary mt-2px'>
                     {isZh
-                      ? '直连 Google Maps / LinkedIn / 欧美黄页提取真实采购商 → 官网公开邮箱抓取与 DNS MX 验真 → 多语种开发信人工确认直发'
-                      : 'Extract real buyers from Google Maps / LinkedIn / B2B directories → Enrich emails & DNS MX verify → Multilingual cold email'}
+                      ? '输入国内公司名直挖官网/手机/邮箱 · 高德/百度/Google 地图抓商家 · DNS MX 验真 + HTML 商务开发信'
+                      : 'CN Company Lookup · Amap/Baidu/Google Maps Extraction · DNS MX Verification · Multilingual Cold Email'}
                   </div>
                 </div>
-                <Tag color='arcoblue'>pack-global-b2b-outbound</Tag>
+                <Space>
+                  <Button size='small' type={b2bMode === 'cn' ? 'primary' : 'secondary'} onClick={() => setB2bMode('cn')}>
+                    🇨🇳 {isZh ? '国内企业/地图' : 'CN Company & Map'}
+                  </Button>
+                  <Button size='small' type={b2bMode === 'global' ? 'primary' : 'secondary'} onClick={() => setB2bMode('global')}>
+                    🌍 {isZh ? '海外外贸寻客' : 'Global B2B'}
+                  </Button>
+                </Space>
               </div>
+
+              {b2bMode === 'cn' && (
+                <div className='p-14px rd-10px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col gap-10px'>
+                  <div className='text-13px font-600 text-t-primary'>
+                    {isZh ? '🏢 输入国内公司名称批量获客（自动检索官网、爱企查/360 公开电话与官方邮箱）' : '🏢 CN Company Name Contact Discovery'}
+                  </div>
+                  <TextArea
+                    rows={3}
+                    value={cnCompanyInput}
+                    onChange={setCnCompanyInput}
+                    placeholder={
+                      isZh
+                        ? '输入国内目标公司全称（每行一家，如：山东标脉信息技术有限公司），点击下方一键挖掘官网、手机号与商务邮箱...'
+                        : 'Enter Chinese company names (one per line)...'
+                    }
+                  />
+                  <div className='flex items-center justify-between flex-wrap gap-8px'>
+                    <Space wrap>
+                      <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('amap')}>
+                        🗺️ {isZh ? '高德地图搜商家' : 'Amap (CN)'}
+                      </Button>
+                      <Button size='small' type='outline' onClick={() => handleOpenB2bDirectory('baidu_map')}>
+                        📍 {isZh ? '百度地图搜商家' : 'Baidu Map'}
+                      </Button>
+                    </Space>
+                    <Button type='primary' loading={lookingUpCn} onClick={handleLookupCnCompanies} style={{ background: '#4F46E5', borderColor: '#4F46E5' }}>
+                      {isZh ? '🔎 一键挖掘公司官网 / 电话 / 邮箱' : '🔎 Lookup CN Companies'}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <div className='grid grid-cols-1 md:grid-cols-3 gap-12px'>
                 <div className='flex flex-col gap-4px'>

@@ -1,0 +1,39 @@
+{
+  "name": "plugin-oss-agentsdr",
+  "displayName": {
+    "zh-CN": "AgentSDR 全渠道触达插件 (Email + LinkedIn + WhatsApp)",
+    "en-US": "AgentSDR Omnichannel Outbound Plugin"
+  },
+  "version": "1.0.0",
+  "description": {
+    "zh-CN": "封装 MIT 开源理念 AgentSDR：打通 Email + LinkedIn + WhatsApp 外贸三剑客协同触达与统一线索状态推进。",
+    "en-US": "Wraps MIT AgentSDR workflow: unified Email, LinkedIn, and WhatsApp outreach coordination synced into Lead CRM."
+  },
+  "author": "BiaoMai Lingshu & AgentSDR (MIT)",
+  "license": "MIT",
+  "category": "leadgen",
+  "i18n": { "localesDir": "i18n", "defaultLocale": "en-US" },
+  "permissions": {
+    "fsReadPaths": [],
+    "fsWritePaths": [],
+    "netDomains": ["linkedin.com", "web.whatsapp.com"],
+    "browserCdp": true,
+    "shellExec": false,
+    "imNotify": true,
+    "defaultApproval": "always-ask",
+    "alwaysAskActions": ["send_whatsapp_message", "send_linkedin_note"]
+  },
+  "contributes": {
+    "skills": [
+      {
+        "name": "agentsdr-omnichannel",
+        "description": "Email + LinkedIn + WhatsApp coordinated outreach skill",
+        "file": "skills/agentsdr-omnichannel/SKILL.en.md",
+        "localizedFiles": {
+          "zh-CN": "skills/agentsdr-omnichannel/SKILL.zh.md",
+          "en-US": "skills/agentsdr-omnichannel/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}

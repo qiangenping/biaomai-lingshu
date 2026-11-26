@@ -1,0 +1,39 @@
+{
+  "name": "plugin-oss-gmaps-scraper",
+  "displayName": {
+    "zh-CN": "谷歌地图批量获客插件 (google-maps-scraper)",
+    "en-US": "Google Maps Bulk Scraper Plugin"
+  },
+  "version": "1.0.0",
+  "description": {
+    "zh-CN": "封装开源 MIT 项目 omkarcloud/google-maps-scraper：按行业与国家/城市批量采集海外商家名称、官网、电话与评分，免付费 Maps API。",
+    "en-US": "Wraps MIT-licensed omkarcloud/google-maps-scraper for bulk local business discovery by niche and city without paid Maps API keys."
+  },
+  "author": "BiaoMai Lingshu & Omkar Cloud (MIT)",
+  "license": "MIT",
+  "category": "leadgen",
+  "i18n": { "localesDir": "i18n", "defaultLocale": "en-US" },
+  "permissions": {
+    "fsReadPaths": ["./exports"],
+    "fsWritePaths": ["./exports"],
+    "netDomains": ["google.com", "localhost"],
+    "browserCdp": true,
+    "shellExec": false,
+    "imNotify": false,
+    "defaultApproval": "ask-once",
+    "alwaysAskActions": ["export_prospects"]
+  },
+  "contributes": {
+    "skills": [
+      {
+        "name": "gmaps-bulk-scraper",
+        "description": "Bulk Google Maps B2B prospect extraction skill",
+        "file": "skills/gmaps-bulk-scraper/SKILL.en.md",
+        "localizedFiles": {
+          "zh-CN": "skills/gmaps-bulk-scraper/SKILL.zh.md",
+          "en-US": "skills/gmaps-bulk-scraper/SKILL.en.md"
+        }
+      }
+    ]
+  }
+}
