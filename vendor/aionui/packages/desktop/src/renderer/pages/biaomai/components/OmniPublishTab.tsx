@@ -77,7 +77,7 @@ export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
                 <div className='text-13px font-600 text-t-primary'>{isZh ? p.nameZh : p.nameEn}</div>
                 <div className='text-11px text-t-secondary truncate mt-2px'>{acc ? acc.label : p.aspect}</div>
               </div>
-              <Button size='mini' type='outline' long onClick={() => onOpenIsolatedWindow(partition, p.creatorUrl, acc?.label || p.nameZh)}>
+              <Button size='mini' type='secondary' long onClick={() => onOpenIsolatedWindow(partition, p.creatorUrl, acc?.label || p.nameZh)}>
                 {isZh ? '打开后台' : 'Launch'}
               </Button>
             </div>
@@ -110,7 +110,7 @@ export const OmniPublishTab: React.FC<OmniPublishTabProps> = ({
                     <div className='text-13px font-600'>{a.label} · {plat ? (isZh ? plat.nameZh : plat.nameEn) : a.platformId}</div>
                     <div className='text-11px text-t-secondary'>{a.partition}</div>
                   </div>
-                  <Button size='mini' type='outline' onClick={() => plat && onOpenIsolatedWindow(a.partition, plat.creatorUrl, a.label)}>
+                  <Button size='mini' type='secondary' onClick={() => plat && onOpenIsolatedWindow(a.partition, plat.creatorUrl, a.label)}>
                     {isZh ? '打开窗口' : 'Open'}
                   </Button>
                 </div>
