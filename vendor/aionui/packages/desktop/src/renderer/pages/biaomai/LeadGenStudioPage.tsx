@@ -1212,13 +1212,6 @@ const LeadGenStudioPage: React.FC = () => {
           setSettingsModalOpen={setSettingsModalOpen}
           settings={settings}
           setSettings={setSettings}
-          mcpTestMsg={mcpTestMsg}
-          onTestAiToEarnMcp={async () => {
-            if (!bridge?.callAiToEarnMcp) return;
-            setMcpTestMsg(isZh ? '连接测试中...' : 'Testing...');
-            const res = await bridge.callAiToEarnMcp({ endpoint: activeMcpEndpoint, apiKey: activeMcpKey, method: 'tools/list' });
-            setMcpTestMsg(res.ok ? `Connected (${res.latencyMs}ms)` : res.error || 'Failed');
-          }}
           cronModalOpen={cronModalOpen}
           setCronModalOpen={setCronModalOpen}
           cronEnabled={cronEnabled}
