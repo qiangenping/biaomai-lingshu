@@ -2,21 +2,20 @@
 
 ## 1. Micro-Kernel + Industry Packs Architecture
 
-`biaomai-operations-platform` enforces strict separation between its **stable Apache-2.0 micro-kernel** and **hot-pluggable industry packs**:
+`biaomai-operations-platform` enforces strict separation between its **stable Apache-2.0 micro-kernel** and **hot-pluggable industry packs & OSS plugins**:
 
-- **Vendored Upstream Foundations (`vendor/`)**:
-  - `vendor/aionui/` (`iOfficeAI/AionUi`, Apache-2.0): Desktop Electron shell, WebUI, Cron scheduler, IM remote channels, and extension host.
-  - `vendor/aitoearn/` (`yikart/AiToEarn`, MIT): Multi-platform content creation, 14+ channel publishing, short-link attribution, and unified MCP server.
+- **Zero-Docker Desktop Shell (`vendor/aionui/`)**:
+  - Default home route `/leadgen` renders the modular `LeadGenStudioPage` (`CreateStudioTab`, `OmniPublishTab`, `IntentRadarTab`, `ProspectorOutboundTab`, `LeadCrmTab`, `PacksMarketTab`, `StudioModals`) driven by the single collapsible grouped `Sider`.
+  - Electron main-process bridge (`biaomaiBridge.ts`, `biaomaiStorage.ts`, `cnCompanyScraper.ts`) provides 19 native IPC capabilities: isolated `WebContentsView` browsers, PII-sanitized comment & formula extraction, CN company & Amap/Baidu/Google Maps prospecting, `dns.resolveMx` email verification, zero-dependency TLS/STARTTLS HTML+Text SMTP, NetEase RFC 2971 `ID` IMAP reply detection, Feishu/WeCom/DingTalk webhooks, and `Crawl4AI` bridging.
 - **Micro-Kernel Packages (`packages/`)**:
-  - `@biaomai/plugin-sdk`: Zod schemas for 5 first-class extension types, `CanvasRegistry`, and Open-Core `EntitlementProvider`.
-  - `@biaomai/plugin-runtime`: Hot `PackLoader`, ToB `PermissionGuard` sandbox, and dual-region/bilingual `RegionRouter` with 401 guard.
-  - `@biaomai/ai-browser`: Multi-account isolated Electron `WebContentsView` manager (`persist:bm-acc-*`), `agent-browser` MCP bridge, `stagehand` semantic extractor, optional `midscene` vision fallback, and mandatory `pii-sanitizer`.
-- **Industry Packs (`packs/`)**:
-  - `packs/pack-leadgen-ops/`: V1.0 flagship global lead-generation pack (5 bilingual experts, 4 dynamic canvases, Lead CRM, ROI attribution).
-  - `packs/pack-template/`: Starter template for Local Office and ToB vertical packs.
+  - `@biaomai/plugin-sdk`: Zod schemas (`schema.ts`, `crm-schema.ts`), `CanvasRegistry`, and Open-Core `EntitlementProvider`.
+  - `@biaomai/plugin-runtime`: Hot `PackLoader`, ToB `PermissionGuard`, and `RegionRouter`.
+  - `@biaomai/ai-browser`: Multi-account isolated browser session manager, `agent-browser`, `stagehand`, `midscene`, and `pii-sanitizer`.
+- **Official Industry Packs & Foreign OSS Plugins (`packs/`)**:
+  - Industry Packs: `pack-leadgen-ops`, `pack-global-b2b-outbound`, `pack-crossborder-ecom`, `pack-tob-bidding`, `pack-template`.
+  - Bilingual Foreign OSS Plugins: `plugin-oss-gmaps-scraper`, `plugin-oss-crawl4ai`, `plugin-oss-openoutreach`, `plugin-oss-quickly-mailer`, `plugin-oss-agentsdr`.
 
-## 2. Upstream Sync SOP
+## 2. Verification & Upstream Sync SOP
 
 1. Check `vendor/aionui/UPSTREAM_VERSION.md` and `vendor/aitoearn/UPSTREAM_VERSION.md` for pinned commits.
-2. Refresh vendored tree from upstream `main` on a feature branch, preserving upstream `LICENSE` files.
-3. Run `pnpm verify:all` to verify license compliance, i18n parity, pack manifest integrity, TypeScript checks, unit tests, and production workbench build.
+2. Run `pnpm verify:all` to validate all 6 gates: i18n parity, Apache-2.0/MIT licenses, `.bmpack` manifest integrity, TypeScript, Vitest unit tests, and Vite production build.
