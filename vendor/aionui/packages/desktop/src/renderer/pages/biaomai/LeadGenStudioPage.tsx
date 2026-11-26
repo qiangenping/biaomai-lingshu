@@ -163,29 +163,50 @@ const LeadGenStudioPage: React.FC = () => {
     setActiveTab('browser');
   };
 
-  useEffect(() => {
-    void ipcBridge.mode.listProviders
-      .invoke()
-      .then((providers) => {
-        if (!Array.isArray(providers) || providers.length === 0) return;
-        const active =
-          providers.find((p) => Boolean(p.api_key?.trim()) && p.models?.length > 0) ||
+  const syncSystemProviders = useCallback(async () => {
+    try {
+      const providers = await ipcBridge.mode.listProviders.invoke();
+      const active = Array.isArray(providers)
+        ? providers.find((p) => Boolean(p.api_key?.trim()) && p.models?.length > 0) ||
           providers.find((p) => Boolean(p.api_key?.trim())) ||
-          providers.find((p) => Boolean(p.base_url?.trim()) && p.models?.length > 0);
-        if (!active) return;
+          providers.find((p) => Boolean(p.base_url?.trim()) && p.models?.length > 0)
+        : undefined;
+
+      if (active) {
         setSystemModelReady(true);
         setSettings((prev) => {
-          if (prev.llmApiKey?.trim()) return prev;
+          if (prev.llmManualOverride && prev.llmApiKey?.trim()) return prev;
           return {
             ...prev,
             llmBaseUrl: active.base_url?.trim() || prev.llmBaseUrl,
             llmModel: active.models?.[0] || prev.llmModel,
-            llmApiKey: active.api_key?.trim() || prev.llmApiKey,
+            llmApiKey: active.api_key?.trim() || '',
+            llmManualOverride: false,
           };
         });
-      })
-      .catch(() => {});
+      } else {
+        setSystemModelReady(false);
+        setSettings((prev) => {
+          if (prev.llmManualOverride) return prev;
+          if (!prev.llmApiKey) return prev;
+          return { ...prev, llmApiKey: '', llmModel: '', llmManualOverride: false };
+        });
+      }
+    } catch {
+      // ignore if backend not ready yet
+    }
   }, []);
+
+  useEffect(() => {
+    void syncSystemProviders();
+    const onFocus = () => void syncSystemProviders();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [syncSystemProviders]);
+
+  useEffect(() => {
+    if (settingsModalOpen) void syncSystemProviders();
+  }, [settingsModalOpen, syncSystemProviders]);
 
   const refreshOpenMotionStatus = useCallback(async () => {
     if (!bridge?.openMotionStudioControl) return;

@@ -1,72 +1,85 @@
-<p align="center">
-  <strong>English</strong> | <a href="./README.zh-CN.md">简体中文</a>
-</p>
-
-# BiaoMai Lingshu (`biaomai-operations-platform`)
-
-> **Open-Source Global Lead-Gen & Extensible AI Desktop Workbench**
-> Built on a 100% **Apache-2.0 / MIT** micro-kernel (`AionUi` + `.bmpack` hot-pluggable industry packs). Zero Docker required for local desktop use. Combines **Inbound Omni-Media Growth (17 Global & CN Channels)** with **Outbound Global B2B & Foreign-Trade Prospecting (Google Maps / LinkedIn / Directories + DNS MX Verify + Multilingual Cold Email & WhatsApp Sequences + IMAP Reply Auto-Stop)**.
-
-[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)
-[![i18n](https://img.shields.io/badge/i18n-English%20%7C%20%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-indigo.svg)](./README.zh-CN.md)
-[![Zero-Docker](https://img.shields.io/badge/Desktop-Zero--Docker%20Local-emerald.svg)](./docs/en/QUICKSTART.md)
-[![CI](https://img.shields.io/badge/CI-6%20Quality%20Gates-success.svg)](./.github/workflows/ci.yml)
+<div align="center">
+  <h1>BiaoMai Lingshu (标脉灵枢)</h1>
+  <p><strong>Open-Source, Zero-Docker, Global AI Lead-Generation & Outbound Growth Workbench</strong></p>
+  <p>
+    <a href="https://biao5fen.com"><img src="https://img.shields.io/badge/Website-biao5fen.com-4F46E5?style=flat-square" alt="Website" /></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-10B981?style=flat-square" alt="License" /></a>
+    <a href="./README.zh-CN.md"><img src="https://img.shields.io/badge/文档-简体中文-0F172A?style=flat-square" alt="简体中文" /></a>
+    <a href="./docs/en/USER_MANUAL.md"><img src="https://img.shields.io/badge/Docs-User_Manual-2563EB?style=flat-square" alt="User Manual" /></a>
+  </p>
+</div>
 
 ---
 
-## Core Capabilities
-
-### 1. Inbound: Omni-Media Content & 17-Channel Matrix (`pack-leadgen-ops`)
-- **AI Content Studio**: Multi-platform copywriting, multilingual localization (`zh-CN`, `en-US`, `ja-JP`, `es-ES`), AI cover visual generation, and AI short-video / dubbing task tracking via optional `AiToEarn` MCP.
-- **17 Global & CN Channels**: Isolated Chromium cookie partitions (`persist:bm-acc-*`) for RedNote, Douyin, WeChat Channels, Bilibili, Kuaishou, WeChat OA, Weibo, Zhihu, Baijiahao, TikTok, YouTube, LinkedIn, X, Instagram, Facebook, Threads, and Pinterest.
-- **Live Intent Radar & Competitor Formula**: Extract live visible comments and competitor post structures directly from the embedded isolated browser, strip PII via `pii-sanitizer`, score `S/A/B/C` buyer intent, and prefill replies (strictly stopping before Send).
-
-### 2. Outbound: Global B2B & Foreign-Trade Prospector (`pack-global-b2b-outbound`)
-- **Multi-Directory Discovery**: Launch isolated browser search across **Google Maps, LinkedIn, Thomasnet, Europages, Alibaba**, or connect optional local **`Crawl4AI` (Apache-2.0)** for batch scraping.
-- **Website Enrichment & DNS MX Verification**: Automatically crawl company `/contact` & `/about` pages for public emails, phones, WhatsApp links, and verify email deliverability via real `dns.resolveMx`.
-- **3-Step Multilingual Cold Email & WhatsApp Sequences**: Generate Day 1 / Day 4 / Day 9 outreach sequences, send via zero-dependency **TLS/STARTTLS SMTP** (with mandatory Human-in-the-Loop confirmation), prefill WhatsApp/LinkedIn DMs, and auto-stop follow-ups via **TLS IMAP reply detection**.
-
-### 3. Unified Local CRM, 24/7 Cron & Hot-Pluggable `.bmpack` Micro-Kernel
-- **Atomic Main-Process Persistence**: All accounts, posts, prospects, and 5-stage CRM leads (`New → Engaged → Qualified → Opportunity → Won`) persist locally in `userData/biaomai-studio-db.json` with CSV export and ROI attribution.
-- **Cron & IM Approval Center**: Push daily digests and approval alerts to **Feishu / WeCom / DingTalk** webhooks.
-- **Official `.bmpack` Industry Packs**:
-  - `packs/pack-leadgen-ops` — Global Omni-Media Inbound Lead-Gen
-  - `packs/pack-global-b2b-outbound` — Global B2B & Foreign-Trade Outbound
-  - `packs/pack-crossborder-ecom` — Cross-Border E-Commerce & Influencer Outreach
-  - `packs/pack-tob-bidding` — Enterprise ToB Bidding & Tender Intelligence
+**BiaoMai Lingshu (标脉灵枢)** is a local-first, Apache-2.0 open-source desktop workbench engineered for cross-border teams, B2B exporters, SaaS builders, and enterprise bidding/local service teams. Built on a hot-pluggable micro-kernel architecture (powered by the open-source AionUi runtime), it unifies **1-Click AI Content Creation**, **Built-in AI Browser**, **17-Channel Isolated Publishing**, **Social Intent Radar**, **Global & China B2B Prospecting**, and **Kanban Lead CRM + Open-Source CRM Sync**—all running 100% locally with zero Docker setup and strict human-in-the-loop compliance.
 
 ---
 
-## Quick Start (Zero-Docker Desktop)
+## Key Capabilities
 
-**Prerequisites**: Node.js `>= 22`, pnpm `>= 9`, and Bun (for AionUi desktop build).
+| Module | What It Does | Local-First & Compliance |
+| :--- | :--- | :--- |
+| **01. 1-Click Content Studio** | Enter one sentence → generate copy + CTA, brand cover visual / AI image, and **OpenMotion** HTML5/Motion.md animation in one click; tweak any part inline. | Works with any OpenAI-compatible LLM (DeepSeek, OpenAI, Qwen, Ollama); falls back gracefully with zero external lock-in. |
+| **02. 17-Channel Omni-Publish** | Manage isolated Cookie containers across 9 China + 8 Global channels (RedNote, Douyin, Channels, Zhihu, Bilibili, TikTok, YouTube, LinkedIn, X, Instagram, etc.) with a top-pinned schedule queue. | 2-stage human-confirmed publishing: auto-copy & prefill in Built-in AI Browser → human clicks Publish → mark Published. |
+| **03. Built-in AI Browser** | Embedded Electron `<webview>` browser with address bar, bookmarks, multi-account Cookie partitions, and a right-side **AI Browser Copilot**. | 1-click extract comments → Radar, extract competitor formula → Create, extract companies → Prospector, or prefill drafts. |
+| **04. Social Intent Radar** | Capture live comments with real author nicknames, mandatory PII redaction (phone/email/WeChat/URL), S/A/B/C intent scoring, LLM semantic refinement, and reply prefill. | Strictly stops before clicking Send; includes 1-click sample comments for instant offline testing. |
+| **05. Global & CN Prospector** | **China Mode**: bulk company website/phone/email lookup + Amap/Baidu Maps. **Global Mode**: Google Maps, LinkedIn, Thomasnet, Europages, Alibaba + website enrichment + DNS MX check + multilingual cold email. | Zero-dependency local TLS/STARTTLS SMTP sender & IMAP reply detector; optional Crawl4AI sidecar support. |
+| **06. Lead CRM + OSS Sync** | Built-in 5-stage Kanban board, table view, detail drawer, CSV export, ROI attribution, and 1-click REST sync to self-hosted **Twenty CRM** (`twentyhq/twenty`) or **Atomic CRM** (`marmelab/atomic-crm`). | Local JSON persistence (`biaomai-studio-db.json`); zero cloud lock-in. |
+| **07. Micro-Kernel Plugins** | 11 built-in Apache-2.0 / MIT `.bmpack` extensions (including `plugin-oss-openmotion` with 1-click local OpenMotion Studio launcher & `plugin-oss-twenty-crm`), installable & uninstallable at runtime. | Automated license, i18n parity, and manifest integrity gates (`pnpm verify:all`). |
 
-```bash
-git clone https://github.com/<org>/biaomai-operations-platform.git
-cd biaomai-operations-platform
-pnpm install
-pnpm verify:all     # Runs all 6 quality, i18n, license, pack, typecheck & unit test gates
-pnpm dev:aionui     # Launches the Zero-Docker Electron Desktop Workbench
+---
+
+## End-to-End Architecture
+
+```mermaid
+flowchart LR
+    A["01 Content Studio<br/>1-Click Copy + Cover + OpenMotion"] -->|"Save / Publish Now"| B["02 Omni-Publish<br/>Schedule Queue + 17 Channels"]
+    B -->|"Open Creator Center"| W["03 Built-in AI Browser<br/>Electron webview + Isolated Cookies + AI Copilot"]
+    W -->|"Extract Comments"| C["04 Social Intent Radar<br/>PII Redaction + LLM Scoring"]
+    W -->|"Extract Companies"| D["05 B2B / CN Prospector<br/>Maps + Directories + MX Check"]
+    W -->|"Extract Formula"| A
+    C -->|"Real Author + Intent"| E["06 Lead CRM<br/>5-Stage Kanban + Twenty / Atomic Sync"]
+    D -->|"Company + Email + Phone"| E
 ```
 
-Optional self-hosted AiToEarn backend via Docker:
+---
+
+## Quick Start
+
+### Prerequisites
+- Node.js `>= 20`, `pnpm >= 9`, `bun >= 1.1` (for the desktop runtime)
+
+### Install & Launch Desktop App
 ```bash
-pnpm docker:up
+git clone https://github.com/qiangenping/biaomai-lingshu.git
+cd biaomai-lingshu
+pnpm install
+pnpm install:aionui-packs
+pnpm dev:aionui
+```
+
+### Run Full Verification Suite (6 Gates)
+```bash
+pnpm verify:all
 ```
 
 ---
 
 ## Documentation
-
-- [5-Minute Quickstart](./docs/en/QUICKSTART.md)
-- [Complete Operator Manual](./docs/en/USER_MANUAL.md)
-- [Self-Hosted & Cloud Deployment](./docs/en/DEPLOYMENT.md)
-- [Architecture Overview](./docs/en/ARCHITECTURE.md)
-- [Plugin SDK & `.bmpack` Guide](./docs/en/PLUGIN_SDK_GUIDE.md)
-- [Security Policy](./SECURITY.md) | [Privacy & Compliance](./PRIVACY_AND_COMPLIANCE.md) | [Contributing](./CONTRIBUTING.md)
+- [Complete User Manual (English)](./docs/en/USER_MANUAL.md) | [完整操作手册（简体中文）](./docs/zh-CN/USER_MANUAL.md)
+- [Quick Start Guide](./docs/en/QUICKSTART.md) | [快速上手指南](./docs/zh-CN/QUICKSTART.md)
+- [Architecture Overview](./docs/en/ARCHITECTURE.md) | [系统架构说明](./docs/zh-CN/ARCHITECTURE.md)
+- [Plugin SDK Development Guide](./docs/en/PLUGIN_SDK_GUIDE.md) | [插件开发指南](./docs/zh-CN/PLUGIN_SDK_GUIDE.md)
+- [Privacy & Compliance Policy](./PRIVACY_AND_COMPLIANCE.md)
+- [Contributing Guide](./CONTRIBUTING.md) | [Security Policy](./SECURITY.md) | [Changelog](./CHANGELOG.md)
 
 ---
 
-## License & Upstream Attributions
+## Community & Support
+- **Official Website**: [https://biao5fen.com](https://biao5fen.com)
+- **GitHub Repository**: [https://github.com/qiangenping/biaomai-lingshu](https://github.com/qiangenping/biaomai-lingshu)
+- **Issues & Feature Requests**: [GitHub Issues](https://github.com/qiangenping/biaomai-lingshu/issues)
+- **Contact**: [genpingqian@gmail.com](mailto:genpingqian@gmail.com)
 
-Licensed under the **[Apache License 2.0](./LICENSE)**. All dependencies are strictly audited by `pnpm verify:licenses` to remain **Apache-2.0 / MIT** clean (no GPL/AGPL). See [NOTICE](./NOTICE) and [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
+## License
+Licensed under the [Apache License 2.0](./LICENSE). Third-party open-source attributions are documented in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).

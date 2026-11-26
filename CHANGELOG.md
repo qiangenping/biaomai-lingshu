@@ -1,17 +1,20 @@
 # Changelog
 
-All notable changes to `biaomai-operations-platform` will be documented in this file.
+All notable changes to **BiaoMai Lingshu (标脉灵枢)** are documented in this file.
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.0.0] - 2026-11-26
 
 ### Added
-- **Zero-Docker Desktop Workbench (`AionUi` + BiaoMai Branding)**: Launches directly into `/leadgen` (`LeadGenStudioPage`) with official BiaoMai iconography, collapsible single-sidebar grouped menu (`Inbound / Outbound / Convert / System`), 5 industry presets, and built-in operating guide.
-- **Inbound 17-Channel Omni-Media Growth (`pack-leadgen-ops`)**: AI copywriting, multilingual localization (`zh-CN`, `en-US`, `ja-JP`, `es-ES`), AI cover visual & video/dubbing task progress, 17 isolated Chromium partitions (`persist:bm-acc-*`), live comment intent radar with mandatory `pii-sanitizer`, competitor formula extraction, and LLM semantic reranking.
-- **Outbound Global & CN Enterprise Prospector (`pack-global-b2b-outbound`)**:
-  - CN company name bulk lookup (`cnCompanyScraper.ts` with 360/Baidu Mobile/official site deep probe & SSRF guard) + Amap / Baidu Map isolation extraction;
-  - Global Google Maps, LinkedIn, Thomasnet, Europages, Alibaba extraction + company `/contact` enrichment + real `dns.resolveMx` verification;
-  - 3-step multilingual cold email & WhatsApp sequences, zero-dependency TLS/STARTTLS HTML+Text SMTP mailer, and TLS IMAP reply checker with NetEase 163/126 RFC 2971 `ID` support.
-- **Unified Local Persistence & CRM**: Main-process atomic DB (`biaomaiStorage.ts` -> `userData/biaomai-studio-db.json`), 5-stage Lead CRM, ROI attribution & post re-spin, CSV export, and 24/7 Cron + Feishu/WeCom/DingTalk webhook alerts.
-- **Vertical `.bmpack` & Bilingual Foreign OSS Plugins**: Added `pack-crossborder-ecom`, `pack-tob-bidding`, and 5 bilingual open-source plugins (`plugin-oss-gmaps-scraper`, `plugin-oss-crawl4ai`, `plugin-oss-openoutreach`, `plugin-oss-quickly-mailer`, `plugin-oss-agentsdr`).
-- **Big-Tech OSS Governance**: 6 CI quality gates (`pnpm verify:all`), Apache-2.0 + MIT license audit, DCO `Signed-off-by`, bilingual docs (`README`, `QUICKSTART`, `USER_MANUAL`, `ARCHITECTURE`), and GitHub Issue/PR/Release workflows.
+- **Built-in AI Browser (`AiBrowserTab`)**: Embedded Electron `<webview>` workspace with address bar, bookmarks, multi-account isolated `persist:` Cookie partitions, and right-side AI Copilot (live comment extraction, competitor formula extraction, B2B company extraction, and human-confirmed draft/reply prefill).
+- **1-Click Content Studio (`CreateStudioTab`)**: Single-click generation of platform copy, brand cover visual / AI image, and **OpenMotion** HTML5/Motion.md animation preview, plus inline editing, per-part tweaks, and recent draft history.
+- **2-Stage Compliant Publishing (`OmniPublishTab`)**: Top-pinned schedule queue, 17 China & Global channel containers, one-click AI Browser prefill, and explicit human-confirmed "Mark Published" flow.
+- **Upgraded Social Intent Radar (`IntentRadarTab`)**: Direct AI Browser integration, multi-platform real author + comment extraction, mandatory PII sanitization, LLM semantic intent scoring, and 1-click offline sample comments.
+- **Commercial Lead CRM & Open-Source CRM Sync (`LeadCrmTab`)**: 5-stage Kanban board, Table view, Detail Drawer, CSV export, ROI attribution, and REST API connector for self-hosted **Twenty CRM** (`twentyhq/twenty`) and **Atomic CRM** (`marmelab/atomic-crm`).
+- **Hot-Pluggable Open-Source Plugins**: Added `plugin-oss-twenty-crm` and `plugin-oss-openmotion` (with 1-click local full OpenMotion Studio lifecycle control), plus full `/` slash command availability and automatic `zh-CN` / `en-US` localization.
+
+### Changed
+- Unified flat button design system (`flat-buttons.css`), full-width responsive layouts, BiaoMai Lingshu brand logo (`app.png`), theme cover (`biaomai-theme.svg`), and About links (`biao5fen.com`, `genpingqian@gmail.com`, `github.com/qiangenping/biaomai-lingshu`).
+- Removed unused AiToEarn MCP settings UI and redesigned Settings into a clean 3-tab modal with live system model sync and 1-click key clearing.
+- Eliminated startup lazy-load spinner flash on `/leadgen` and added inline font-family/theme styles in `index.html` to prevent FOUC.
