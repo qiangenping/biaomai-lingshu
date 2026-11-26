@@ -104,6 +104,22 @@ export interface BiaoMaiElectronBridge {
     apiKey?: string;
     leads: LocalLead[];
   }) => Promise<{ ok: boolean; syncedCount: number; failedCount: number; error?: string }>;
+  generateOpenMotionVideo: (payload: {
+    title: string;
+    body: string;
+    platformName: string;
+    aspect: string;
+    brandColor: string;
+    language: string;
+    studioUrl?: string;
+  }) => Promise<{
+    ok: boolean;
+    mode: 'server' | 'local-html';
+    projectDir: string;
+    motionMd: string;
+    previewUrl: string;
+    error?: string;
+  }>;
 }
 
 export interface OutreachStep {

@@ -29,6 +29,10 @@ const LOCALIZED_SKILL_DESCRIPTIONS: Record<string, { zh: string; en: string }> =
     zh: 'Twenty / Atomic 开源 CRM：一键同步高意向线索与商机管道',
     en: 'Sync qualified leads and deals to Twenty CRM or Atomic CRM',
   },
+  'openmotion-video': {
+    zh: 'OpenMotion 动效视频工坊：生成可编辑 Motion.md 分镜与 HTML5/MP4 短视频',
+    en: 'Generate editable Motion.md storyboards & HTML5/MP4 motion videos',
+  },
   'aitoearn-core': {
     zh: '标脉灵枢多平台获客核心：内容、发布、雷达与 CRM 全链路编排',
     en: 'Core multi-platform lead-gen orchestration skill',

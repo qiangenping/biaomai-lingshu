@@ -298,6 +298,37 @@ const LeadGenStudioPage: React.FC = () => {
     setCreatingVideo(false);
   };
 
+  const handleGenerateOpenMotion = async () => {
+    const prompt = draftTitle || topicInput;
+    if (!prompt.trim()) return Message.warning(isZh ? '请先输入主题或生成文案' : 'Enter a topic first');
+    if (!bridge?.generateOpenMotionVideo) return;
+    setCreatingVideo(true);
+    setVideoTaskProgress(45);
+    setVideoTaskStatus(isZh ? '正在生成 OpenMotion 分镜与动效工程...' : 'Generating OpenMotion project...');
+    try {
+      const res = await bridge.generateOpenMotionVideo({
+        title: draftTitle || prompt.slice(0, 36),
+        body: draftBody || topicInput,
+        platformName: isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn,
+        aspect: selectedCreatePlatform.aspect,
+        brandColor: selectedCreatePlatform.brandColor,
+        language: targetLang,
+      });
+      if (!res.ok) return Message.error(res.error || 'OpenMotion failed');
+      setVideoTaskProgress(100);
+      setVideoTaskStatus(
+        isZh
+          ? `OpenMotion 动效工程已生成 (${res.mode === 'server' ? '已同步本地 Studio' : 'HTML5 动效预览'}): ${res.projectDir}`
+          : `OpenMotion project ready (${res.mode}): ${res.projectDir}`
+      );
+      if (!draftBody.trim()) setDraftBody(res.motionMd);
+      await handleOpenIsolatedWindow('biaomai-openmotion', res.previewUrl, 'OpenMotion Video Studio');
+      Message.success(isZh ? '已生成 Motion.md 并打开动效预览窗口' : 'Generated Motion.md & opened preview');
+    } finally {
+      setCreatingVideo(false);
+    }
+  };
+
   const handleSaveToSchedule = () => {
     if (!draftTitle.trim()) return Message.warning(isZh ? '请先输入或生成标题' : 'Enter a title first');
     const newPost: LocalPost = {
@@ -700,6 +731,7 @@ const LeadGenStudioPage: React.FC = () => {
             onAiGenerateCopy={handleAiGenerateCopy}
             onAiGenerateImage={handleAiGenerateImage}
             onAiGenerateVideo={handleAiGenerateVideo}
+            onGenerateOpenMotion={handleGenerateOpenMotion}
             onSaveToSchedule={handleSaveToSchedule}
           />
         )}

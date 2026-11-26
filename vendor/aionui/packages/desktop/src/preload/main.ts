@@ -103,6 +103,15 @@ contextBridge.exposeInMainWorld('biaomaiAPI', {
     apiKey?: string;
     leads: unknown[];
   }) => ipcRenderer.invoke('biaomai:sync-external-crm', payload),
+  generateOpenMotionVideo: (payload: {
+    title: string;
+    body: string;
+    platformName: string;
+    aspect: string;
+    brandColor: string;
+    language: string;
+    studioUrl?: string;
+  }) => ipcRenderer.invoke('biaomai:generate-openmotion-video', payload),
 });
 
 // Synchronously fetch the aioncore port and expose it to the renderer

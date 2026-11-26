@@ -969,4 +969,110 @@ export function initBiaoMaiBridge(): void {
       };
     }
   );
+
+  // 21. OpenMotion (nexu-io/openmotion) Motion.md + Animated HTML5 Composition Generator
+  ipcMain.handle(
+    'biaomai:generate-openmotion-video',
+    async (
+      _evt,
+      payload: {
+        title: string;
+        body: string;
+        platformName: string;
+        aspect: string;
+        brandColor: string;
+        language: string;
+        studioUrl?: string;
+      }
+    ) => {
+      const safeTitle = (payload.title || 'BiaoMai Lingshu Motion').trim();
+      const safeBody = (payload.body || safeTitle).trim();
+      const lines = safeBody
+        .split(/\n+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const hook = lines[0] || safeTitle;
+      const valueProp = lines[1] || safeBody.slice(0, 80);
+      const cta = lines[2] || (payload.language.startsWith('zh') ? '评论区回复「方案」立即获取报价与演示' : 'Comment "DEMO" to get pricing & live walkthrough');
+
+      const motionMd = [
+        `# Motion.md — ${safeTitle}`,
+        `- Platform: ${payload.platformName} (${payload.aspect})`,
+        `- Language: ${payload.language}`,
+        `- Brand Color: ${payload.brandColor || '#4F46E5'}`,
+        '',
+        '## Shot 1 (0.0s - 2.5s) · Hook',
+        `- Visual: Kinetic headline entrance on dark gradient canvas`,
+        `- Text: ${hook}`,
+        '',
+        '## Shot 2 (2.5s - 6.0s) · Core Value',
+        `- Visual: Brand card slide-up with accent highlight`,
+        `- Text: ${valueProp}`,
+        '',
+        '## Shot 3 (6.0s - 9.0s) · Call To Action',
+        `- Visual: Pulsing CTA pill & BiaoMai Lingshu watermark`,
+        `- Text: ${cta}`,
+      ].join('\n');
+
+      const baseDir = path.join(os.homedir(), '.aionui-dev', 'openmotion-projects', `om_${Date.now()}`);
+      fs.mkdirSync(baseDir, { recursive: true });
+      const motionMdPath = path.join(baseDir, 'Motion.md');
+      fs.writeFileSync(motionMdPath, motionMd, 'utf8');
+
+      const escHtml = (v: string) =>
+        v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      const [rw, rh] = (payload.aspect || '9:16').split(':').map((n) => Number(n) || 9);
+      const html = `<!doctype html>
+<html lang="${escHtml(payload.language || 'zh-CN')}">
+<head>
+<meta charset="utf-8" />
+<title>${escHtml(safeTitle)} · OpenMotion Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #090d16; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .stage { width: min(420px, 90vw); aspect-ratio: ${rw} / ${rh}; background: radial-gradient(circle at 20% 20%, ${escHtml(payload.brandColor || '#4F46E5')}55, #0f172a 70%); border-radius: 24px; border: 1px solid rgba(255,255,255,0.14); padding: 28px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.1); font-size: 12px; font-weight: 600; width: fit-content; }
+  .shot { opacity: 0; transform: translateY(18px); animation: cycle 9s infinite; }
+  .shot-1 { animation-delay: 0s; }
+  .shot-2 { animation-delay: 0.4s; }
+  .shot-3 { animation-delay: 0.8s; }
+  h1 { font-size: 24px; line-height: 1.3; font-weight: 800; margin-bottom: 12px; }
+  p { font-size: 14px; line-height: 1.6; color: #cbd5e1; }
+  .cta { padding: 12px 16px; border-radius: 12px; background: ${escHtml(payload.brandColor || '#4F46E5')}; font-size: 13px; font-weight: 700; text-align: center; box-shadow: 0 8px 24px ${escHtml(payload.brandColor || '#4F46E5')}66; }
+  @keyframes cycle { 0% { opacity: 0; transform: translateY(18px); } 12%, 88% { opacity: 1; transform: translateY(0); } 100% { opacity: 0.25; transform: translateY(-6px); } }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="badge">OpenMotion · ${escHtml(payload.platformName)} (${escHtml(payload.aspect)})</div>
+    <div>
+      <h1 class="shot shot-1">${escHtml(hook)}</h1>
+      <p class="shot shot-2">${escHtml(valueProp)}</p>
+    </div>
+    <div class="cta shot shot-3">${escHtml(cta)}</div>
+  </div>
+</body>
+</html>`;
+      const previewHtmlPath = path.join(baseDir, 'index.html');
+      fs.writeFileSync(previewHtmlPath, html, 'utf8');
+      const localFileUrl = `file://${previewHtmlPath}`;
+
+      const studioBase = (payload.studioUrl || 'http://localhost:3001').trim().replace(/\/+$/, '');
+      try {
+        const res = await fetch(`${studioBase}/api/projects`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: safeTitle, aspect: payload.aspect, motionMd }),
+          signal: AbortSignal.timeout(2500),
+        });
+        if (res.ok) {
+          return { ok: true, mode: 'server' as const, projectDir: baseDir, motionMd, previewUrl: studioBase };
+        }
+      } catch {
+        // Fallback to local self-contained HTML5 motion preview when OpenMotion server is not running
+      }
+
+      return { ok: true, mode: 'local-html' as const, projectDir: baseDir, motionMd, previewUrl: localFileUrl };
+    }
+  );
 }
