@@ -289,12 +289,15 @@ const LeadGenStudioPage: React.FC = () => {
 
   const handleAiGenerateImage = async () => {
     const prompt = (draftTitle || topicInput || b2bIndustry || 'BiaoMai Lingshu').trim();
-    const key = settings.imageApiKey || settings.llmApiKey;
-    if (!key) {
+    const canCallRemoteImageApi =
+      Boolean(settings.imageApiKey?.trim()) ||
+      (Boolean(settings.llmApiKey?.trim()) && /openai\.com|siliconflow|together|fireworks/i.test(settings.imageBaseUrl || settings.llmBaseUrl));
+    const key = settings.imageApiKey?.trim() || settings.llmApiKey?.trim();
+    if (!canCallRemoteImageApi || !key) {
       const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${selectedCreatePlatform.brandColor}"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><text x="48" y="96" fill="#ffffffcc" font-family="sans-serif" font-size="24" font-weight="600">${esc(isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn)} · ${esc(selectedCreatePlatform.aspect)}</text><text x="48" y="290" fill="#ffffff" font-family="sans-serif" font-size="40" font-weight="700">${esc(prompt.slice(0, 22))}</text><text x="48" y="350" fill="#ffffffb3" font-family="sans-serif" font-size="22">${esc(isZh ? '标脉灵枢 · 全球 AI 获客工坊' : 'BiaoMai Lingshu · AI Studio')}</text></svg>`;
       setDraftImageUrl(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
-      Message.success(isZh ? '已生成品牌视觉封面（配置生图 Key 后可启用 AI 生图）' : 'Generated brand cover');
+      Message.success(isZh ? '已生成品牌视觉封面（配置独立生图 Key 后可启用 AI 生图）' : 'Generated brand cover');
       return;
     }
     if (!bridge?.generateImage) return;
@@ -315,11 +318,11 @@ const LeadGenStudioPage: React.FC = () => {
   };
 
   const handleAiGenerateVideo = async () => {
-    const prompt = draftTitle || topicInput;
+    const prompt = draftTitle || topicInput || b2bIndustry;
     if (!prompt.trim()) return Message.warning(isZh ? '请先输入主题或生成文案' : 'Enter a topic first');
     if (!activeMcpKey) {
-      setSettingsModalOpen(true);
-      return Message.info(isZh ? 'AI 视频生成需配置 AiToEarn MCP Key' : 'Configure AiToEarn MCP Key');
+      await handleGenerateOpenMotion();
+      return;
     }
     if (!bridge?.callAiToEarnMcp) return;
     setCreatingVideo(true);
