@@ -48,8 +48,8 @@ jobs:
           cache: pnpm
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
-      - run: pnpm setup
+          bun-version: 1.4.5
+      - run: pnpm run setup
       - name: Package Electron Installer
         working-directory: vendor/aionui
         run: ${{ matrix.cmd }}
@@ -65,7 +65,7 @@ jobs:
         with:
           name: installer-${{ matrix.os }}
           path: ${{ matrix.artifact_glob }}
-          if-no-files-found: warn
+          if-no-files-found: error
 
   publish-release:
     needs: build-desktop

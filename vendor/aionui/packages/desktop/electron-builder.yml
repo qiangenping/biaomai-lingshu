@@ -103,6 +103,8 @@ files:
     to: static
 
 extraResources:
+  - from: .aionui/extensions
+    to: opengrowth-packs
   - from: public
     to: .
   - from: resources/app.png

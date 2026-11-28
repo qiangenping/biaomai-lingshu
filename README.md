@@ -156,10 +156,10 @@ Switch industry presets anytime from the top bar:
 ```bash
 git clone https://github.com/qiangenping/opengrowth.git
 cd opengrowth
-pnpm setup
+pnpm run setup
 pnpm dev:aionui
 ```
-> `pnpm setup` installs root workspace packages, `vendor/aionui` Electron runtime dependencies (via Bun), and syncs all 11 `.bmpack` plugins.
+> `pnpm run setup` installs root workspace packages, `vendor/aionui` Electron runtime dependencies (via Bun), and syncs all 11 `.bmpack` plugins.
 
 ### 2. Configure Your Model (30 Seconds)
 1. Open **Settings → Models** in the left sidebar and add any OpenAI-compatible provider (e.g., DeepSeek, OpenAI, Qwen, or local Ollama).
