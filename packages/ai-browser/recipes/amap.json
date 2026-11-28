@@ -1,0 +1,12 @@
+{
+  "id": "amap",
+  "name": "Amap (高德地图)",
+  "domains": ["amap.com", "ditu.amap.com"],
+  "kind": "b2b_directory",
+  "selectors": {
+    "companyCard": [".poibox", ".poi-item", "[class*='poi-list'] > div"],
+    "companyName": [".poi-name", ".poiname", "h3"],
+    "companyPhone": [".poi-tel", "[class*='tel']"]
+  },
+  "humanConfirmBeforeSubmit": true
+}

@@ -800,6 +800,49 @@ const LeadGenStudioPage: React.FC = () => {
   };
   const currentMeta = sectionMeta[activeTab] || sectionMeta.create;
 
+  const handleLoadDemoPipeline = () => {
+    setTopicInput(
+      isZh
+        ? 'OpenGrowth 开源 AI 获客工作台：免 Docker 本地运行，一键生成 17 平台图文动效，内置 AI 浏览器提取评论意向与 B2B 企业邮箱。'
+        : 'OpenGrowth: local-first, zero-Docker AI growth workbench replacing $500+/mo SaaS—1-click multilingual content, AI browser intent radar, B2B prospector & Kanban CRM.'
+    );
+    setDraftTitle(
+      isZh ? '为什么外贸与独立开发团队都在用本地优先 AI 获客？' : 'Why B2B teams are switching to local-first AI lead generation'
+    );
+    setDraftBody(
+      isZh
+        ? '从选题创作、17 平台隔离分发、AI 浏览器评论意向评分到看板 CRM 归因，全部数据与 Cookie 留在本地硬盘，防封号、零云端锁定。'
+        : 'Unify multilingual studio, 17 isolated social containers, PII-safe AI Browser Intent Radar, DNS MX B2B prospecting, and 5-stage Kanban CRM on your own machine.'
+    );
+    const sampleLines = isZh
+      ? [
+          '我们也在找德语区 CNC 买家渠道，怎么接本地 CRM 和企业邮箱？加微信 wx_cnc2026',
+          '支持 TikTok 和 LinkedIn 多账号防关联吗？有 macOS 安装包吗？',
+        ]
+      : [
+          'Looking for an Apollo + Buffer alternative that keeps our outreach data local. Does it sync with Twenty CRM? Email me at marcus@cnc-demo.de',
+          'Love the human-in-the-loop prefill gate—does it support multi-account isolation on LinkedIn and X?',
+        ];
+    setRawCommentInput(sampleLines.join('\n'));
+    setAnalyzedList(
+      sampleLines.map((line, idx) => {
+        const clean = sanitizePii(line);
+        return {
+          id: `demo_c_${Date.now()}_${idx}`,
+          author: isZh ? (idx === 0 ? '陈工 · 苏州精密机械' : 'Alex · 跨境独立站') : (idx === 0 ? 'Marcus · Precision CNC GmbH' : 'Elena · CloudFlow SaaS'),
+          text: clean.text,
+          redacted: clean.redacted,
+          ...scoreComment(clean.text),
+        };
+      })
+    );
+    Message.success(
+      isZh
+        ? '已载入全链路演练数据：内容工坊与社媒意向雷达均已填充'
+        : 'Demo pipeline loaded across Content Studio & Intent Radar'
+    );
+  };
+
   return (
     <div className='biaomai-workbench-root h-full w-full overflow-y-auto overflow-x-hidden bg-2 text-t-primary box-border'>
       <div className='w-full min-h-full px-20px py-16px flex flex-col gap-16px box-border'>
@@ -817,6 +860,13 @@ const LeadGenStudioPage: React.FC = () => {
           </div>
 
           <div className='flex items-center gap-8px flex-wrap shrink-0'>
+            <button
+              type='button'
+              onClick={handleLoadDemoPipeline}
+              className='h-32px px-12px rd-8px border-none bg-[#EEF2FF] hover:bg-[#E0E7FF] text-13px font-600 text-[#4338CA] cursor-pointer flex items-center gap-5px transition-colors whitespace-nowrap shrink-0'
+            >
+              {isZh ? '✨ 一键演练' : '✨ Demo Pipeline'}
+            </button>
             <button
               type='button'
               onClick={() => setGuideModalOpen(true)}

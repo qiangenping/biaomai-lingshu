@@ -36,6 +36,9 @@ jobs:
           - os: windows-latest
             cmd: bun run build-win:x64:fast
             artifact_glob: vendor/aionui/out/*.exe
+          - os: ubuntu-latest
+            cmd: bun run build-deb
+            artifact_glob: vendor/aionui/out/*.deb
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -88,6 +91,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           mkdir installers
           Copy-Item $installer[0].FullName installers/OpenGrowth-Windows-x64.exe
+      - name: Package Linux installer
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p installers
+          for f in vendor/aionui/out/*.deb vendor/aionui/out/*.AppImage; do
+            [ -f "$f" ] && cp "$f" installers/
+          done
+          ls -la installers/
       - uses: actions/upload-artifact@v4
         with:
           name: installer-${{ matrix.os }}

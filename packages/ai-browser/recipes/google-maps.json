@@ -1,0 +1,13 @@
+{
+  "id": "google-maps",
+  "name": "Google Maps",
+  "domains": ["google.com/maps", "maps.google.com"],
+  "kind": "b2b_directory",
+  "selectors": {
+    "companyCard": ["div[role='feed'] > div > div[jsaction]", "a.hfpxzc"],
+    "companyName": [".qBF1Pd", "h1.DUwDvf"],
+    "companyWebsite": ["a[data-item-id='authority']", "a[aria-label*='Website']"],
+    "companyPhone": ["button[data-item-id^='phone:']", "button[aria-label*='Phone']"]
+  },
+  "humanConfirmBeforeSubmit": true
+}

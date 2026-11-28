@@ -1,0 +1,15 @@
+{
+  "id": "xiaohongshu",
+  "name": "RedNote (Xiaohongshu)",
+  "domains": ["xiaohongshu.com", "creator.xiaohongshu.com"],
+  "kind": "social",
+  "selectors": {
+    "commentContainer": [".comment-item", "[class*='commentItem']", ".note-scroller .list-container > div"],
+    "commentAuthor": [".author-wrapper .name", "[class*='author']", ".user-nickname"],
+    "commentBody": [".content", ".note-text", "[class*='commentText']"],
+    "replyInput": ["textarea[placeholder*='评论']", "[contenteditable='true']"],
+    "publishTitleInput": ["input[placeholder*='填写标题']", "input[maxlength='20']"],
+    "publishBodyInput": ["#post-textarea", ".ql-editor", "[contenteditable='true']"]
+  },
+  "humanConfirmBeforeSubmit": true
+}

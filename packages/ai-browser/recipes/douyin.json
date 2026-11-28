@@ -1,0 +1,15 @@
+{
+  "id": "douyin",
+  "name": "Douyin",
+  "domains": ["douyin.com", "creator.douyin.com"],
+  "kind": "social",
+  "selectors": {
+    "commentContainer": ["[data-e2e='comment-item']", "[class*='comment-item']"],
+    "commentAuthor": ["[data-e2e='comment-user-name']", ".comment-item-name"],
+    "commentBody": ["[data-e2e='comment-text']", ".comment-item-text"],
+    "replyInput": [".public-DraftEditor-content", "[contenteditable='true']"],
+    "publishTitleInput": ["input[placeholder*='标题']"],
+    "publishBodyInput": [".zone-container", "[contenteditable='true']"]
+  },
+  "humanConfirmBeforeSubmit": true
+}

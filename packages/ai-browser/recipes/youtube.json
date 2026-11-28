@@ -1,0 +1,13 @@
+{
+  "id": "youtube",
+  "name": "YouTube",
+  "domains": ["youtube.com", "studio.youtube.com"],
+  "kind": "social",
+  "selectors": {
+    "commentContainer": ["ytd-comment-thread-renderer", "ytd-comment-view-model"],
+    "commentAuthor": ["#author-text span", "a#author-text"],
+    "commentBody": ["#content-text"],
+    "replyInput": ["#contenteditable-root[contenteditable='true']"]
+  },
+  "humanConfirmBeforeSubmit": true
+}

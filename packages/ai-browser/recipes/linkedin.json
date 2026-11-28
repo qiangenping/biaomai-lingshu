@@ -1,0 +1,16 @@
+{
+  "id": "linkedin",
+  "name": "LinkedIn",
+  "domains": ["linkedin.com"],
+  "kind": "b2b_and_social",
+  "selectors": {
+    "commentContainer": [".comments-comment-item", "article.comments-comment-entity"],
+    "commentAuthor": [".comments-post-meta__name-text", ".comments-comment-meta__description-title"],
+    "commentBody": [".comments-comment-item__main-content", ".update-components-text"],
+    "companyCard": [".reusable-search__result-container", ".entity-result__item"],
+    "companyWebsite": ["a[data-test-app-aware-link][href*='http']"],
+    "replyInput": [".ql-editor[contenteditable='true']", "[role='textbox']"],
+    "publishBodyInput": [".share-creation-state__text-editor .ql-editor", "[role='textbox']"]
+  },
+  "humanConfirmBeforeSubmit": true
+}
