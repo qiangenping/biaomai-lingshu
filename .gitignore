@@ -12,3 +12,4 @@ coverage/
 .biaomai-data/
 vendor/aionui/bin/
 vendor/aitoearn/.env
+docs/promo/
