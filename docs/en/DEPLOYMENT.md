@@ -5,7 +5,7 @@
 No Docker or external database is required. All data persists locally in `userData/biaomai-studio-db.json`.
 
 ```bash
-pnpm install
+pnpm run setup
 pnpm verify:all   # Validates i18n, Apache-2.0/MIT licenses, .bmpack manifests, TypeScript, tests & build
 pnpm start        # Launches the Electron Desktop Workbench (alias for pnpm dev:aionui)
 ```

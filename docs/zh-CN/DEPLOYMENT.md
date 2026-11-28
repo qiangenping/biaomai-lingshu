@@ -5,7 +5,7 @@
 无需安装 Docker 或外部数据库，所有数据安全持久化在本机 `userData/biaomai-studio-db.json`：
 
 ```bash
-pnpm install
+pnpm run setup
 pnpm verify:all   # 运行全量 6 项门禁校验（i18n / 协议 / Pack / TS / 单测 / 构建）
 pnpm start        # 一键启动桌面端工作台（等效于 pnpm dev:aionui）
 ```

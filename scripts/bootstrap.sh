@@ -15,7 +15,7 @@ done
 echo "✅ Node: $(node --version) | pnpm: $(pnpm --version) | bun: $(bun --version)"
 
 echo "Installing workspace & desktop runtime dependencies..."
-pnpm setup
+pnpm run setup
 
 echo "Running governance, i18n, and unit test checks..."
 pnpm verify:all
