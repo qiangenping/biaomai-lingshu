@@ -7,7 +7,7 @@
 
 ## 1. 安装依赖并校验工程门禁
 ```bash
-pnpm install
+pnpm run setup
 pnpm verify:all
 ```
 该命令依次校验：中英双语词条对称性、Apache-2.0/MIT 协议合规、`.bmpack` 行业包完整性、TypeScript 类型检查、Vitest 单元测试及生产构建。

@@ -7,7 +7,7 @@
 
 ## 1. Install & Verify Workspace
 ```bash
-pnpm install
+pnpm run setup
 pnpm verify:all
 ```
 This runs all 6 quality gates: i18n symmetry check, Apache-2.0/MIT license audit, `.bmpack` manifest integrity check, TypeScript typecheck, Vitest unit tests, and production build.
