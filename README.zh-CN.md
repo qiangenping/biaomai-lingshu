@@ -1,10 +1,10 @@
 <div align="center">
-  <img src="./docs/assets/hero-banner.svg" alt="标脉灵枢（OpenGrowth）— 开源全球 AI 获客操作系统" width="100%" />
+  <img src="./docs/assets/hero-banner.svg" alt="OpenGrowth（OpenGrowth）— 开源全球 AI 获客操作系统" width="100%" />
 
   <br />
   <br />
 
-  <h1>标脉灵枢（OpenGrowth）</h1>
+  <h1>OpenGrowth（OpenGrowth）</h1>
   <p><strong>面向全球市场的开源、免 Docker 全链路 AI 获客工作台</strong></p>
   <p><em>用一套 100% 本地运行的桌面软件，替代每月 $500+ 的碎片化获客 SaaS：一键多语内容与动效创作 · 17 大全球/国内社媒矩阵 · 内置 AI 浏览器 · 社媒意向雷达 · 全球 B2B 寻客 · 看板 CRM 与开源同步。</em></p>
 
@@ -19,18 +19,18 @@
   </p>
 
   <br />
-  <img src="./docs/assets/workbench-preview.png" alt="标脉灵枢 AI 工作台真实界面" width="100%" />
+  <img src="./docs/assets/workbench-preview.png" alt="OpenGrowth AI 工作台真实界面" width="100%" />
 </div>
 
 ---
 
-## 为什么选择标脉灵枢？
+## 为什么选择OpenGrowth？
 
 出海企业、外贸工厂、跨境电商与 B2B 团队往往要同时购买 5~7 个昂贵的云端 SaaS（多平台排期工具 + 封面/动效剪辑 + 评论爬虫 + 客户邮箱挖掘 + 冷邮件发信机 + CRM），不仅每月支出超 $500，还面临账号关联封号与客户数据外泄风险。
 
-**标脉灵枢** 将 **「内容引流（Inbound）+ 主动寻客（Outbound）+ 线索成交（CRM）」** 完整装进一个 **免 Docker、100% 本地优先、Apache-2.0 开源** 的微内核桌面工作台：
+**OpenGrowth** 将 **「内容引流（Inbound）+ 主动寻客（Outbound）+ 线索成交（CRM）」** 完整装进一个 **免 Docker、100% 本地优先、Apache-2.0 开源** 的微内核桌面工作台：
 
-| 核心能力 | 传统碎片化云端 SaaS（$500+/月） | 标脉灵枢（Apache-2.0 · $0 开源） |
+| 核心能力 | 传统碎片化云端 SaaS（$500+/月） | OpenGrowth（Apache-2.0 · $0 开源） |
 | :--- | :--- | :--- |
 | **多语内容与动效创作** | 文案 AI + Canva + 剪映 / Remotion | **一键创作工坊**：1 次点击同时产出多语文案 + 品牌封面 + **OpenMotion** 动效 |
 | **全球 + 国内多平台分发** | Buffer / Hootsuite（限接口、不支持国内） | **17 大全球与国内平台**，独立 Cookie 隔离容器直连 |
@@ -105,4 +105,4 @@ pnpm dev:aionui
 - **问题反馈与提案**：[GitHub Issues](https://github.com/qiangenping/opengrowth/issues)
 - **联系作者**：[genpingqian@gmail.com](mailto:genpingqian@gmail.com)
 
-如果标脉灵枢对你的全球获客有帮助，欢迎在 GitHub 点一个 **Star**！本项目基于 [Apache License 2.0](./LICENSE) 开源。
+如果OpenGrowth对你的全球获客有帮助，欢迎在 GitHub 点一个 **Star**！本项目基于 [Apache License 2.0](./LICENSE) 开源。

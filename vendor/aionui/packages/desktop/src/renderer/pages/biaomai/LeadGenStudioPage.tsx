@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2026 BiaoMai Lingshu Contributors
+ * Copyright 2026 OpenGrowth Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -284,7 +284,7 @@ const LeadGenStudioPage: React.FC = () => {
   };
 
   const handleAiGenerateCopy = async () => {
-    const seedTopic = topicInput.trim() || b2bIndustry || (isZh ? '标脉灵枢全球 AI 获客工作台' : 'BiaoMai Lingshu AI Lead-Gen Workbench');
+    const seedTopic = topicInput.trim() || b2bIndustry || (isZh ? 'OpenGrowth全球 AI 获客工作台' : 'OpenGrowth AI Lead-Gen Workbench');
     const platName = isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn;
     if (!settings.llmApiKey && !settings.llmBaseUrl.includes('localhost') && !settings.llmBaseUrl.includes('127.0.0.1')) {
       const isEn = targetLang !== 'zh-CN';
@@ -326,12 +326,12 @@ const LeadGenStudioPage: React.FC = () => {
 
   const buildLocalBrandCover = (titleText: string) => {
     const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${selectedCreatePlatform.brandColor}"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><text x="48" y="96" fill="#ffffffcc" font-family="sans-serif" font-size="24" font-weight="600">${esc(isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn)} · ${esc(selectedCreatePlatform.aspect)}</text><text x="48" y="290" fill="#ffffff" font-family="sans-serif" font-size="38" font-weight="700">${esc(titleText.slice(0, 22))}</text><text x="48" y="350" fill="#ffffffb3" font-family="sans-serif" font-size="22">${esc(isZh ? '标脉灵枢 · 全球 AI 获客工坊' : 'BiaoMai Lingshu · AI Studio')}</text></svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${selectedCreatePlatform.brandColor}"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><text x="48" y="96" fill="#ffffffcc" font-family="sans-serif" font-size="24" font-weight="600">${esc(isZh ? selectedCreatePlatform.nameZh : selectedCreatePlatform.nameEn)} · ${esc(selectedCreatePlatform.aspect)}</text><text x="48" y="290" fill="#ffffff" font-family="sans-serif" font-size="38" font-weight="700">${esc(titleText.slice(0, 22))}</text><text x="48" y="350" fill="#ffffffb3" font-family="sans-serif" font-size="22">${esc(isZh ? 'OpenGrowth · 全球 AI 获客工坊' : 'OpenGrowth · AI Studio')}</text></svg>`;
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   };
 
   const handleAiGenerateImage = async () => {
-    const prompt = (draftTitle || topicInput || b2bIndustry || 'BiaoMai Lingshu').trim();
+    const prompt = (draftTitle || topicInput || b2bIndustry || 'OpenGrowth').trim();
     const explicitImageKey = settings.imageApiKey?.trim();
     const canUseLlmKeyForImage =
       !explicitImageKey &&
@@ -711,7 +711,7 @@ const LeadGenStudioPage: React.FC = () => {
           port: Number(settings.smtpPort || 465),
           user: settings.smtpUser || '',
           pass: settings.smtpPass || '',
-          fromName: isZh ? '标脉灵枢商务中心' : 'BiaoMai Lingshu',
+          fromName: isZh ? 'OpenGrowth商务中心' : 'OpenGrowth',
           to: item.email,
           subject: draft.subject || `Collaboration with ${item.companyName}`,
           text: draft.body,

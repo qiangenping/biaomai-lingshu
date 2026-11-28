@@ -3,7 +3,7 @@
   "displayName": "标脉招投标与政企标讯获客套件",
   "version": "1.0.0",
   "description": "面向政企 ToB 服务商：招投标公开公告监测（Crawl4AI 适配器）+ 甲方采购联系人线索入库 + 废标风险审查辅助",
-  "author": "BiaoMai Lingshu Team",
+  "author": "OpenGrowth Team",
   "license": "Apache-2.0",
   "category": "tob-vertical",
   "i18n": {

@@ -4,7 +4,7 @@
   <br />
   <br />
 
-  <h1>OpenGrowth (标脉灵枢)</h1>
+  <h1>OpenGrowth (OpenGrowth)</h1>
   <p><strong>The Open-Source, Zero-Docker AI Growth OS for Global Lead Generation</strong></p>
   <p><em>Replace $500+/mo fragmented growth SaaS with one local-first desktop workbench: 1-Click Multilingual Content, 17-Channel Matrix, Built-in AI Browser, Social Intent Radar, Global B2B Prospector &amp; Kanban CRM.</em></p>
 

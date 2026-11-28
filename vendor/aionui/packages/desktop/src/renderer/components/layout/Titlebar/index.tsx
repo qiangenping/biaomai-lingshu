@@ -99,7 +99,7 @@ const SidebarIcon: React.FC<{ size?: number; strokeWidth?: number }> = ({ size =
 const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
   const { t, i18n } = useTranslation();
   const isZh = (i18n.language || 'zh-CN').startsWith('zh');
-  const appTitle = useMemo(() => (isZh ? '标脉灵枢' : 'BiaoMai Lingshu'), [isZh]);
+  const appTitle = useMemo(() => (isZh ? 'OpenGrowth' : 'OpenGrowth'), [isZh]);
   const [region, setRegion] = useState<'cn' | 'global'>(() => {
     try {
       return localStorage.getItem('biaomai:region') === 'global' ? 'global' : 'cn';

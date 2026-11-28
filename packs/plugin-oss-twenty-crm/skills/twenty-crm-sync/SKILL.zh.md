@@ -1,6 +1,6 @@
 ---
 name: twenty-crm-sync
-description: 将标脉灵枢捕获的高意向线索同步至自建 Twenty CRM 或 Atomic CRM
+description: 将OpenGrowth捕获的高意向线索同步至自建 Twenty CRM 或 Atomic CRM
 ---
 
 # Twenty / Atomic 开源 CRM 同步技能

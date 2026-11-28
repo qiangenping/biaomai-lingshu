@@ -111,7 +111,7 @@ const AboutModalContent: React.FC = () => {
     }
   };
 
-  const repoUrl = 'https://github.com/qiangenping/biaomai-lingshu';
+  const repoUrl = 'https://github.com/qiangenping/opengrowth';
 
   const linkItems: LinkItem[] = [
     {
@@ -154,10 +154,10 @@ const AboutModalContent: React.FC = () => {
           {/* App Info Section */}
           <div className='flex flex-col items-center pb-20px'>
             <div className='size-56px rd-14px overflow-hidden mb-12px border border-solid border-[var(--color-border-2)] bg-1'>
-              <img src={biaoMaiBrandLogo} alt='标脉灵枢' className='size-full object-cover block' />
+              <img src={biaoMaiBrandLogo} alt='OpenGrowth' className='size-full object-cover block' />
             </div>
             <Typography.Title heading={3} className='text-22px font-700 text-t-primary m-0 mb-6px'>
-              {isZh ? '标脉灵枢' : 'BiaoMai Lingshu'}
+              {isZh ? 'OpenGrowth' : 'OpenGrowth'}
             </Typography.Title>
             <Typography.Text className='text-13px text-t-secondary mb-14px text-center leading-relaxed'>
               {isZh

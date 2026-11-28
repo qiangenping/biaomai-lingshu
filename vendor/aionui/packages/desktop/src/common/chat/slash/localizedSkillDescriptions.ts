@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2026 BiaoMai Lingshu Contributors
+ * Copyright 2026 OpenGrowth Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -34,7 +34,7 @@ const LOCALIZED_SKILL_DESCRIPTIONS: Record<string, { zh: string; en: string }> =
     en: 'Generate editable Motion.md storyboards & HTML5/MP4 motion videos',
   },
   'aitoearn-core': {
-    zh: '标脉灵枢多平台获客核心：内容、发布、雷达与 CRM 全链路编排',
+    zh: 'OpenGrowth多平台获客核心：内容、发布、雷达与 CRM 全链路编排',
     en: 'Core multi-platform lead-gen orchestration skill',
   },
   'channel-publish': {

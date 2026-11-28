@@ -1,6 +1,6 @@
 # 微内核架构与 `.bmpack` 插件 SDK 开发指南
 
-标脉灵枢采用「**Apache-2.0 稳定微内核**（`packages/plugin-sdk`、`packages/plugin-runtime`、`packages/ai-browser`）+ **可热插拔行业套件与开源插件**（`packs/*`）」架构。
+OpenGrowth采用「**Apache-2.0 稳定微内核**（`packages/plugin-sdk`、`packages/plugin-runtime`、`packages/ai-browser`）+ **可热插拔行业套件与开源插件**（`packs/*`）」架构。
 
 ## 5 分钟开发新的行业套件或开源插件
 
