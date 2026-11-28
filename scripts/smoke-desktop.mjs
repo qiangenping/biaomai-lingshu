@@ -13,10 +13,22 @@ const app = await electron.launch({
   timeout: 90000,
 });
 try {
-  const window = await app.firstWindow({ timeout: 90000 });
-  await window.waitForFunction(() => document.querySelector('#root')?.innerText.trim().length > 0,
-    null, { timeout: 90000 });
-  console.log('Loaded desktop renderer:', await window.title());
+  const deadline = Date.now() + 120000;
+  let heading = '';
+  while (!heading && Date.now() < deadline) {
+    for (const page of app.windows()) {
+      heading = await page.locator('.biaomai-workbench-root h1').innerText({ timeout: 1500 }).catch(() => '');
+      if (heading) break;
+    }
+    if (!heading) await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  if (!heading) {
+    for (const page of app.windows()) {
+      console.error(await page.title(), (await page.locator('body').innerText().catch(() => '')).slice(0, 1200));
+    }
+    throw new Error('The installed app did not display the OpenGrowth workbench');
+  }
+  console.log('OpenGrowth workbench loaded:', heading);
 } finally {
   await app.close();
 }
