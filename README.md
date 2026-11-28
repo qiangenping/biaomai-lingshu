@@ -232,6 +232,27 @@ We are building **OpenGrowth** as a truly global, community-driven open-source g
 
 If OpenGrowth helps your global growth workflow, please consider giving us a **Star** on GitHub!
 
+---
+
+## Acknowledgements
+
+OpenGrowth stands on the shoulders of the global open-source community. We are deeply grateful to the authors and maintainers of these remarkable projects:
+
+- **Desktop Micro-Kernel & Agent Runtimes**: [iOfficeAI/AionUi](https://github.com/iOfficeAI/AionUi), [anomalyco/opencode](https://github.com/anomalyco/opencode), [openai/codex](https://github.com/openai/codex)
+- **Content, Motion & Publishing**: [yikart/AiToEarn](https://github.com/yikart/AiToEarn), [nexu-io/openmotion](https://github.com/nexu-io/openmotion), [dreammis/social-auto-upload](https://github.com/dreammis/social-auto-upload)
+- **AI Browser & Web Extraction**: [vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser), [browserbase/stagehand](https://github.com/browserbase/stagehand), [web-infra-dev/midscene](https://github.com/web-infra-dev/midscene), [unclecode/crawl4ai](https://github.com/unclecode/crawl4ai)
+- **Open-Source CRM & Outbound Inspiration**: [twentyhq/twenty](https://github.com/twentyhq/twenty), [marmelab/atomic-crm](https://github.com/marmelab/atomic-crm), [omkarcloud/google-maps-scraper](https://github.com/omkarcloud/google-maps-scraper), [eracle/OpenOutreach](https://github.com/eracle/OpenOutreach), [AbdelftahZowail/Quickly](https://github.com/AbdelftahZowail/Quickly)
+
+See [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for complete license attributions.
+
+## Contributors
+
+Thanks to everyone who helps build OpenGrowth!
+
+<a href="https://github.com/qiangenping/opengrowth/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=qiangenping/opengrowth" alt="Contributors" />
+</a>
+
 ## License
 
 Released under the [Apache License 2.0](./LICENSE). Third-party open-source notices are listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).

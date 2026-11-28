@@ -105,4 +105,17 @@ pnpm dev:aionui
 - **问题反馈与提案**：[GitHub Issues](https://github.com/qiangenping/opengrowth/issues)
 - **联系作者**：[genpingqian@gmail.com](mailto:genpingqian@gmail.com)
 
-如果OpenGrowth对你的全球获客有帮助，欢迎在 GitHub 点一个 **Star**！本项目基于 [Apache License 2.0](./LICENSE) 开源。
+如果 OpenGrowth 对你的全球获客有帮助，欢迎在 GitHub 点一个 **Star**！
+
+---
+
+## 致谢与社区共建
+
+OpenGrowth 的诞生离不开全球开源社区的杰出工作，衷心感谢以下开源项目与作者的贡献与启发：
+
+- **桌面端微内核与 Agent 运行时**：[iOfficeAI/AionUi](https://github.com/iOfficeAI/AionUi)、[anomalyco/opencode](https://github.com/anomalyco/opencode)、[openai/codex](https://github.com/openai/codex)
+- **内容创作、动效与多渠道分发**：[yikart/AiToEarn](https://github.com/yikart/AiToEarn)、[nexu-io/openmotion](https://github.com/nexu-io/openmotion)、[dreammis/social-auto-upload](https://github.com/dreammis/social-auto-upload)
+- **AI 浏览器与网页采集**：[vercel-labs/agent-browser](https://github.com/vercel-labs/agent-browser)、[browserbase/stagehand](https://github.com/browserbase/stagehand)、[web-infra-dev/midscene](https://github.com/web-infra-dev/midscene)、[unclecode/crawl4ai](https://github.com/unclecode/crawl4ai)
+- **开源 CRM 与外呼生态**：[twentyhq/twenty](https://github.com/twentyhq/twenty)、[marmelab/atomic-crm](https://github.com/marmelab/atomic-crm)、[omkarcloud/google-maps-scraper](https://github.com/omkarcloud/google-maps-scraper)、[eracle/OpenOutreach](https://github.com/eracle/OpenOutreach)、[AbdelftahZowail/Quickly](https://github.com/AbdelftahZowail/Quickly)
+
+感谢每一位提交 Issue、PR 与建议的贡献者！本项目基于 [Apache License 2.0](./LICENSE) 开源，第三方完整协议声明详见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。

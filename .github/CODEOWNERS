@@ -1,0 +1,6 @@
+# Default code owners for OpenGrowth
+* @qiangenping
+/.github/ @qiangenping
+/packages/ @qiangenping
+/packs/ @qiangenping
+/apps/workbench/ @qiangenping
