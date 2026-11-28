@@ -101,7 +101,7 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
   const showMotion = hasMotion && (previewTab === 'motion' || !draftImageUrl);
 
   return (
-    <div className='flex-1 flex flex-col lg:flex-row gap-20px items-stretch w-full min-h-[calc(100vh-136px)]'>
+    <div className='flex-1 flex flex-col md:flex-row gap-20px items-stretch w-full min-h-[calc(100vh-136px)]'>
       {/* Left: Ultra-Simple 1-Click Composer */}
       <div className='flex-1 min-w-0 w-full p-24px rd-14px bg-1 border border-solid border-[var(--color-border-2)] flex flex-col justify-between gap-16px'>
         <div className='flex flex-col gap-16px flex-1'>
@@ -248,7 +248,7 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
       </div>
 
       {/* Right: Full-Height Phone Preview with Inline Editing & Cover/Motion Switch */}
-      <div className='w-full lg:w-360px shrink-0 flex'>
+      <div className='w-full md:w-340px shrink-0 flex'>
         <div className='w-full h-full p-10px rd-30px bg-[#0F172A] shadow-xl border-2 border-solid border-[#334155] flex flex-col'>
           <div className='flex items-center justify-between px-14px pb-8px pt-2px text-white/75 text-10px font-600'>
             <span>9:41</span>

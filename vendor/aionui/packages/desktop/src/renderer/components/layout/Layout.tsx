@@ -401,12 +401,12 @@ const Layout: React.FC<{
                 )}
               >
                 <div
-                  className={classNames('shrink-0 size-32px relative rd-8px overflow-hidden shadow-sm', {
-                    '!size-24px !rd-6px': collapsed,
+                  className={classNames('shrink-0 size-32px relative rd-8px overflow-hidden shadow-sm flex items-center justify-center bg-gradient-to-br from-indigo-600 to-blue-600 text-white font-800 text-12px tracking-tight select-none', {
+                    '!size-24px !rd-6px !text-10px': collapsed,
                   })}
                   onClick={onClick}
                 >
-                  <img src={biaoMaiBrandLogo} alt='OpenGrowth' className='size-full object-cover block' />
+                  OG
                 </div>
                 {isSettingsRoute ? (
                   <Tooltip content={t('common.back', { defaultValue: 'Back to Chat' })} position='bottom'>
