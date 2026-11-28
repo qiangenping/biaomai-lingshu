@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use OpenGrowth in your research, workflow, or product, please cite it as below."
+title: "OpenGrowth: Open-Source, Zero-Docker AI Growth & Lead-Gen Desktop OS"
+authors:
+  - family-names: "Qian"
+    given-names: "Genping"
+    email: "genpingqian@gmail.com"
+version: 1.0.1
+date-released: 2026-11-28
+license: Apache-2.0
+repository-code: "https://github.com/qiangenping/opengrowth"
+url: "https://biao5fen.com"
+keywords:
+  - open-source
+  - ai-agent
+  - lead-generation
+  - growth-hacking
+  - b2b
+  - crm
+  - electron
+  - mcp
