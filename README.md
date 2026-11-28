@@ -12,9 +12,14 @@
     <a href="https://biao5fen.com"><img src="https://img.shields.io/badge/Website-biao5fen.com-4F46E5?style=flat-square" alt="Website" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-10B981?style=flat-square" alt="Apache-2.0 License" /></a>
     <a href="https://github.com/qiangenping/biaomai-lingshu/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/Release-v1.0.0-2563EB?style=flat-square" alt="Release v1.0.0" /></a>
+    <a href="https://github.com/qiangenping/biaomai-lingshu/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qiangenping/biaomai-lingshu/ci.yml?style=flat-square&label=CI" alt="CI Status" /></a>
+    <a href="https://github.com/qiangenping/biaomai-lingshu/stargazers"><img src="https://img.shields.io/github/stars/qiangenping/biaomai-lingshu?style=flat-square&color=F59E0B" alt="GitHub Stars" /></a>
     <a href="./README.zh-CN.md"><img src="https://img.shields.io/badge/简体中文-README-0F172A?style=flat-square" alt="简体中文" /></a>
     <a href="./docs/en/USER_MANUAL.md"><img src="https://img.shields.io/badge/Docs-User_Manual-7C3AED?style=flat-square" alt="User Manual" /></a>
   </p>
+
+  <br />
+  <img src="./docs/assets/workbench-preview.png" alt="BiaoMai Lingshu Workbench Live UI" width="100%" />
 
   <p>
     <a href="#why-biaomai-lingshu">Why BiaoMai?</a> ·
@@ -187,6 +192,21 @@ Verifies: `verify:i18n` (symmetric `zh-CN`/`en-US` keys) → `verify:licenses` (
 | **Deployment Guide** | [DEPLOYMENT.md](./docs/en/DEPLOYMENT.md) | [部署指南](./docs/zh-CN/DEPLOYMENT.md) |
 | **Global Roadmap** | [ROADMAP.md](./ROADMAP.md) | [全球共建路线图](./ROADMAP.md) |
 | **Governance & Security** | [CONTRIBUTING.md](./CONTRIBUTING.md) · [SECURITY.md](./SECURITY.md) · [PRIVACY_AND_COMPLIANCE.md](./PRIVACY_AND_COMPLIANCE.md) | [贡献指南](./CONTRIBUTING.zh-CN.md) · [更新日志](./CHANGELOG.md) |
+
+---
+
+## Roadmap
+
+- [x] **1-Click Multilingual Content Studio** (Copy + Cover + OpenMotion HTML5/MP4)
+- [x] **17 Global & China Channels** with isolated Chromium Cookie partitions (`persist:bm-acc-*`)
+- [x] **Built-in AI Browser + Social Intent Radar** (PII redaction + LLM scoring + prefill)
+- [x] **Global & China B2B Prospector** (Maps/LinkedIn + DNS MX + local SMTP/IMAP sequences)
+- [x] **5-Stage Kanban Lead CRM** + REST sync to Twenty CRM & Atomic CRM
+- [ ] **WhatsApp Business / Telegram / Threads** native outreach connectors ([#1](https://github.com/qiangenping/biaomai-lingshu/issues/1))
+- [ ] **HubSpot / Salesforce / Pipedrive** bidirectional CRM sync ([#2](https://github.com/qiangenping/biaomai-lingshu/issues/2))
+- [ ] **Multilingual UI Expansion** (`es`, `ja`, `de`, `ko`, `pt-BR`) ([#3](https://github.com/qiangenping/biaomai-lingshu/issues/3))
+
+See the full roadmap in [ROADMAP.md](./ROADMAP.md).
 
 ---
 

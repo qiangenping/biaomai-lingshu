@@ -12,9 +12,14 @@
     <a href="https://biao5fen.com"><img src="https://img.shields.io/badge/官网-biao5fen.com-4F46E5?style=flat-square" alt="Website" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/协议-Apache_2.0-10B981?style=flat-square" alt="Apache-2.0" /></a>
     <a href="https://github.com/qiangenping/biaomai-lingshu/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/版本-v1.0.0-2563EB?style=flat-square" alt="v1.0.0" /></a>
+    <a href="https://github.com/qiangenping/biaomai-lingshu/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qiangenping/biaomai-lingshu/ci.yml?style=flat-square&label=CI" alt="CI Status" /></a>
+    <a href="https://github.com/qiangenping/biaomai-lingshu/stargazers"><img src="https://img.shields.io/github/stars/qiangenping/biaomai-lingshu?style=flat-square&color=F59E0B" alt="GitHub Stars" /></a>
     <a href="./README.md"><img src="https://img.shields.io/badge/Docs-English-0F172A?style=flat-square" alt="English" /></a>
     <a href="./docs/zh-CN/USER_MANUAL.md"><img src="https://img.shields.io/badge/操作手册-完整版-7C3AED?style=flat-square" alt="操作手册" /></a>
   </p>
+
+  <br />
+  <img src="./docs/assets/workbench-preview.png" alt="标脉灵枢 AI 工作台真实界面" width="100%" />
 </div>
 
 ---
