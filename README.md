@@ -24,7 +24,7 @@
   <img src="./docs/assets/workbench-preview.png" alt="OpenGrowth Workbench Live UI" width="100%" />
 
   <p>
-    <a href="#why-opengrowth">Why OpenGrowth?</a> ·
+    <a href="#why-opengrowth-open-source-alternative-to-apollo-clay-buffer--hubspot">Why OpenGrowth?</a> ·
     <a href="#core-modules-deep-dive">Core Modules</a> ·
     <a href="#17-global--china-channels">17 Channels</a> ·
     <a href="#micro-kernel-plugin-ecosystem-bmpack">Plugin Ecosystem</a> ·
@@ -36,7 +36,7 @@
 
 ---
 
-## Why OpenGrowth?
+## Why OpenGrowth? (Open-Source Alternative to Apollo, Clay, Buffer & HubSpot)
 
 Global B2B teams, cross-border sellers, and indie SaaS founders typically stitch together **5–7 expensive cloud subscriptions**—a content scheduler, a video/motion editor, a social scraper, a B2B directory enricher, a cold-email sequencer, and a CRM—while risking account bans and leaking customer data to third-party clouds.
 
