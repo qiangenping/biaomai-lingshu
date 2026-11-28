@@ -31,11 +31,11 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            cmd: pnpm --filter @biaomai/workbench dist:mac
-            artifact_glob: apps/workbench/release/*.dmg
+            cmd: bun run build-mac:arm64
+            artifact_glob: vendor/aionui/out/*.dmg
           - os: windows-latest
-            cmd: pnpm --filter @biaomai/workbench dist:win
-            artifact_glob: apps/workbench/release/*.exe
+            cmd: bun run build-win:x64:fast
+            artifact_glob: vendor/aionui/out/*.exe
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -46,11 +46,15 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install
-      - run: pnpm build:workbench
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: pnpm setup
       - name: Package Electron Installer
+        working-directory: vendor/aionui
         run: ${{ matrix.cmd }}
         env:
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' && 'true' || 'false' }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
@@ -61,3 +65,20 @@ jobs:
         with:
           name: installer-${{ matrix.os }}
           path: ${{ matrix.artifact_glob }}
+          if-no-files-found: warn
+
+  publish-release:
+    needs: build-desktop
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+      - name: Attach Installers to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
