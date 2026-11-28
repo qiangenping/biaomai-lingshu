@@ -84,7 +84,7 @@ jobs:
           $dest = Join-Path $env:RUNNER_TEMP OpenGrowth
           $process = Start-Process $installer[0].FullName -ArgumentList "/S", "/D=$dest" -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw "Installer exited with $($process.ExitCode)" }
-          node scripts/smoke-desktop.mjs "$dest/AionUi.exe"
+          node scripts/smoke-desktop.mjs "$dest/OpenGrowth.exe"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           mkdir installers
           Copy-Item $installer[0].FullName installers/OpenGrowth-Windows-x64.exe
