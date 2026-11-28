@@ -66,13 +66,15 @@ flowchart LR
 
 ## 3 分钟快速开始
 
+> 环境要求：Node.js `>= 20`、pnpm `>= 9`、Bun `>= 1.1`（桌面端 Electron 运行时依赖）。
+
 ```bash
 git clone https://github.com/qiangenping/biaomai-lingshu.git
 cd biaomai-lingshu
-pnpm install
-pnpm install:aionui-packs
+pnpm setup
 pnpm dev:aionui
 ```
+> `pnpm setup` 会一键安装根工作区依赖、`vendor/aionui` 桌面端运行时依赖，并同步全部 11 个 `.bmpack` 插件。
 
 1. 启动后在左下角 **「设置 → 模型」** 配置任意 OpenAI 兼容模型（DeepSeek / OpenAI / 通义千问 / Ollama 等），工作台会自动同步。
 2. 运行全量 6 项开源门禁校验：`pnpm verify:all`。

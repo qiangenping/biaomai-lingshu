@@ -6,7 +6,9 @@
   "description": "Open-source extensible AI desktop workbench (micro-kernel + hot-pluggable skills/MCP/canvas packs) with V1.0 global lead-generation suite.",
   "scripts": {
     "start": "pnpm dev:aionui",
-    "dev:aionui": "export PATH=\"$HOME/.bun/bin:$PATH\" && export AIONUI_BACKEND_BIN=\"$(pwd)/vendor/aionui/bin/aioncore\" && cd vendor/aionui && env -u ELECTRON_RUN_AS_NODE bun run start",
+    "setup:aionui": "export PATH=\"$HOME/.bun/bin:$PATH\" && cd vendor/aionui && bun install",
+    "setup": "pnpm install && pnpm setup:aionui && pnpm install:aionui-packs",
+    "dev:aionui": "export PATH=\"$HOME/.bun/bin:$PATH\" && if [ ! -d vendor/aionui/node_modules ]; then (cd vendor/aionui && bun install); fi && if [ -x \"$(pwd)/vendor/aionui/bin/aioncore\" ]; then export AIONUI_BACKEND_BIN=\"$(pwd)/vendor/aionui/bin/aioncore\"; fi && cd vendor/aionui && env -u ELECTRON_RUN_AS_NODE bun run start",
     "dev:workbench": "pnpm --filter @biaomai/workbench dev",
     "dev:billing": "pnpm --filter @biaomai/billing-gateway dev",
     "build:workbench": "pnpm --filter @biaomai/workbench build",

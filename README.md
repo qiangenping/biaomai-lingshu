@@ -150,10 +150,10 @@ Switch industry presets anytime from the top bar:
 ```bash
 git clone https://github.com/qiangenping/biaomai-lingshu.git
 cd biaomai-lingshu
-pnpm install
-pnpm install:aionui-packs
+pnpm setup
 pnpm dev:aionui
 ```
+> `pnpm setup` installs root workspace packages, `vendor/aionui` Electron runtime dependencies (via Bun), and syncs all 11 `.bmpack` plugins.
 
 ### 2. Configure Your Model (30 Seconds)
 1. Open **Settings → Models** in the left sidebar and add any OpenAI-compatible provider (e.g., DeepSeek, OpenAI, Qwen, or local Ollama).
