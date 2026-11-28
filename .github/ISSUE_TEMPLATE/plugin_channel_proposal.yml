@@ -6,8 +6,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for helping expand **BiaoMai Lingshu** for global customer acquisition!
-        Check our [ROADMAP.md](https://github.com/qiangenping/biaomai-lingshu/blob/main/ROADMAP.md) first to see if this track already exists.
+        Thank you for helping expand **OpenGrowth** for global customer acquisition!
+        Check our [ROADMAP.md](https://github.com/qiangenping/opengrowth/blob/main/ROADMAP.md) first to see if this track already exists.
   - type: dropdown
     id: track
     attributes:

@@ -1,19 +1,19 @@
 <div align="center">
-  <img src="./docs/assets/hero-banner.svg" alt="标脉灵枢（BiaoMai Lingshu）— 开源全球 AI 获客操作系统" width="100%" />
+  <img src="./docs/assets/hero-banner.svg" alt="标脉灵枢（OpenGrowth）— 开源全球 AI 获客操作系统" width="100%" />
 
   <br />
   <br />
 
-  <h1>标脉灵枢（BiaoMai Lingshu）</h1>
+  <h1>标脉灵枢（OpenGrowth）</h1>
   <p><strong>面向全球市场的开源、免 Docker 全链路 AI 获客工作台</strong></p>
   <p><em>用一套 100% 本地运行的桌面软件，替代每月 $500+ 的碎片化获客 SaaS：一键多语内容与动效创作 · 17 大全球/国内社媒矩阵 · 内置 AI 浏览器 · 社媒意向雷达 · 全球 B2B 寻客 · 看板 CRM 与开源同步。</em></p>
 
   <p>
     <a href="https://biao5fen.com"><img src="https://img.shields.io/badge/官网-biao5fen.com-4F46E5?style=flat-square" alt="Website" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/协议-Apache_2.0-10B981?style=flat-square" alt="Apache-2.0" /></a>
-    <a href="https://github.com/qiangenping/biaomai-lingshu/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/版本-v1.0.0-2563EB?style=flat-square" alt="v1.0.0" /></a>
-    <a href="https://github.com/qiangenping/biaomai-lingshu/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qiangenping/biaomai-lingshu/ci.yml?style=flat-square&label=CI" alt="CI Status" /></a>
-    <a href="https://github.com/qiangenping/biaomai-lingshu/stargazers"><img src="https://img.shields.io/github/stars/qiangenping/biaomai-lingshu?style=flat-square&color=F59E0B" alt="GitHub Stars" /></a>
+    <a href="https://github.com/qiangenping/opengrowth/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/版本-v1.0.0-2563EB?style=flat-square" alt="v1.0.0" /></a>
+    <a href="https://github.com/qiangenping/opengrowth/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qiangenping/opengrowth/ci.yml?style=flat-square&label=CI" alt="CI Status" /></a>
+    <a href="https://github.com/qiangenping/opengrowth/stargazers"><img src="https://img.shields.io/github/stars/qiangenping/opengrowth?style=flat-square&color=F59E0B" alt="GitHub Stars" /></a>
     <a href="./README.md"><img src="https://img.shields.io/badge/Docs-English-0F172A?style=flat-square" alt="English" /></a>
     <a href="./docs/zh-CN/USER_MANUAL.md"><img src="https://img.shields.io/badge/操作手册-完整版-7C3AED?style=flat-square" alt="操作手册" /></a>
   </p>
@@ -74,8 +74,8 @@ flowchart LR
 > 环境要求：Node.js `>= 20`、pnpm `>= 9`、Bun `>= 1.1`（桌面端 Electron 运行时依赖）。
 
 ```bash
-git clone https://github.com/qiangenping/biaomai-lingshu.git
-cd biaomai-lingshu
+git clone https://github.com/qiangenping/opengrowth.git
+cd opengrowth
 pnpm setup
 pnpm dev:aionui
 ```
@@ -95,14 +95,14 @@ pnpm dev:aionui
 
 我们期望与全球开发者、出海增长团队和行业实战专家一起，把这套开源全球获客工作台做到极致：
 - **查看路线图**：在 [ROADMAP.md](./ROADMAP.md) 查看 WhatsApp / Telegram / Threads 渠道扩展、HubSpot / Salesforce CRM 同步、多语言国际化（日/韩/西/德/葡等）与 `.bmpack` 行业剧本规划。
-- **认领入门任务**：前往 [`good first issue`](https://github.com/qiangenping/biaomai-lingshu/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) 或 [`help wanted`](https://github.com/qiangenping/biaomai-lingshu/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) 直接认领任务，按 [CONTRIBUTING.zh-CN.md](./CONTRIBUTING.zh-CN.md) 15 分钟提交你的第一个 PR。
-- **社区讨论与提案**：在 [GitHub Discussions](https://github.com/qiangenping/biaomai-lingshu/discussions) 发起新渠道、新插件或行业实战讨论。
+- **认领入门任务**：前往 [`good first issue`](https://github.com/qiangenping/opengrowth/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) 或 [`help wanted`](https://github.com/qiangenping/opengrowth/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) 直接认领任务，按 [CONTRIBUTING.zh-CN.md](./CONTRIBUTING.zh-CN.md) 15 分钟提交你的第一个 PR。
+- **社区讨论与提案**：在 [GitHub Discussions](https://github.com/qiangenping/opengrowth/discussions) 发起新渠道、新插件或行业实战讨论。
 
 ## 官网与社区
 - **官方网站**：[https://biao5fen.com](https://biao5fen.com)
-- **GitHub 仓库**：[https://github.com/qiangenping/biaomai-lingshu](https://github.com/qiangenping/biaomai-lingshu)
-- **社区讨论区**：[GitHub Discussions](https://github.com/qiangenping/biaomai-lingshu/discussions)
-- **问题反馈与提案**：[GitHub Issues](https://github.com/qiangenping/biaomai-lingshu/issues)
+- **GitHub 仓库**：[https://github.com/qiangenping/opengrowth](https://github.com/qiangenping/opengrowth)
+- **社区讨论区**：[GitHub Discussions](https://github.com/qiangenping/opengrowth/discussions)
+- **问题反馈与提案**：[GitHub Issues](https://github.com/qiangenping/opengrowth/issues)
 - **联系作者**：[genpingqian@gmail.com](mailto:genpingqian@gmail.com)
 
 如果标脉灵枢对你的全球获客有帮助，欢迎在 GitHub 点一个 **Star**！本项目基于 [Apache License 2.0](./LICENSE) 开源。

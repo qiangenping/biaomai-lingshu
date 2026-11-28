@@ -1,28 +1,28 @@
 <div align="center">
-  <img src="./docs/assets/hero-banner.svg" alt="BiaoMai Lingshu — Open-Source Global AI Lead-Generation OS" width="100%" />
+  <img src="./docs/assets/hero-banner.svg" alt="OpenGrowth — Open-Source Global AI Lead-Generation OS" width="100%" />
 
   <br />
   <br />
 
-  <h1>BiaoMai Lingshu (标脉灵枢)</h1>
+  <h1>OpenGrowth (标脉灵枢)</h1>
   <p><strong>The Open-Source, Zero-Docker AI Growth OS for Global Lead Generation</strong></p>
   <p><em>Replace $500+/mo fragmented growth SaaS with one local-first desktop workbench: 1-Click Multilingual Content, 17-Channel Matrix, Built-in AI Browser, Social Intent Radar, Global B2B Prospector &amp; Kanban CRM.</em></p>
 
   <p>
     <a href="https://biao5fen.com"><img src="https://img.shields.io/badge/Website-biao5fen.com-4F46E5?style=flat-square" alt="Website" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-10B981?style=flat-square" alt="Apache-2.0 License" /></a>
-    <a href="https://github.com/qiangenping/biaomai-lingshu/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/Release-v1.0.0-2563EB?style=flat-square" alt="Release v1.0.0" /></a>
-    <a href="https://github.com/qiangenping/biaomai-lingshu/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qiangenping/biaomai-lingshu/ci.yml?style=flat-square&label=CI" alt="CI Status" /></a>
-    <a href="https://github.com/qiangenping/biaomai-lingshu/stargazers"><img src="https://img.shields.io/github/stars/qiangenping/biaomai-lingshu?style=flat-square&color=F59E0B" alt="GitHub Stars" /></a>
+    <a href="https://github.com/qiangenping/opengrowth/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/Release-v1.0.0-2563EB?style=flat-square" alt="Release v1.0.0" /></a>
+    <a href="https://github.com/qiangenping/opengrowth/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qiangenping/opengrowth/ci.yml?style=flat-square&label=CI" alt="CI Status" /></a>
+    <a href="https://github.com/qiangenping/opengrowth/stargazers"><img src="https://img.shields.io/github/stars/qiangenping/opengrowth?style=flat-square&color=F59E0B" alt="GitHub Stars" /></a>
     <a href="./README.zh-CN.md"><img src="https://img.shields.io/badge/简体中文-README-0F172A?style=flat-square" alt="简体中文" /></a>
     <a href="./docs/en/USER_MANUAL.md"><img src="https://img.shields.io/badge/Docs-User_Manual-7C3AED?style=flat-square" alt="User Manual" /></a>
   </p>
 
   <br />
-  <img src="./docs/assets/workbench-preview.png" alt="BiaoMai Lingshu Workbench Live UI" width="100%" />
+  <img src="./docs/assets/workbench-preview.png" alt="OpenGrowth Workbench Live UI" width="100%" />
 
   <p>
-    <a href="#why-biaomai-lingshu">Why BiaoMai?</a> ·
+    <a href="#why-opengrowth">Why BiaoMai?</a> ·
     <a href="#core-modules-deep-dive">Core Modules</a> ·
     <a href="#17-global--china-channels">17 Channels</a> ·
     <a href="#micro-kernel-plugin-ecosystem">Plugin Ecosystem</a> ·
@@ -33,13 +33,13 @@
 
 ---
 
-## Why BiaoMai Lingshu?
+## Why OpenGrowth?
 
 Global B2B teams, cross-border sellers, and indie SaaS founders typically stitch together **5–7 expensive cloud subscriptions**—a content scheduler, a video/motion editor, a social scraper, a B2B directory enricher, a cold-email sequencer, and a CRM—while risking account bans and leaking customer data to third-party clouds.
 
-**BiaoMai Lingshu** unifies the entire **Inbound + Outbound Global Lead-Generation Loop** into a single **local-first, zero-Docker, Apache-2.0 desktop application** powered by a hot-pluggable micro-kernel:
+**OpenGrowth** unifies the entire **Inbound + Outbound Global Lead-Generation Loop** into a single **local-first, zero-Docker, Apache-2.0 desktop application** powered by a hot-pluggable micro-kernel:
 
-| Capability | Typical Fragmented SaaS Stack ($500+/mo) | BiaoMai Lingshu (Apache-2.0 · $0) |
+| Capability | Typical Fragmented SaaS Stack ($500+/mo) | OpenGrowth (Apache-2.0 · $0) |
 | :--- | :--- | :--- |
 | **Multilingual Content & Motion** | Copy AI + Canva + CapCut / Remotion | **1-Click Studio**: Copy + Brand Cover + **OpenMotion** HTML5/MP4 in one button |
 | **Multi-Channel Publishing** | Buffer / Hootsuite (API limits, no CN channels) | **17 Global + China Channels** via isolated Chromium Cookie containers |
@@ -113,7 +113,7 @@ flowchart LR
 
 ## Micro-Kernel Plugin Ecosystem (`.bmpack`)
 
-BiaoMai Lingshu ships with **11 hot-pluggable Apache-2.0 / MIT extensions** installed in `packs/`. You can install custom `.bmpack` directories or uninstall any plugin in **07 Packs Market**, and invoke every plugin skill via `/` in **New Conversation** (with automatic `zh-CN` / `en-US` localization):
+OpenGrowth ships with **11 hot-pluggable Apache-2.0 / MIT extensions** installed in `packs/`. You can install custom `.bmpack` directories or uninstall any plugin in **07 Packs Market**, and invoke every plugin skill via `/` in **New Conversation** (with automatic `zh-CN` / `en-US` localization):
 
 | Plugin / Pack | Type | License | Capabilities |
 | :--- | :--- | :---: | :--- |
@@ -153,8 +153,8 @@ Switch industry presets anytime from the top bar:
 
 ### 1. Clone, Install & Launch Desktop App
 ```bash
-git clone https://github.com/qiangenping/biaomai-lingshu.git
-cd biaomai-lingshu
+git clone https://github.com/qiangenping/opengrowth.git
+cd opengrowth
 pnpm setup
 pnpm dev:aionui
 ```
@@ -202,9 +202,9 @@ Verifies: `verify:i18n` (symmetric `zh-CN`/`en-US` keys) → `verify:licenses` (
 - [x] **Built-in AI Browser + Social Intent Radar** (PII redaction + LLM scoring + prefill)
 - [x] **Global & China B2B Prospector** (Maps/LinkedIn + DNS MX + local SMTP/IMAP sequences)
 - [x] **5-Stage Kanban Lead CRM** + REST sync to Twenty CRM & Atomic CRM
-- [ ] **WhatsApp Business / Telegram / Threads** native outreach connectors ([#1](https://github.com/qiangenping/biaomai-lingshu/issues/1))
-- [ ] **HubSpot / Salesforce / Pipedrive** bidirectional CRM sync ([#2](https://github.com/qiangenping/biaomai-lingshu/issues/2))
-- [ ] **Multilingual UI Expansion** (`es`, `ja`, `de`, `ko`, `pt-BR`) ([#3](https://github.com/qiangenping/biaomai-lingshu/issues/3))
+- [ ] **WhatsApp Business / Telegram / Threads** native outreach connectors ([#1](https://github.com/qiangenping/opengrowth/issues/1))
+- [ ] **HubSpot / Salesforce / Pipedrive** bidirectional CRM sync ([#2](https://github.com/qiangenping/opengrowth/issues/2))
+- [ ] **Multilingual UI Expansion** (`es`, `ja`, `de`, `ko`, `pt-BR`) ([#3](https://github.com/qiangenping/opengrowth/issues/3))
 
 See the full roadmap in [ROADMAP.md](./ROADMAP.md).
 
@@ -212,24 +212,24 @@ See the full roadmap in [ROADMAP.md](./ROADMAP.md).
 
 ## Build Global Customer Acquisition With Us (Contributors Wanted!)
 
-We are building **BiaoMai Lingshu** as a truly global, community-driven open-source growth engine. Developers, growth engineers, designers, and marketers worldwide are warmly invited to join:
+We are building **OpenGrowth** as a truly global, community-driven open-source growth engine. Developers, growth engineers, designers, and marketers worldwide are warmly invited to join:
 
 - **Explore the Roadmap**: See upcoming global channels, CRM connectors, and AI Browser tracks in [ROADMAP.md](./ROADMAP.md).
-- **Claim a Starter Task**: Pick up a [`good first issue`](https://github.com/qiangenping/biaomai-lingshu/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [`help wanted`](https://github.com/qiangenping/biaomai-lingshu/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) issue — add WhatsApp/Telegram/Threads, HubSpot/Salesforce CRM sync, new UI languages (`es`/`ja`/`de`/`ko`/`pt-BR`), or a `.bmpack` industry playbook.
+- **Claim a Starter Task**: Pick up a [`good first issue`](https://github.com/qiangenping/opengrowth/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [`help wanted`](https://github.com/qiangenping/opengrowth/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) issue — add WhatsApp/Telegram/Threads, HubSpot/Salesforce CRM sync, new UI languages (`es`/`ja`/`de`/`ko`/`pt-BR`), or a `.bmpack` industry playbook.
 - **15-Minute First PR**: Follow our step-by-step [CONTRIBUTING.md](./CONTRIBUTING.md) playbook (`pnpm verify:all` + `git commit -s`).
-- **Join the Community**: Pitch ideas, showcase your growth workflows, or ask questions in [GitHub Discussions](https://github.com/qiangenping/biaomai-lingshu/discussions).
+- **Join the Community**: Pitch ideas, showcase your growth workflows, or ask questions in [GitHub Discussions](https://github.com/qiangenping/opengrowth/discussions).
 
 ---
 
 ## Community & Support
 
 - **Website**: [https://biao5fen.com](https://biao5fen.com)
-- **GitHub**: [https://github.com/qiangenping/biaomai-lingshu](https://github.com/qiangenping/biaomai-lingshu)
-- **Discussions**: [GitHub Discussions](https://github.com/qiangenping/biaomai-lingshu/discussions)
-- **Issues & Proposals**: [GitHub Issues](https://github.com/qiangenping/biaomai-lingshu/issues)
+- **GitHub**: [https://github.com/qiangenping/opengrowth](https://github.com/qiangenping/opengrowth)
+- **Discussions**: [GitHub Discussions](https://github.com/qiangenping/opengrowth/discussions)
+- **Issues & Proposals**: [GitHub Issues](https://github.com/qiangenping/opengrowth/issues)
 - **Contact**: [genpingqian@gmail.com](mailto:genpingqian@gmail.com)
 
-If BiaoMai Lingshu helps your global growth workflow, please consider giving us a **Star** on GitHub!
+If OpenGrowth helps your global growth workflow, please consider giving us a **Star** on GitHub!
 
 ## License
 

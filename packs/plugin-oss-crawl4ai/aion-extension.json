@@ -9,7 +9,7 @@
     "zh-CN": "封装 Apache-2.0 开源项目 unclecode/crawl4ai：将全球黄页、展会名录、政府招投标网站转换为结构化 Markdown/JSON 客户线索。",
     "en-US": "Wraps Apache-2.0 unclecode/crawl4ai to extract clean Markdown and structured JSON leads from global directories and procurement portals."
   },
-  "author": "BiaoMai Lingshu & UncleCode (Apache-2.0)",
+  "author": "OpenGrowth & UncleCode (Apache-2.0)",
   "license": "Apache-2.0",
   "category": "utility",
   "i18n": { "localesDir": "i18n", "defaultLocale": "en-US" },

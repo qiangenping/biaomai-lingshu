@@ -1,8 +1,8 @@
-# 参与全球共建 — 标脉灵枢（`biaomai-lingshu`）
+# 参与全球共建 — 标脉灵枢（`opengrowth`）
 
 [English](./CONTRIBUTING.md) | 简体中文
 
-欢迎加入 **标脉灵枢（BiaoMai Lingshu）** 全球开源社区！我们的目标是联合全球开发者、增长工程师、设计师与出海实战团队，共同打造一套**零 Docker、本地优先、完全开源的全球 AI 获客与全渠道增长工作台**。
+欢迎加入 **标脉灵枢（OpenGrowth）** 全球开源社区！我们的目标是联合全球开发者、增长工程师、设计师与出海实战团队，共同打造一套**零 Docker、本地优先、完全开源的全球 AI 获客与全渠道增长工作台**。
 
 无论你是接入一个海外/本地新渠道、翻译一套多语言界面、开发一个 CRM 连接器、沉淀一套行业 `.bmpack` 实战剧本，还是优化底层微内核与内置 AI 浏览器，你的每一次 PR 都在直接帮助全球创业者降本增效。
 
@@ -12,8 +12,8 @@
 
 ### 1. Fork 并克隆仓库
 ```bash
-git clone https://github.com/<你的用户名>/biaomai-lingshu.git
-cd biaomai-lingshu
+git clone https://github.com/<你的用户名>/opengrowth.git
+cd opengrowth
 pnpm install
 ```
 
@@ -38,7 +38,7 @@ pnpm dev:workbench
 
 ## 4 大高价值共建赛道
 
-前往 [全球路线图](./ROADMAP.md) 或 [Good First Issues](https://github.com/qiangenping/biaomai-lingshu/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) 认领任务：
+前往 [全球路线图](./ROADMAP.md) 或 [Good First Issues](https://github.com/qiangenping/opengrowth/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) 认领任务：
 
 | 共建赛道 | 贡献内容示例 | 代码位置 | 难度 |
 | :--- | :--- | :--- | :--- |
@@ -72,7 +72,7 @@ pnpm dev:workbench
 
 ## 社区交流与维护者联系
 
-- **GitHub Discussions（社区讨论区）**：https://github.com/qiangenping/biaomai-lingshu/discussions
-- **Issues 与需求提案**：https://github.com/qiangenping/biaomai-lingshu/issues
+- **GitHub Discussions（社区讨论区）**：https://github.com/qiangenping/opengrowth/discussions
+- **Issues 与需求提案**：https://github.com/qiangenping/opengrowth/issues
 - **官方网站**：https://biao5fen.com
 - **维护者邮箱**：`genpingqian@gmail.com`

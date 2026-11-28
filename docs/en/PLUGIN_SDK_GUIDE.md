@@ -1,6 +1,6 @@
 # Micro-Kernel & `.bmpack` Plugin SDK Guide
 
-BiaoMai Lingshu separates its **Apache-2.0 micro-kernel** (`packages/plugin-sdk`, `packages/plugin-runtime`, `packages/ai-browser`) from hot-pluggable **industry packs & OSS plugins** (`packs/*`).
+OpenGrowth separates its **Apache-2.0 micro-kernel** (`packages/plugin-sdk`, `packages/plugin-runtime`, `packages/ai-browser`) from hot-pluggable **industry packs & OSS plugins** (`packs/*`).
 
 ## Creating a New Industry Pack or OSS Plugin in 5 Minutes
 

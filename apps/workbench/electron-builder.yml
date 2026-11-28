@@ -1,6 +1,6 @@
 appId: ai.biaomai.lingshu
-productName: BiaoMai Lingshu
-copyright: Copyright © 2026 BiaoMai Lingshu Contributors
+productName: OpenGrowth
+copyright: Copyright © 2026 OpenGrowth Contributors
 directories:
   output: release
 files:
@@ -23,7 +23,7 @@ mac:
   hardenedRuntime: true
   gatekeeperAssess: false
 dmg:
-  title: BiaoMai Lingshu Installer
+  title: OpenGrowth Installer
 win:
   target:
     - target: nsis

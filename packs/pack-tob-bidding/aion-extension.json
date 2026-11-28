@@ -9,7 +9,7 @@
     "zh-CN": "面向政企 ToB 服务商：招投标公开公告监测（Crawl4AI 适配器）+ 甲方采购联系人线索入库 + 废标风险审查辅助",
     "en-US": "For B2B enterprise vendors: public tender monitoring (Crawl4AI adapter), buyer contact extraction into Lead CRM, and bid compliance review."
   },
-  "author": "BiaoMai Lingshu Team",
+  "author": "OpenGrowth Team",
   "license": "Apache-2.0",
   "category": "tob-vertical",
   "i18n": {
