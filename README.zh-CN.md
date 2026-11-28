@@ -76,10 +76,10 @@ flowchart LR
 ```bash
 git clone https://github.com/qiangenping/opengrowth.git
 cd opengrowth
-pnpm setup
+pnpm run setup
 pnpm dev:aionui
 ```
-> `pnpm setup` 会一键安装根工作区依赖、`vendor/aionui` 桌面端运行时依赖，并同步全部 11 个 `.bmpack` 插件。
+> `pnpm run setup` 会一键安装根工作区依赖、`vendor/aionui` 桌面端运行时依赖，并同步全部 11 个 `.bmpack` 插件。
 
 1. 启动后在左下角 **「设置 → 模型」** 配置任意 OpenAI 兼容模型（DeepSeek / OpenAI / 通义千问 / Ollama 等），工作台会自动同步。
 2. 运行全量 6 项开源门禁校验：`pnpm verify:all`。

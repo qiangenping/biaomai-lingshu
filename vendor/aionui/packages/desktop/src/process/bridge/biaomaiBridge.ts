@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserWindow, clipboard, dialog, ipcMain, session } from 'electron';
+import { app, BrowserWindow, clipboard, dialog, ipcMain, session } from 'electron';
 import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import dns from 'node:dns/promises';
 import fs from 'node:fs';
@@ -392,7 +392,7 @@ export function initBiaoMaiBridge(): void {
     }> = [];
 
     const scanDirs = [extDir];
-    const repoPacksDir = path.resolve(process.cwd(), '../../packs');
+    const repoPacksDir = app.isPackaged ? path.join(process.resourcesPath, 'opengrowth-packs') : path.resolve(process.cwd(), '../../packs');
     if (fs.existsSync(repoPacksDir)) scanDirs.push(repoPacksDir);
     const seenNames = new Set<string>();
 
