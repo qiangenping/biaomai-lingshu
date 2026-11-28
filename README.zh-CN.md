@@ -11,7 +11,7 @@
   <p>
     <a href="https://biao5fen.com"><img src="https://img.shields.io/badge/官网-biao5fen.com-4F46E5?style=flat-square" alt="Website" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/协议-Apache_2.0-10B981?style=flat-square" alt="Apache-2.0" /></a>
-    <a href="https://github.com/qiangenping/opengrowth/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/版本-v1.0.0-2563EB?style=flat-square" alt="v1.0.0" /></a>
+    <a href="https://github.com/qiangenping/opengrowth/releases/tag/v1.0.1"><img src="https://img.shields.io/badge/版本-v1.0.1-2563EB?style=flat-square" alt="v1.0.1" /></a>
     <a href="https://github.com/qiangenping/opengrowth/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qiangenping/opengrowth/ci.yml?style=flat-square&label=CI" alt="CI Status" /></a>
     <a href="https://github.com/qiangenping/opengrowth/stargazers"><img src="https://img.shields.io/github/stars/qiangenping/opengrowth?style=flat-square&color=F59E0B" alt="GitHub Stars" /></a>
     <a href="./README.md"><img src="https://img.shields.io/badge/Docs-English-0F172A?style=flat-square" alt="English" /></a>
