@@ -6,7 +6,7 @@
   "description": "Open-source extensible AI desktop workbench (micro-kernel + hot-pluggable skills/MCP/canvas packs) with V1.0 global lead-generation suite.",
   "scripts": {
     "start": "pnpm dev:aionui",
-    "setup:aionui": "bun install --cwd vendor/aionui --frozen-lockfile",
+    "setup:aionui": "bun install --cwd vendor/aionui --frozen-lockfile --linker hoisted",
     "setup": "pnpm install --frozen-lockfile && pnpm run setup:aionui && pnpm run install:aionui-packs",
     "dev:aionui": "node scripts/start-desktop.mjs",
     "dev:workbench": "pnpm --filter @biaomai/workbench dev",

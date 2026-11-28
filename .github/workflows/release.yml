@@ -54,6 +54,7 @@ jobs:
         working-directory: vendor/aionui
         run: ${{ matrix.cmd }}
         env:
+          NODE_OPTIONS: --max-old-space-size=6144
           CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' && 'true' || 'false' }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -61,10 +62,36 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Mount and launch macOS installer
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          image=(vendor/aionui/out/*.dmg)
+          mount="$RUNNER_TEMP/opengrowth-volume"
+          hdiutil attach "${image[0]}" -readonly -nobrowse -mountpoint "$mount"
+          trap 'hdiutil detach "$mount"' EXIT
+          ditto "$mount/OpenGrowth.app" "$RUNNER_TEMP/OpenGrowth.app"
+          executable=$(/usr/libexec/PlistBuddy -c "Print CFBundleExecutable" "$RUNNER_TEMP/OpenGrowth.app/Contents/Info.plist")
+          node scripts/smoke-desktop.mjs "$RUNNER_TEMP/OpenGrowth.app/Contents/MacOS/$executable"
+          mkdir installers
+          cp "${image[0]}" installers/OpenGrowth-macOS-arm64.dmg
+      - name: Install and launch Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = @(Get-ChildItem vendor/aionui/out/*.exe)
+          if ($installer.Count -ne 1) { throw "Expected one installer" }
+          $dest = Join-Path $env:RUNNER_TEMP OpenGrowth
+          $process = Start-Process $installer[0].FullName -ArgumentList "/S", "/D=$dest" -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer exited with $($process.ExitCode)" }
+          node scripts/smoke-desktop.mjs "$dest/AionUi.exe"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          mkdir installers
+          Copy-Item $installer[0].FullName installers/OpenGrowth-Windows-x64.exe
       - uses: actions/upload-artifact@v4
         with:
           name: installer-${{ matrix.os }}
-          path: ${{ matrix.artifact_glob }}
+          path: installers/
           if-no-files-found: error
 
   publish-release:
@@ -79,6 +106,9 @@ jobs:
       - name: Attach Installers to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release-artifacts/*
+          fail_on_unmatched_files: true
+          files: |
+            release-artifacts/OpenGrowth-macOS-arm64.dmg
+            release-artifacts/OpenGrowth-Windows-x64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
