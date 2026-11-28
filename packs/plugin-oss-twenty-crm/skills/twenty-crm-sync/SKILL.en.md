@@ -1,6 +1,6 @@
 ---
 name: twenty-crm-sync
-description: Sync qualified leads from BiaoMai Lingshu to self-hosted Twenty CRM or Atomic CRM
+description: Sync qualified leads from OpenGrowth to self-hosted Twenty CRM or Atomic CRM
 ---
 
 # Twenty / Atomic Open-Source CRM Sync

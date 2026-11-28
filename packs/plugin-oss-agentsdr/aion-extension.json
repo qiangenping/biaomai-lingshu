@@ -9,7 +9,7 @@
     "zh-CN": "封装 MIT 开源理念 AgentSDR：打通 Email + LinkedIn + WhatsApp 外贸三剑客协同触达与统一线索状态推进。",
     "en-US": "Wraps MIT AgentSDR workflow: unified Email, LinkedIn, and WhatsApp outreach coordination synced into Lead CRM."
   },
-  "author": "BiaoMai Lingshu & AgentSDR (MIT)",
+  "author": "OpenGrowth & AgentSDR (MIT)",
   "license": "MIT",
   "category": "leadgen",
   "i18n": { "localesDir": "i18n", "defaultLocale": "en-US" },

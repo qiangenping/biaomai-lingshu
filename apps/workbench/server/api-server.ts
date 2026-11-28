@@ -185,7 +185,7 @@ export function createWorkbenchApiServer(options: ApiServerOptions = {}) {
         const locale = (body.locale === 'en-US' ? 'en-US' : 'zh-CN') as Locale;
 
         // Load real SKILL.zh.md / SKILL.en.md from active pack
-        let systemPrompt = 'You are BiaoMai Lingshu Autonomous Lead-Gen AI.';
+        let systemPrompt = 'You are OpenGrowth Autonomous Lead-Gen AI.';
         const leadgen = packLoader.get('pack-leadgen-ops');
         const assistant = leadgen?.manifest.contributes.assistants.find((a) => a.id === assistantId);
         if (leadgen && assistant) {

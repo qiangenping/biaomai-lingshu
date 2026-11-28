@@ -9,7 +9,7 @@
     "zh-CN": "封装开源 MIT 项目 omkarcloud/google-maps-scraper：按行业与国家/城市批量采集海外商家名称、官网、电话与评分，免付费 Maps API。",
     "en-US": "Wraps MIT-licensed omkarcloud/google-maps-scraper for bulk local business discovery by niche and city without paid Maps API keys."
   },
-  "author": "BiaoMai Lingshu & Omkar Cloud (MIT)",
+  "author": "OpenGrowth & Omkar Cloud (MIT)",
   "license": "MIT",
   "category": "leadgen",
   "i18n": { "localesDir": "i18n", "defaultLocale": "en-US" },

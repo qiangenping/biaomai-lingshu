@@ -1,4 +1,4 @@
-# BiaoMai Lingshu — Global Open-Source Roadmap
+# OpenGrowth — Global Open-Source Roadmap
 
 > **Mission**: Build the world's #1 open-source, local-first, zero-Docker AI customer acquisition & outbound growth workbench — **built by global developers, for global builders.**
 
@@ -27,7 +27,7 @@ Turn the local Kanban Lead CRM into a universal hub that syncs seamlessly with w
 - [ ] **v1.3 (Community)**: Automated enrichment webhooks (email verification, company domain lookup, LinkedIn profile matching)
 
 ### Track 3: Global Languages & Regional Localization (`i18n`)
-Make BiaoMai Lingshu feel native in every major market.
+Make OpenGrowth feel native in every major market.
 
 - [x] **v1.0**: English (`en-US`), Simplified Chinese (`zh-CN`)
 - [ ] **v1.1 (Good First Issue)**: Spanish (`es`), Japanese (`ja`), German (`de`), Korean (`ko`), Portuguese (`pt-BR`)
@@ -62,6 +62,6 @@ Package vertical-specific prompts, workflows, motion templates, and channel play
 
 - **Small improvements & bug fixes**: Open a PR directly — we review within 48 hours.
 - **New channels, CRM connectors, or `.bmpack` plugins**: Open an issue with the [Plugin / Channel Proposal template](./.github/ISSUE_TEMPLATE/plugin_channel_proposal.yml) or comment on an existing roadmap issue so contributors don't duplicate effort.
-- **Major architecture RFCs**: Start a thread in [GitHub Discussions](https://github.com/qiangenping/biaomai-lingshu/discussions).
+- **Major architecture RFCs**: Start a thread in [GitHub Discussions](https://github.com/qiangenping/opengrowth/discussions).
 
 Let's build the global open-source growth engine together!

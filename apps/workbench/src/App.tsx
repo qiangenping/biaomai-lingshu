@@ -348,7 +348,7 @@ export const App: React.FC = () => {
     <div className="bm-shell">
       <header className="bm-topbar">
         <div className="bm-topbar-left">
-          <span className="bm-brand">{isZh ? '👁️ 标脉灵枢 AI 工作台' : '👁️ BiaoMai Lingshu Workbench'}</span>
+          <span className="bm-brand">{isZh ? '👁️ 标脉灵枢 AI 工作台' : '👁️ OpenGrowth Workbench'}</span>
           <select
             className="bm-select"
             aria-label="Active Pack"

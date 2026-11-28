@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-echo "=== BiaoMai Lingshu Bootstrap ==="
+echo "=== OpenGrowth Bootstrap ==="
 for cmd in node pnpm bun git; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "❌ Missing required tool: $cmd"
@@ -20,4 +20,4 @@ pnpm setup
 echo "Running governance, i18n, and unit test checks..."
 pnpm verify:all
 
-echo "✅ Bootstrap complete! Run 'pnpm dev:aionui' (or 'pnpm start') to launch BiaoMai Lingshu."
+echo "✅ Bootstrap complete! Run 'pnpm dev:aionui' (or 'pnpm start') to launch OpenGrowth."

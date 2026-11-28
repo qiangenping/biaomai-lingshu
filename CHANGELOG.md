@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **BiaoMai Lingshu (标脉灵枢)** are documented in this file.
+All notable changes to **OpenGrowth (标脉灵枢)** are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -15,6 +15,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Hot-Pluggable Open-Source Plugins**: Added `plugin-oss-twenty-crm` and `plugin-oss-openmotion` (with 1-click local full OpenMotion Studio lifecycle control), plus full `/` slash command availability and automatic `zh-CN` / `en-US` localization.
 
 ### Changed
-- Unified flat button design system (`flat-buttons.css`), full-width responsive layouts, BiaoMai Lingshu brand logo (`app.png`), theme cover (`biaomai-theme.svg`), and About links (`biao5fen.com`, `genpingqian@gmail.com`, `github.com/qiangenping/biaomai-lingshu`).
+- Unified flat button design system (`flat-buttons.css`), full-width responsive layouts, OpenGrowth brand logo (`app.png`), theme cover (`biaomai-theme.svg`), and About links (`biao5fen.com`, `genpingqian@gmail.com`, `github.com/qiangenping/opengrowth`).
 - Removed unused AiToEarn MCP settings UI and redesigned Settings into a clean 3-tab modal with live system model sync and 1-click key clearing.
 - Eliminated startup lazy-load spinner flash on `/leadgen` and added inline font-family/theme styles in `index.html` to prevent FOUC.

@@ -1,8 +1,8 @@
-# Contributing to BiaoMai Lingshu (`biaomai-lingshu`)
+# Contributing to OpenGrowth (`opengrowth`)
 
 English | [简体中文](./CONTRIBUTING.zh-CN.md)
 
-Welcome! **BiaoMai Lingshu** is on a mission to build the world's best open-source, local-first AI customer acquisition & outbound growth workbench — **together with developers, growth engineers, designers, and marketers worldwide.**
+Welcome! **OpenGrowth** is on a mission to build the world's best open-source, local-first AI customer acquisition & outbound growth workbench — **together with developers, growth engineers, designers, and marketers worldwide.**
 
 Every contribution matters, whether you are adding a regional social channel, translating UI strings, building a CRM connector, authoring a `.bmpack` industry playbook, or improving the Electron + React core.
 
@@ -12,8 +12,8 @@ Every contribution matters, whether you are adding a regional social channel, tr
 
 ### 1. Fork & Clone
 ```bash
-git clone https://github.com/<your-username>/biaomai-lingshu.git
-cd biaomai-lingshu
+git clone https://github.com/<your-username>/opengrowth.git
+cd opengrowth
 pnpm install
 ```
 
@@ -38,7 +38,7 @@ pnpm dev:workbench
 
 ## 4 High-Impact Ways to Contribute
 
-Pick a track that matches your skills and check our [Good First Issues](https://github.com/qiangenping/biaomai-lingshu/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [Global Roadmap](./ROADMAP.md):
+Pick a track that matches your skills and check our [Good First Issues](https://github.com/qiangenping/opengrowth/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [Global Roadmap](./ROADMAP.md):
 
 | Track | What to Build | Where in the Repo | Difficulty |
 | :--- | :--- | :--- | :--- |
@@ -52,7 +52,7 @@ Pick a track that matches your skills and check our [Good First Issues](https://
 ## Repository Map
 
 ```text
-biaomai-lingshu/
+opengrowth/
 ├── apps/workbench/          # React + TypeScript 6+1 Global Lead-Gen Workbench UI
 ├── packages/
 │   ├── plugin-sdk/          # .bmpack manifest & plugin authoring SDK
@@ -91,8 +91,8 @@ Before opening a Pull Request:
 
 ## Community & Maintainer Contact
 
-- **GitHub Discussions**: https://github.com/qiangenping/biaomai-lingshu/discussions
-- **Issues & Proposals**: https://github.com/qiangenping/biaomai-lingshu/issues
+- **GitHub Discussions**: https://github.com/qiangenping/opengrowth/discussions
+- **Issues & Proposals**: https://github.com/qiangenping/opengrowth/issues
 - **Website**: https://biao5fen.com
 - **Maintainer Email**: `genpingqian@gmail.com`
 
