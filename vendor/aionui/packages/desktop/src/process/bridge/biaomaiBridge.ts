@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2026 BiaoMai Lingshu Contributors
+ * Copyright 2026 OpenGrowth Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -893,10 +893,10 @@ export function initBiaoMaiBridge(): void {
       }
       try {
         const body = webhookUrl.includes('feishu') || webhookUrl.includes('lark')
-          ? { msg_type: 'text', content: { text: `【标脉灵枢】${title}\n${content}` } }
+          ? { msg_type: 'text', content: { text: `【OpenGrowth】${title}\n${content}` } }
           : webhookUrl.includes('dingtalk')
-            ? { msgtype: 'text', text: { content: `【标脉灵枢】${title}\n${content}` } }
-            : { msgtype: 'text', text: { content: `【标脉灵枢】${title}\n${content}` } };
+            ? { msgtype: 'text', text: { content: `【OpenGrowth】${title}\n${content}` } }
+            : { msgtype: 'text', text: { content: `【OpenGrowth】${title}\n${content}` } };
 
         const res = await fetch(webhookUrl, {
           method: 'POST',
@@ -985,7 +985,7 @@ export function initBiaoMaiBridge(): void {
           const res = await fetch(base, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ source: 'biaomai-lingshu', leads: payload.leads }),
+            body: JSON.stringify({ source: 'opengrowth', leads: payload.leads }),
             signal: AbortSignal.timeout(12000),
           });
           return res.ok
@@ -1066,7 +1066,7 @@ export function initBiaoMaiBridge(): void {
         studioUrl?: string;
       }
     ) => {
-      const safeTitle = (payload.title || 'BiaoMai Lingshu Motion').trim();
+      const safeTitle = (payload.title || 'OpenGrowth Motion').trim();
       const safeBody = (payload.body || safeTitle).trim();
       const lines = safeBody
         .split(/\n+/)
@@ -1091,7 +1091,7 @@ export function initBiaoMaiBridge(): void {
         `- Text: ${valueProp}`,
         '',
         '## Shot 3 (6.0s - 9.0s) · Call To Action',
-        `- Visual: Pulsing CTA pill & BiaoMai Lingshu watermark`,
+        `- Visual: Pulsing CTA pill & OpenGrowth watermark`,
         `- Text: ${cta}`,
       ].join('\n');
 

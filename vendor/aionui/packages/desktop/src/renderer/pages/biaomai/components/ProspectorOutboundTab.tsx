@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2026 BiaoMai Lingshu Contributors
+ * Copyright 2026 OpenGrowth Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 

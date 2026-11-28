@@ -3,7 +3,7 @@
   "displayName": "OpenOutreach AI 寻客插件 (eracle/OpenOutreach)",
   "version": "1.0.0",
   "description": "封装 Apache-2.0 开源项目 eracle/OpenOutreach：根据我方产品卖点自动评估目标企业 ICP 匹配度并生成个性化开发信破冰理由。",
-  "author": "BiaoMai Lingshu & OpenOutreach (Apache-2.0)",
+  "author": "OpenGrowth & OpenOutreach (Apache-2.0)",
   "license": "Apache-2.0",
   "category": "leadgen",
   "i18n": {

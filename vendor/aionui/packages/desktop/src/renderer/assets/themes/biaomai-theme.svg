@@ -17,6 +17,6 @@
   <circle cx="56" cy="22" r="5" fill="#10b981"/>
   <rect x="204" y="72" width="72" height="72" rx="18" fill="#ffffff"/>
   <text x="240" y="116" text-anchor="middle" fill="#2563eb" font-family="-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif" font-size="24" font-weight="800">标脉</text>
-  <text x="240" y="186" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif" font-size="28" font-weight="700" letter-spacing="2">标脉灵枢</text>
-  <text x="240" y="216" text-anchor="middle" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="13" font-weight="500">BiaoMai Lingshu · Global AI Lead-Gen</text>
+  <text x="240" y="186" text-anchor="middle" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif" font-size="28" font-weight="700" letter-spacing="2">OpenGrowth</text>
+  <text x="240" y="216" text-anchor="middle" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="13" font-weight="500">OpenGrowth · Global AI Lead-Gen</text>
 </svg>

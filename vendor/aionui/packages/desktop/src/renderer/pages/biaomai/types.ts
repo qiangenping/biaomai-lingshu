@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2026 BiaoMai Lingshu Contributors
+ * Copyright 2026 OpenGrowth Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -264,7 +264,7 @@ export const INDUSTRY_PRESETS: IndustryPreset[] = [
     nameEn: 'Global B2B SaaS & Tech',
     defaultB2bIndustry: 'B2B AI Automation Software',
     defaultCountry: 'Singapore',
-    defaultPitchZh: '标脉灵枢开源 AI 获客工作台：帮出海企业 1 人管理 17 大社媒 + 全球 B2B 客户开发闭环。',
+    defaultPitchZh: 'OpenGrowth开源 AI 获客工作台：帮出海企业 1 人管理 17 大社媒 + 全球 B2B 客户开发闭环。',
     defaultPitchEn: 'Open-source AI lead-gen workbench empowering lean global teams across 17 social + B2B channels.',
     recommendedPack: 'pack-leadgen-ops',
   },

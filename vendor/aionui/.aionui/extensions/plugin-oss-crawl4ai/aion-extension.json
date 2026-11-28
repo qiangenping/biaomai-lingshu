@@ -3,7 +3,7 @@
   "displayName": "Crawl4AI 全行业爬虫插件 (unclecode/crawl4ai)",
   "version": "1.0.0",
   "description": "封装 Apache-2.0 开源项目 unclecode/crawl4ai：将全球黄页、展会名录、政府招投标网站转换为结构化 Markdown/JSON 客户线索。",
-  "author": "BiaoMai Lingshu & UncleCode (Apache-2.0)",
+  "author": "OpenGrowth & UncleCode (Apache-2.0)",
   "license": "Apache-2.0",
   "category": "utility",
   "i18n": {

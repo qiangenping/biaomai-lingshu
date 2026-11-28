@@ -1,4 +1,4 @@
-# OpenGrowth (标脉灵枢) — Complete User Manual
+# OpenGrowth (OpenGrowth) — Complete User Manual
 
 This guide walks you through configuring your model and running the full end-to-end Inbound Content + Outbound B2B + CRM workflow locally.
 

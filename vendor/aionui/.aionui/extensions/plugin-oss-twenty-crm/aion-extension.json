@@ -3,7 +3,7 @@
   "displayName": "Twenty / Atomic 开源 CRM 连接器插件",
   "version": "1.0.0",
   "description": "对接 GitHub 热门开源 CRM（twentyhq/twenty 与 marmelab/atomic-crm），支持本地看板推进与 REST API 一键同步线索和商机。",
-  "author": "BiaoMai Lingshu Team",
+  "author": "OpenGrowth Team",
   "license": "Apache-2.0",
   "category": "leadgen",
   "i18n": {

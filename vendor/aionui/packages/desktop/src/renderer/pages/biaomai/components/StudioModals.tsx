@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2026 BiaoMai Lingshu Contributors
+ * Copyright 2026 OpenGrowth Contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -247,7 +247,7 @@ export const StudioModals: React.FC<StudioModalsProps> = ({
       </Modal>
 
       <Modal
-        title={isZh ? '标脉灵枢 · 全行业全球获客系统使用指南' : 'BiaoMai Lingshu · Quick Operating Guide'}
+        title={isZh ? 'OpenGrowth · 全行业全球获客系统使用指南' : 'OpenGrowth · Quick Operating Guide'}
         visible={guideModalOpen}
         onCancel={() => setGuideModalOpen(false)}
         onOk={() => setGuideModalOpen(false)}
