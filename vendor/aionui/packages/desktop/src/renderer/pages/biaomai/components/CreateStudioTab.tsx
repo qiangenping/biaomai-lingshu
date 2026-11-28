@@ -140,9 +140,37 @@ export const CreateStudioTab: React.FC<CreateStudioTabProps> = ({
           </div>
 
           <div className='flex flex-col gap-6px flex-1'>
-            <label className='text-12px font-500 text-t-secondary'>
-              {isZh ? '一句话产品卖点 / 客户痛点' : 'Product Pitch & Target ICP Pain Points'}
-            </label>
+            <div className='flex items-center justify-between gap-8px'>
+              <label className='text-12px font-500 text-t-secondary'>
+                {isZh ? '一句话产品卖点 / 客户痛点' : 'Product Pitch & Target ICP Pain Points'}
+              </label>
+              <Button
+                size='mini'
+                type='outline'
+                onClick={() => {
+                  const samplePitch = isZh
+                    ? 'OpenGrowth 开源 AI 获客工作台：零 Docker 本地运行，一键生成 17 平台图文与动效，内置 AI 浏览器自动提取评论意向与 B2B 客户邮箱，替代每月 $500+ 碎片化获客 SaaS。'
+                    : 'OpenGrowth: local-first, zero-Docker AI growth workbench replacing $500+/mo fragmented SaaS—1-click multilingual content, built-in AI browser, social intent radar, B2B prospector & Kanban CRM.';
+                  setTopicInput(samplePitch);
+                  if (!draftTitle.trim()) {
+                    setDraftTitle(
+                      isZh
+                        ? '为什么出海与 B2B 团队正在放弃碎片化获客 SaaS？'
+                        : 'Stop paying $500/mo for 6 disconnected lead-gen tools'
+                    );
+                  }
+                  if (!draftBody.trim()) {
+                    setDraftBody(
+                      isZh
+                        ? '用一套 100% 本地运行的开源桌面端，串联「内容创作 → 17 渠道分发 → 内置 AI 浏览器意向雷达 → B2B 寻客与看板 CRM」，数据与 Cookie 完全留在本地硬盘。'
+                        : 'Run your entire inbound + outbound pipeline locally on your desktop: generate multilingual copy + OpenMotion visuals, capture live buyer intent in the built-in AI browser, enrich B2B leads with MX verification, and sync directly to Kanban CRM.'
+                    );
+                  }
+                }}
+              >
+                {isZh ? '✨ 一键填入示例' : '✨ Try Sample Pitch'}
+              </Button>
+            </div>
             <TextArea
               rows={5}
               value={topicInput}

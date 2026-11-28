@@ -73,6 +73,13 @@ flowchart LR
 
 ## 3 分钟快速开始
 
+### 方式 A：直接下载桌面端安装包（推荐，免配置环境）
+前往 [GitHub Releases v1.0.2](https://github.com/qiangenping/opengrowth/releases/tag/v1.0.2) 一键下载：
+- **macOS (Apple Silicon arm64)**：[`OpenGrowth-macOS-arm64.dmg`](https://github.com/qiangenping/opengrowth/releases/download/v1.0.2/OpenGrowth-macOS-arm64.dmg)
+- **Windows (x64)**：[`OpenGrowth-Windows-x64.exe`](https://github.com/qiangenping/opengrowth/releases/download/v1.0.2/OpenGrowth-Windows-x64.exe)
+
+### 方式 B：从源码运行（开发者）
+
 > 环境要求：Node.js `>= 20`、pnpm `>= 9`、Bun `>= 1.1`（桌面端 Electron 运行时依赖）。
 
 ```bash

@@ -149,7 +149,14 @@ Switch industry presets anytime from the top bar:
 
 ## Quick Start (3 Minutes)
 
-### Prerequisites
+### Option A: 1-Click Desktop Installer (No Coding Required)
+Download the latest **`v1.0.2`** native installer directly from [GitHub Releases](https://github.com/qiangenping/opengrowth/releases/tag/v1.0.2):
+- **macOS (Apple Silicon arm64)**: [`OpenGrowth-macOS-arm64.dmg`](https://github.com/qiangenping/opengrowth/releases/download/v1.0.2/OpenGrowth-macOS-arm64.dmg)
+- **Windows (x64)**: [`OpenGrowth-Windows-x64.exe`](https://github.com/qiangenping/opengrowth/releases/download/v1.0.2/OpenGrowth-Windows-x64.exe)
+
+### Option B: Run from Source (Developers)
+
+#### Prerequisites
 - **Node.js** `>= 20`
 - **pnpm** `>= 9`
 - **Bun** `>= 1.1` (used by the desktop Electron runtime)
