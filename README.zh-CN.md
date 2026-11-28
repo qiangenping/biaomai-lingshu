@@ -8,10 +8,12 @@
   <p><strong>面向全球市场的开源、免 Docker 全链路 AI 获客工作台</strong></p>
   <p><em>用一套 100% 本地运行的桌面软件，替代每月 $500+ 的碎片化获客 SaaS：一键多语内容与动效创作 · 17 大全球/国内社媒矩阵 · 内置 AI 浏览器 · 社媒意向雷达 · 全球 B2B 寻客 · 看板 CRM 与开源同步。</em></p>
 
+  <p><strong><a href="https://github.com/qiangenping/opengrowth/releases/latest/download/OpenGrowth-macOS-arm64.dmg">下载 macOS 安装包（Apple 芯片）</a> · <a href="https://github.com/qiangenping/opengrowth/releases/latest/download/OpenGrowth-Windows-x64.exe">下载 Windows 安装包（x64）</a></strong></p>
+
   <p>
     <a href="https://biao5fen.com"><img src="https://img.shields.io/badge/官网-biao5fen.com-4F46E5?style=flat-square" alt="Website" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/协议-Apache_2.0-10B981?style=flat-square" alt="Apache-2.0" /></a>
-    <a href="https://github.com/qiangenping/opengrowth/releases/tag/v1.0.1"><img src="https://img.shields.io/badge/版本-v1.0.1-2563EB?style=flat-square" alt="v1.0.1" /></a>
+    <a href="https://github.com/qiangenping/opengrowth/releases/latest"><img src="https://img.shields.io/badge/版本-v1.0.2-2563EB?style=flat-square" alt="v1.0.2" /></a>
     <a href="https://github.com/qiangenping/opengrowth/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qiangenping/opengrowth/ci.yml?style=flat-square&label=CI" alt="CI Status" /></a>
     <a href="https://github.com/qiangenping/opengrowth/stargazers"><img src="https://img.shields.io/github/stars/qiangenping/opengrowth?style=flat-square&color=F59E0B" alt="GitHub Stars" /></a>
     <a href="./README.md"><img src="https://img.shields.io/badge/Docs-English-0F172A?style=flat-square" alt="English" /></a>
@@ -19,7 +21,7 @@
   </p>
 
   <br />
-  <img src="./docs/assets/workbench-preview.png" alt="OpenGrowth AI 工作台真实界面" width="100%" />
+  <img src="./docs/assets/workbench-preview-zh.png" alt="OpenGrowth AI 工作台真实界面" width="100%" />
 </div>
 
 ---
