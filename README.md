@@ -22,11 +22,12 @@
   <img src="./docs/assets/workbench-preview.png" alt="OpenGrowth Workbench Live UI" width="100%" />
 
   <p>
-    <a href="#why-opengrowth">Why BiaoMai?</a> ·
+    <a href="#why-opengrowth">Why OpenGrowth?</a> ·
     <a href="#core-modules-deep-dive">Core Modules</a> ·
     <a href="#17-global--china-channels">17 Channels</a> ·
-    <a href="#micro-kernel-plugin-ecosystem">Plugin Ecosystem</a> ·
+    <a href="#micro-kernel-plugin-ecosystem-bmpack">Plugin Ecosystem</a> ·
     <a href="#quick-start-3-minutes">Quick Start</a> ·
+    <a href="#roadmap">Roadmap</a> ·
     <a href="#documentation">Documentation</a>
   </p>
 </div>
