@@ -21,7 +21,7 @@
 
   <!-- Brand Badge -->
   <rect x="64" y="48" width="52" height="52" rx="14" fill="#ffffff"/>
-  <text x="90" y="81" text-anchor="middle" fill="#2563eb" font-family="-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif" font-size="18" font-weight="800">标脉</text>
+  <text x="90" y="82" text-anchor="middle" fill="#2563eb" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="22" font-weight="800">OG</text>
   <text x="132" y="72" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, Inter, PingFang SC, sans-serif" font-size="24" font-weight="800">OpenGrowth</text>
   <text x="132" y="95" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="13" font-weight="500">Apache-2.0 · Zero-Docker · Local-First Desktop AI Workbench</text>
 
